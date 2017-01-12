@@ -96,21 +96,16 @@ public class DFDatabase
 	 * @param SQLStatement the SQL statement to execute backend side
 	 * @param delegate the delegate object that will respond to data changes.  This object must conform to the DFDatabaseCallbackDelegate interface
 	 */
-	public void execute(@NotNull DFSQL SQLStatement, DFDatabaseCallbackDelegate delegate)
+	public void execute(@NotNull DFSQL SQLStatement, @NotNull DFDatabaseCallbackDelegate delegate)
 	{
-		if (delegate == null)
-		{
-			print("Warning! You must give a callback delegate.  System will fall through now.");
-		}
-
-		if (SQLStatement == null || Objects.equals(SQLStatement.formattedSQLStatement(), ""))
+		if (Objects.equals(SQLStatement.formattedSQLStatement(), ""))
 		{
 			Map<String, String> errorInfo = new HashMap<>();
 			errorInfo.put(kMethodName, getMethodName());
-			errorInfo.put(kExpandedDescription, "DFDatabase cannot work with a null or empty DFSQL Object.");
+			errorInfo.put(kExpandedDescription, "DFDatabase cannot work with an empty DFSQL Object.");
 			if (delegate != null)
 			{
-				delegate.returnedData(null, new DFError(-3, "Null DFSQL object delivered", errorInfo));
+				delegate.returnedData(null, new DFError(-3, "Empty DFSQL object delivered", errorInfo));
 			}
 			return;
 		}
@@ -118,7 +113,7 @@ public class DFDatabase
 		DFWebServerDispatch.current.add(SQLStatement.formattedSQLStatement().contains("UPDATE") || SQLStatement.formattedSQLStatement().contains("INSERT") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, delegate);
 	}
 
-	public @NotNull String hashString(String decryptedString)
+	public @NotNull String hashString(@NotNull String decryptedString)
 	{
 		byte[] key = decryptedString.getBytes();
 		MessageDigest sha;
@@ -135,7 +130,7 @@ public class DFDatabase
 		}
 	}
 
-	public @NotNull String encryptString(String decryptedString)
+	public @NotNull String encryptString(@NotNull String decryptedString)
     {
 	    if (useEncryption)
 	    {
@@ -157,7 +152,7 @@ public class DFDatabase
 	    }
     }
 
-	public @NotNull String decryptString(String encryptedString)
+	public @NotNull String decryptString(@NotNull String encryptedString)
     {
 	    if (useEncryption)
 	    {
@@ -214,40 +209,21 @@ public class DFDatabase
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
 
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("`");
-		stringBuilder.append(ste[Integer.min(ste.length - 1, Integer.max(2, 0))].getMethodName());
-		if (1 > 0)
-		{
-			stringBuilder.append("(_:");
-			for (int i = 0; i < 1 - 1; i++)
-			{
-				stringBuilder.append(", _:");
-			}
-			stringBuilder.append(")`");
-		}
-
-		return stringBuilder.toString();
+		return "`" +
+			       ste[Integer.min(ste.length - 1, Integer.max(2, 0))].getMethodName() +
+			       "(_:" +
+			       ", _:" +
+			       ")`";
 	}
 
 	public @NotNull static String getMethodNameOfSuperMethod()
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
 
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("`");
-		stringBuilder.append(ste[Integer.min(ste.length - 1, Integer.max(0, 0))].getMethodName());
-		stringBuilder.append("(_:");
-		if (0 > 0)
-		{
-			for (int i = 0; i < 0 - 1; i++)
-			{
-				stringBuilder.append(", _:");
-			}
-		}
-		stringBuilder.append(")`");
-
-		return stringBuilder.toString();
+		return "`" +
+			       ste[Integer.min(ste.length - 1, Integer.max(0, 0))].getMethodName() +
+			       "(_:" +
+			       ")`";
 	}
 
 	public static void print(Object object)

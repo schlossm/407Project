@@ -1,6 +1,5 @@
 package database.WebServer;
 
-import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
 import database.DFSQL.DFSQL;
