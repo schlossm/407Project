@@ -7,5 +7,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/src/database/bcprov-ext-jdk15on-155.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/database/commons-crypto-1.0.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/database/gson-2.2.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/src/database/commons-crypto-1.0.0-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/database/gson-2.2.4-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>
