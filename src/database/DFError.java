@@ -15,15 +15,15 @@ public class DFError
 	/**
 	 * The error code
 	 */
-	final public int code;
+	private final int code;
 	/**
 	 * A human readable description of the error
 	 */
-	final public String description;
+	private final String description;
 	/**
 	 * Optional user information.  Strings only
 	 */
-	final public Map<String, String> userInfo;
+	private final Map<String, String> userInfo;
 	
 	public DFError(int code, String description, Map<String, String> userInfo)
 	{
