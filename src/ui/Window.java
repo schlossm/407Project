@@ -1,5 +1,7 @@
 package ui;
 
+import uikit.UIFont;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -8,23 +10,21 @@ import java.awt.*;
  */
 public class Window
 {
-
-	public Window()
+	private Window()
 	{
-		//1. Create the frame.
-		JFrame frame = new JFrame("FrameDemo");
+		JFrame frame = new JFrame("ABC");
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-	//2. Optional: What happens when the frame closes?
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setBounds(0, 0, screenSize.width, screenSize.height);
 
-	//3. Create components and put them in the frame.
-	//...create emptyLabel...
-		frame.getContentPane().add(emptyLabel, BorderLayout.CENTER);
-
-	//4. Size the frame.
-		frame.pack();
-
-	//5. Show it.
 		frame.setVisible(true);
+		new Login(frame);
+	}
+
+	public static void main(String[] args)
+	{
+		UIFont.loadIntoGE();
+		new Window();
 	}
 }
