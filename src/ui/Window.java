@@ -18,13 +18,14 @@ public class Window
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setBounds(0, 0, screenSize.width, screenSize.height);
 
-		frame.setVisible(true);
 		new Login(frame);
+		frame.setVisible(true);
 	}
 
 	public static void main(String[] args)
 	{
 		UIFont.loadIntoGE();
 		new Window();
+
 	}
 }
