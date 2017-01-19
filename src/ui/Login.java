@@ -7,9 +7,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.Objects;
 
 /**
@@ -22,6 +20,7 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 	private JButton loginButton;
 
 	private Object activeTextField;
+	private boolean typingPassword = true;
 
 	Login(JFrame frame)
 	{
@@ -32,13 +31,76 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 		loginPanel.setLayout(layout);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		loginPanel.setBorder(new EmptyBorder((int)(screenSize.getHeight() * 0.2), 40, 20, 20));
+		loginPanel.setBorder(new EmptyBorder((int) (screenSize.getHeight() * 0.2), 40, 20, 20));
+
+		frame.setFocusTraversalPolicy(new FocusTraversalPolicy()
+		{
+			@Override
+			public Component getComponentAfter(Container aContainer, Component aComponent)
+			{
+				if (aComponent == usernameField)
+				{
+					passwordField.selectAll();
+					return passwordField;
+				}
+				else if (aComponent == passwordField)
+				{
+					if (loginButton.isVisible())
+					{
+						return loginButton;
+					}
+					typingPassword = false;
+					return usernameField;
+				}
+				else if (aComponent == loginButton)
+				{
+					typingPassword = false;
+					return usernameField;
+				}
+
+				return null;
+			}
+
+			@Override
+			public Component getComponentBefore(Container aContainer, Component aComponent)
+			{
+				if (aComponent == usernameField)
+				{
+					if (loginButton.isVisible())
+					{
+						return loginButton;
+					}
+					passwordField.selectAll();
+					return passwordField;
+				}
+				else if (aComponent == passwordField)
+				{
+					typingPassword = false;
+					return usernameField;
+				}
+				else if (aComponent == loginButton)
+				{
+					typingPassword = false;
+					return passwordField;
+				}
+				return null;
+			}
+
+			@Override
+			public Component getFirstComponent(Container aContainer) { typingPassword = false; return usernameField; }
+
+			@Override
+			public Component getLastComponent(Container aContainer) { return passwordField; }
+
+			@Override
+			public Component getDefaultComponent(Container aContainer) { typingPassword = false; return null; }
+		});
 
 
 		//Title
 
 		JLabel title = new JLabel("ABC", JLabel.LEFT);
-		title.setFont(UIFont.displayHeavy.deriveFont(10.0f));
+		title.setFont(UIFont.displayHeavy.deriveFont(48.0f));
 		title.setAlignmentX(Component.LEFT_ALIGNMENT);
 		loginPanel.add(title);
 
@@ -56,7 +118,7 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 
 		usernameField = new JTextField("Username", 1);
 		usernameField.setFont(UIFont.textLight.deriveFont(10.0f));
-		usernameField.setMaximumSize(new Dimension(screenSize.width/5 * 4, 50));
+		usernameField.setMaximumSize(new Dimension(screenSize.width / 5 * 4, 50));
 		usernameField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		usernameField.addActionListener(this);
 		usernameField.getDocument().addDocumentListener(this);
@@ -79,7 +141,7 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 
 		passwordField = new JPasswordField("", 1);
 		passwordField.setFont(UIFont.textLight.deriveFont(10.0f));
-		passwordField.setMaximumSize(new Dimension(screenSize.width/5 * 4, 50));
+		passwordField.setMaximumSize(new Dimension(screenSize.width / 5 * 4, 50));
 		passwordField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		passwordField.addActionListener(this);
 		passwordField.getDocument().addDocumentListener(this);
@@ -98,7 +160,6 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 		loginButton.addActionListener(this);
 		loginButton.setMaximumSize(new Dimension(200, 44));
 		loginButton.setVisible(false);
-		loginButton.setFocusable(false);
 		loginPanel.add(loginButton);
 
 
@@ -106,8 +167,6 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 
 		frame.add(loginPanel);
 		loginPanel.setVisible(true);
-		usernameField.setFocusable(false);
-		passwordField.setFocusable(false);
 		title.requestFocus();
 	}
 
@@ -118,11 +177,25 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 		{
 			passwordField.requestFocus();
 		}
+		if (e.getSource() == passwordField)
+		{
+			typingPassword = false;
+			//TODO: Request Verification of user/pass combination
+		}
+		else if (e.getSource() == loginButton)
+		{
+			System.out.println("Login Button Clicked");
+			//TODO: Request Verification of user/pass combination
+		}
 	}
 
 	@Override
 	public void insertUpdate(DocumentEvent e)
 	{
+		if (activeTextField == passwordField && !typingPassword)
+		{
+			typingPassword = true;
+		}
 		if (!Objects.equals(usernameField.getText(), "") && !Objects.equals(usernameField.getText(), "Username") && passwordField.getPassword().length != 0)
 		{
 			loginButton.setVisible(true);
@@ -132,13 +205,18 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 	@Override
 	public void removeUpdate(DocumentEvent e)
 	{
+		if (activeTextField == passwordField && !typingPassword)
+		{
+			typingPassword = true;
+		}
 		if (Objects.equals(usernameField.getText(), "") || Objects.equals(usernameField.getText(), "Username") || passwordField.getPassword().length == 0)
 		{
 			loginButton.setVisible(false);
 		}
 	}
 
-	@Override public void changedUpdate(DocumentEvent e) { }
+	@Override
+	public void changedUpdate(DocumentEvent e) { }
 
 	@Override
 	public void mousePoint(MouseEvent action, MLMEventType eventType)
@@ -147,10 +225,9 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 		{
 			if (action.getSource().getClass() == JTextField.class)
 			{
-				JTextField field = ((JTextField)(action.getSource()));
-				field.setFocusable(true);
+				typingPassword = false;
+				JTextField field = ((JTextField) (action.getSource()));
 				field.requestFocus();
-				field.setFocusable(true);
 				if (Objects.equals(field.getText(), "Username"))
 				{
 					field.setForeground(Color.black);
@@ -160,21 +237,20 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 			}
 			else if (action.getSource().getClass() == JPasswordField.class)
 			{
-				JPasswordField field = (JPasswordField)(action.getSource());
-				if (field.getPassword().length != 0) field.selectAll();
-				field.setFocusable(true);
+				JPasswordField field = (JPasswordField) (action.getSource());
+				if (field.getPassword().length != 0 && !typingPassword) { field.selectAll(); }
 				field.requestFocus();
 				if (activeTextField == usernameField && Objects.equals(usernameField.getText(), ""))
 				{
 					usernameField.setForeground(Color.lightGray);
 					usernameField.setText("Username");
 				}
-				activeTextField = action.getSource();
+				activeTextField = field;
 			}
 			else if (action.getSource().getClass() == JPanel.class)
 			{
-				usernameField.setFocusable(false);
-				passwordField.setFocusable(false);
+				typingPassword = false;
+				((JPanel) (action.getSource())).requestFocus();
 				if (Objects.equals(usernameField.getText(), ""))
 				{
 					usernameField.setForeground(Color.lightGray);
@@ -182,23 +258,17 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 				}
 				activeTextField = null;
 			}
-			else if (action.getSource().getClass() == JButton.class)
-			{
-				loginButton.setFocusable(true);
-			}
 		}
 		else if (eventType == MLMEventType.released)
 		{
-			loginButton.setFocusable(false);
 			if (action.getSource().getClass() == JPasswordField.class)
 			{
-				JPasswordField field = (JPasswordField)(action.getSource());
-				if (field.getPassword().length != 0) field.selectAll();
+				JPasswordField field = (JPasswordField) (action.getSource());
+				if (field.getPassword().length != 0 && !typingPassword) { field.selectAll(); }
 			}
 			else if (action.getSource().getClass() == JPanel.class && activeTextField != null)
 			{
-				usernameField.setFocusable(false);
-				passwordField.setFocusable(false);
+				typingPassword = false;
 				if (Objects.equals(usernameField.getText(), ""))
 				{
 					usernameField.setForeground(Color.lightGray);
