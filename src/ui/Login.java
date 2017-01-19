@@ -7,7 +7,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.Objects;
 
 /**
@@ -26,6 +28,7 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 	{
 		JPanel loginPanel = new JPanel();
 		loginPanel.addMouseListener(new MouseListenerManager(this));
+		loginPanel.setBackground(Color.WHITE);
 		BoxLayout layout = new BoxLayout(loginPanel, BoxLayout.Y_AXIS);
 
 		loginPanel.setLayout(layout);
@@ -124,6 +127,7 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 		usernameField.getDocument().addDocumentListener(this);
 		usernameField.addMouseListener(new MouseListenerManager(this));
 		usernameField.setForeground(Color.lightGray);
+		usernameField.setBackground(Color.gray);
 		usernameField.setBorder(new EmptyBorder(0, 20, 0, 20));
 		loginPanel.add(usernameField);
 
@@ -147,6 +151,7 @@ class Login implements ActionListener, DocumentListener, MLMDelegate
 		passwordField.getDocument().addDocumentListener(this);
 		passwordField.addMouseListener(new MouseListenerManager(this));
 		passwordField.setBorder(new EmptyBorder(0, 20, 0, 20));
+		passwordField.setBackground(Color.gray);
 		loginPanel.add(passwordField);
 
 		loginPanel.add(Box.createRigidArea(new Dimension(0, 20)));
