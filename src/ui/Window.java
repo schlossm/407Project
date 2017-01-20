@@ -35,10 +35,6 @@ public class Window implements ActionListener, ItemListener
 		Login loginPanel = new Login(frame);
 		frame.add(loginPanel);
 
-		JButton quit = new JButton("Quit");
-		//quit.setMaximumSize(new Dimension(200, 44));
-		//frame.add(quit);
-
 		frame.setVisible(true);
 	}
 

@@ -8,14 +8,11 @@ interface MLMDelegate
 	public void mousePoint(MouseEvent action, MLMEventType eventType);
 }
 
-/**
- * Created by michaelschloss on 1/18/17.
- */
 public class MouseListenerManager implements MouseListener
 {
 	private MLMDelegate delegate;
 
-	public MouseListenerManager(MLMDelegate delegate)
+	MouseListenerManager(MLMDelegate delegate)
 	{
 		this.delegate = delegate;
 	}

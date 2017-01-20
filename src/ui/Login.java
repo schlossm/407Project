@@ -12,9 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.Objects;
 
-/**
- * The Login Panel
- */
 class Login extends JPanel implements ActionListener, DocumentListener, MLMDelegate
 {
 	private JTextField      usernameField;
@@ -38,7 +35,16 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			@Override
 			public Component getComponentAfter(Container aContainer, Component aComponent)
 			{
-				if (aComponent == usernameField)
+				if (aComponent == frame)
+				{
+					if (Objects.equals(usernameField.getText(), "Username"))
+					{
+						usernameField.setForeground(Color.white);
+						usernameField.setText("");
+					}
+					return usernameField;
+				}
+				else if (aComponent == usernameField)
 				{
 					if (Objects.equals(usernameField.getText(), ""))
 					{
@@ -82,7 +88,16 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			@Override
 			public Component getComponentBefore(Container aContainer, Component aComponent)
 			{
-				if (aComponent == usernameField)
+				if (aComponent == frame)
+				{
+					if (Objects.equals(usernameField.getText(), "Username"))
+					{
+						usernameField.setForeground(Color.white);
+						usernameField.setText("");
+					}
+					return usernameField;
+				}
+				else if (aComponent == usernameField)
 				{
 					if (Objects.equals(usernameField.getText(), ""))
 					{
@@ -219,7 +234,20 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		quitButton.setFont(UIFont.textLight.deriveFont(9.0f));
 		quitButton.addActionListener(this);
 		quitButton.setMaximumSize(new Dimension(200, 44));
-		quitButton.setVisible(true);
+
+		Action action = new AbstractAction("escape")
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				System.exit(0);
+			}
+		};
+
+		action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ESCAPE"));
+		quitButton.getActionMap().put("escape", action);
+		quitButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "escape");
+
 		this.add(quitButton);
 	}
 
@@ -235,7 +263,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			typingPassword = false;
 			this.requestFocus();
 			Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
-			incorrectPassword.addButton("OK", e1 ->
+			incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
 			{
 				usernameField.requestFocus();
 				usernameField.selectAll();
@@ -248,7 +276,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			System.out.println("Login Button Clicked");
 			this.requestFocus();
 			Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
-			incorrectPassword.addButton("OK", e12 ->
+			incorrectPassword.addButton("OK", ButtonType.defaultType, e12 ->
 			{
 				usernameField.requestFocus();
 				usernameField.selectAll();
@@ -324,17 +352,6 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 				}
 				activeTextField = field;
 			}
-			else if (action.getSource().getClass() == JPanel.class)
-			{
-				typingPassword = false;
-				((JPanel) (action.getSource())).requestFocus();
-				if (Objects.equals(usernameField.getText(), ""))
-				{
-					usernameField.setText("Username");
-					usernameField.setForeground(Color.lightGray);
-				}
-				activeTextField = null;
-			}
 		}
 		else if (eventType == MLMEventType.released)
 		{
@@ -343,9 +360,10 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 				JPasswordField field = (JPasswordField) (action.getSource());
 				if (field.getPassword().length != 0 && !typingPassword) { field.selectAll(); }
 			}
-			else if (action.getSource().getClass() == JPanel.class && activeTextField != null)
+			else if (action.getSource() == this && activeTextField != null)
 			{
 				typingPassword = false;
+				this.requestFocus();
 				if (Objects.equals(usernameField.getText(), ""))
 				{
 					usernameField.setText("Username");
