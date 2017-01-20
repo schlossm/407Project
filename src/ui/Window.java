@@ -63,6 +63,6 @@ public class Window implements ActionListener, ItemListener
 
 	static String convertToMultiline(String orig)
 	{
-		return "<html> <head> <style type=\"text/css\"> body { font-size: 14px; text-align: center; } </style> </head> <body>" + orig.replaceAll("\n", "<br>") + "</body> </html>";
+		return "<html> <head> <style type=\"text/css\"> body { font-family: SF UI Text; font-size: 12px; text-align: center; } </style> </head> <body>" + orig.replaceAll("\n", "<br>") + "</body> </html>";
 	}
 }
