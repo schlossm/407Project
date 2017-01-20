@@ -11,11 +11,12 @@ public class Window implements ActionListener, ItemListener
 	private Window()
 	{
 		JFrame frame = new JFrame("ABC");
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setBounds(0, 0, screenSize.width, screenSize.height);
+		frame.setBounds(screenSize.width/10, screenSize.height/10, screenSize.width/5 * 4, screenSize.height/5 * 4);
 		frame.setBackground(Color.WHITE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setUndecorated(true);
 
 		/*
 		JMenuBar menuBar = new JMenuBar();
@@ -31,7 +32,13 @@ public class Window implements ActionListener, ItemListener
 
 		frame.setJMenuBar(menuBar);*/
 
-		new Login(frame);
+		Login loginPanel = new Login(frame);
+		frame.add(loginPanel);
+
+		JButton quit = new JButton("Quit");
+		//quit.setMaximumSize(new Dimension(200, 44));
+		//frame.add(quit);
+
 		frame.setVisible(true);
 	}
 
@@ -56,5 +63,10 @@ public class Window implements ActionListener, ItemListener
 	public void itemStateChanged(ItemEvent e)
 	{
 		System.out.println(e.getSource());
+	}
+
+	static String convertToMultiline(String orig)
+	{
+		return "<html> <head> <style type=\"text/css\"> body { font-size: 14px; text-align: center; } </style> </head> <body>" + orig.replaceAll("\n", "<br>") + "</body> </html>";
 	}
 }
