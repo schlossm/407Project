@@ -30,12 +30,13 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		this.setBackground(Color.WHITE);
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.setBorder(new EmptyBorder((int) (frame.getHeight() * 0.2), 40, 20, 40));
+		JPanel loginPan = this;
 
 		frame.setFocusTraversalPolicy(new FocusTraversalPolicy() {
 			@Override
 			public Component getComponentAfter(Container aContainer, Component aComponent)
 			{
-				if (aComponent == frame)
+				if (aComponent == frame || aComponent == loginPan)
 				{
 					if (Objects.equals(usernameField.getText(), "Username"))
 					{
@@ -88,7 +89,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			@Override
 			public Component getComponentBefore(Container aContainer, Component aComponent)
 			{
-				if (aComponent == frame)
+				if (aComponent == frame || aComponent == loginPan)
 				{
 					if (Objects.equals(usernameField.getText(), "Username"))
 					{
@@ -273,7 +274,6 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		}
 		else if (e.getSource() == loginButton)
 		{
-			System.out.println("Login Button Clicked");
 			this.requestFocus();
 			Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
 			incorrectPassword.addButton("OK", ButtonType.defaultType, e12 ->
