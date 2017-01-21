@@ -12,22 +12,25 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
+import static java.lang.Integer.max;
+
+@SuppressWarnings("unused")
 enum ButtonType
 {
-	defaultType, cancel, plain
+	defaultType, cancel, plain, destructive
 }
 
 @SuppressWarnings("SuspiciousMethodCalls")
 class Alert implements KeyListener
 {
-	private JPanel alert;
-	private JPanel buttonPanel;
-	private JFrame dimView;
-	private JDialog dialog;
-	private int numButtons;
-	private ArrayList<JButton> buttons = new ArrayList<>();
-	private boolean hasCancelAction = false;
-	private boolean hasDefaultAction = false;
+	private JPanel              alert;
+	private JPanel              buttonPanel;
+	private JFrame              dimView;
+	private JDialog             dialog;
+	private int                 numButtons;
+	private ArrayList<JButton>  buttons             = new ArrayList<>();
+	private boolean             hasCancelAction     = false;
+	private boolean             hasDefaultAction    = false;
 
 	Alert(@Nullable String title, @Nullable String message)
 	{
@@ -76,11 +79,10 @@ class Alert implements KeyListener
 
 		JButton button = new JButton(text);
 		button.setFont(UIFont.textLight.deriveFont(9.0f));
-		button.setPreferredSize(new Dimension(400, 44));
 		button.setMaximumSize(new Dimension(400, 44));
 		if (type == ButtonType.defaultType)
 		{
-			button.setFont(UIFont.textRegular.deriveFont(9.0f));
+			button.setFont(UIFont.textBold.deriveFont(9.0f));
 			hasDefaultAction = true;
 			Action action = new AbstractAction("complete")
 			{
@@ -101,7 +103,7 @@ class Alert implements KeyListener
 		}
 		else if (type == ButtonType.cancel)
 		{
-			button.setForeground(Color.red);
+			button.setFont(UIFont.textRegular.deriveFont(9.0f));
 			hasCancelAction = true;
 			Action action = new AbstractAction("escape")
 			{
@@ -116,6 +118,10 @@ class Alert implements KeyListener
 			action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ESCAPE"));
 			button.getActionMap().put("escape", action);
 			button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "escape");
+		}
+		else if (type == ButtonType.destructive)
+		{
+			button.setForeground(Color.RED);
 		}
 		if (numButtons < 3) { button.setAlignmentY(Component.CENTER_ALIGNMENT); }
 		else { button.setAlignmentX(Component.CENTER_ALIGNMENT); }
@@ -230,7 +236,29 @@ class Alert implements KeyListener
 		dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		dialog.setBounds(screenSize.width / 2 - 200, screenSize.height / 2 - dialog.getPreferredSize().height / 2, 400, dialog.getPreferredSize().height);
+		if (buttons.size() == 2)
+		{
+			int width = 0;
+
+			for (JButton button : buttons)
+			{
+				if (button.getPreferredSize().width > width)
+				{
+					width = button.getPreferredSize().width;
+				}
+			}
+
+			for (JButton button : buttons)
+			{
+				button.setPreferredSize(new Dimension(width, 44));
+			}
+
+			dialog.setBounds(screenSize.width / 2 - max(width + 44, 200), screenSize.height / 2 - dialog.getPreferredSize().height / 2, max(width*2 + 88, 400), dialog.getPreferredSize().height);
+		}
+		else
+		{
+			dialog.setBounds(screenSize.width / 2 - 200, screenSize.height / 2 - dialog.getPreferredSize().height / 2, 400, dialog.getPreferredSize().height);
+		}
 		dialog.setVisible(true);
 	}
 
