@@ -4,39 +4,45 @@ import uikit.UIFont;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
-public class Window implements ActionListener, ItemListener
+public class Window
 {
+	static Window current;
+
+	private JFrame loginFrame;
+	private JFrame mainScreen;
+
 	private Window()
 	{
-		JFrame frame = new JFrame("ABC");
+		current = this;
+		loginFrame = new JFrame("ABC");
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setBounds(screenSize.width/10, screenSize.height/10, screenSize.width/5 * 4, screenSize.height/5 * 4);
-		frame.setBackground(Color.WHITE);
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setUndecorated(true);
+		loginFrame.setBounds(screenSize.width/10, screenSize.height/10, screenSize.width/5 * 4, screenSize.height/5 * 4);
+		loginFrame.setBackground(Color.WHITE);
+		loginFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		loginFrame.setUndecorated(true);
 
-		/*
-		JMenuBar menuBar = new JMenuBar();
-		JMenu file = new JMenu("File");
-		menuBar.add(file);
+		Login loginPanel = new Login(loginFrame);
+		loginFrame.add(loginPanel);
 
-		JMenuItem newMenuItem = new JMenuItem("Quit", KeyEvent.VK_Q);
-		newMenuItem.setMnemonic(KeyEvent.VK_Q);
-		newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK));
-		file.addActionListener(this);
-		file.addItemListener(this);
-		file.add(newMenuItem);
-
-		frame.setJMenuBar(menuBar);*/
-
-		Login loginPanel = new Login(frame);
-		frame.add(loginPanel);
-
-		frame.setVisible(true);
+		loginFrame.setVisible(true);
 	}
+
+	void postLogin()
+	{
+		mainScreen = new JFrame("ABC");
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		mainScreen.setBounds(0, 0, screenSize.width, screenSize.height);
+		mainScreen.setBackground(Color.WHITE);
+		mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+
+
+		mainScreen.setVisible(true);
+		loginFrame.setVisible(false);
+	}
+
 
 	public static void main(String[] args)
 	{
@@ -46,19 +52,6 @@ public class Window implements ActionListener, ItemListener
 		}
 		UIFont.loadIntoGE();
 		new Window();
-
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		System.out.println(e.getSource());
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e)
-	{
-		System.out.println(e.getSource());
 	}
 
 	static String convertToMultiline(String orig)

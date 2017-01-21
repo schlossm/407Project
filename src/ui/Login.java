@@ -274,14 +274,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		}
 		else if (e.getSource() == loginButton)
 		{
-			this.requestFocus();
-			Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
-			incorrectPassword.addButton("OK", ButtonType.defaultType, e12 ->
-			{
-				usernameField.requestFocus();
-				usernameField.selectAll();
-			});
-			incorrectPassword.show(presentingFrame);
+			Window.current.postLogin();
 			//TODO: Request Verification of user/pass combination
 		}
 		else if (e.getSource() == quitButton)
