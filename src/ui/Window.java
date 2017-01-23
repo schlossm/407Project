@@ -5,14 +5,14 @@ import ui.main.ABCTabBar;
 import javax.swing.*;
 import java.awt.*;
 
-public class Window
+class Window
 {
 	static Window current;
 
 	private JFrame loginFrame;
 	private JFrame mainScreen;
 
-	public Window()
+	Window()
 	{
 		current = this;
 		loginFrame = new JFrame("ABC");

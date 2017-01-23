@@ -53,10 +53,9 @@ class Alert implements KeyListener
 			messageLabel.setFont(UIFont.textRegular.deriveFont(12.0f));
 			messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			alert.add(messageLabel);
-			alert.add(Box.createRigidArea(new Dimension(0, 30)));
 		}
 
-		alert.setMinimumSize(new Dimension(400, 0));
+		alert.setMinimumSize(new Dimension(400, 80));
 	}
 
 	void addButton(String text, ButtonType type, ActionListener handler)
@@ -65,6 +64,8 @@ class Alert implements KeyListener
 		{
 			buttonPanel = new JPanel();
 			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+			buttonPanel.setBorder(new EmptyBorder(40, 40, 0, 40));
+			buttonPanel.setMinimumSize(new Dimension(44, 84));
 		}
 		numButtons++;
 		if (numButtons == 3)
@@ -132,7 +133,6 @@ class Alert implements KeyListener
 			                         dialog.dispose();
 		                         });
 		buttonPanel.add(button);
-		buttonPanel.setMinimumSize(new Dimension(44, 44));
 		buttons.add(button);
 	}
 
@@ -253,11 +253,11 @@ class Alert implements KeyListener
 				button.setPreferredSize(new Dimension(width, 44));
 			}
 
-			dialog.setBounds(screenSize.width / 2 - max(width + 44, 200), screenSize.height / 2 - dialog.getPreferredSize().height / 2, max(width*2 + 88, 400), dialog.getPreferredSize().height);
+			dialog.setBounds(screenSize.width / 2 - max(width + 44, 200), screenSize.height / 2 - dialog.getPreferredSize().height / 2 - 20, max(width*2 + 88, 400), dialog.getPreferredSize().height + 40);
 		}
 		else
 		{
-			dialog.setBounds(screenSize.width / 2 - 200, screenSize.height / 2 - dialog.getPreferredSize().height / 2, 400, dialog.getPreferredSize().height);
+			dialog.setBounds(screenSize.width / 2 - 200, screenSize.height / 2 - dialog.getPreferredSize().height / 2 - 20, 400, dialog.getPreferredSize().height + 40);
 		}
 		dialog.setVisible(true);
 	}

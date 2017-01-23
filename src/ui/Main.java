@@ -2,9 +2,6 @@ package ui;
 
 import uikit.UIFont;
 
-/**
- * Created by michaelschloss on 1/23/17.
- */
 public class Main
 {
 	public static void main(String[] args)
