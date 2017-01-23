@@ -1,6 +1,6 @@
 package ui;
 
-import uikit.UIFont;
+import ui.main.ABCTabBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +12,7 @@ public class Window
 	private JFrame loginFrame;
 	private JFrame mainScreen;
 
-	private Window()
+	public Window()
 	{
 		current = this;
 		loginFrame = new JFrame("ABC");
@@ -37,21 +37,10 @@ public class Window
 		mainScreen.setBackground(Color.WHITE);
 		mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-
+		mainScreen.add(new ABCTabBar());
 
 		mainScreen.setVisible(true);
 		loginFrame.setVisible(false);
-	}
-
-
-	public static void main(String[] args)
-	{
-		if (System.getProperty("os.name").contains("Mac") || System.getProperty("os.name").contains("mac"))
-		{
-			System.setProperty("apple.laf.useScreenMenuBar", "true");
-		}
-		UIFont.loadIntoGE();
-		new Window();
 	}
 
 	static String convertToMultiline(String orig)
