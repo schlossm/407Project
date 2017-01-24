@@ -3,16 +3,11 @@ package ui;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-interface MLMDelegate
-{
-	public void mousePoint(MouseEvent action, MLMEventType eventType);
-}
-
 public class MouseListenerManager implements MouseListener
 {
 	private MLMDelegate delegate;
 
-	MouseListenerManager(MLMDelegate delegate)
+	public MouseListenerManager(MLMDelegate delegate)
 	{
 		this.delegate = delegate;
 	}
