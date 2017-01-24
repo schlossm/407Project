@@ -94,7 +94,6 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 		}
 
 		final int spaceBetweenEachButton = leftoverWidth/buttons.size();
-		System.out.println(spaceBetweenEachButton);
 
 		for (JLabel button: buttons)
 		{
@@ -103,10 +102,38 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 		}
 	}
 
+	private JLabel activeLabel;
+
 	@Override
 	public void mousePoint(MouseEvent action, MLMEventType eventType)
 	{
-		System.out.println(action.getSource());
+		if (eventType == MLMEventType.pressed)
+		{
+			activeLabel = (JLabel)action.getSource();
+			activeLabel.setOpaque(true);
+			activeLabel.setBackground(Color.lightGray);
+		}
+		else if (eventType == MLMEventType.draggedIn)
+		{
+			if (action.getSource() != activeLabel) return;
+			activeLabel.setOpaque(true);
+			activeLabel.setBackground(Color.lightGray);
+		}
+		else if (eventType == MLMEventType.released)
+		{
+
+			if (action.getSource() != activeLabel || !activeLabel.isOpaque()) return;
+			activeLabel.setOpaque(false);
+			activeLabel.setBackground(new Color(0,0,0,0));
+			activeLabel = null;
+			//TODO: Process Click
+		}
+		else if (eventType == MLMEventType.draggedOut)
+		{
+			if (action.getSource() != activeLabel) return;
+			activeLabel.setOpaque(false);
+			activeLabel.setBackground(new Color(0,0,0,0));
+		}
 	}
 }
 
