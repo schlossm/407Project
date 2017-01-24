@@ -1,6 +1,9 @@
 package ui;
 
+import uikit.TimeManager;
 import uikit.UIFont;
+
+import static database.DFDatabase.queue;
 
 public class Main
 {
@@ -16,5 +19,20 @@ public class Main
 		catch (Exception ignored) { }
 		UIFont.loadIntoGE();
 		new Window();
+
+		new Thread(new TimeManager()).start();
+
+		while(true)
+		{
+			try
+			{
+				queue.take().run();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+				System.exit(-1);
+			}
+		}
 	}
 }
