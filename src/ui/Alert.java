@@ -49,7 +49,7 @@ class Alert implements KeyListener
 		}
 		if (message != null)
 		{
-			JLabel messageLabel = new JLabel(Window.convertToMultiline(message), JLabel.CENTER);
+			JLabel messageLabel = new JLabel(convertToMultiline(message), JLabel.CENTER);
 			messageLabel.setFont(UIFont.textRegular.deriveFont(12.0f));
 			messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			alert.add(messageLabel);
@@ -270,4 +270,9 @@ class Alert implements KeyListener
 
 	@Override
 	public void keyReleased(KeyEvent e) { }
+
+	private String convertToMultiline(String orig)
+	{
+		return "<html> <head> <style type=\"text/css\"> body { font-family: SF UI Text Regular; font-size: 12px; text-align: center; } </style> </head> <body>" + orig.replaceAll("\n", "<br>") + "</body> </html>";
+	}
 }

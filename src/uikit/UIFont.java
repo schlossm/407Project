@@ -12,33 +12,32 @@ import static java.awt.Font.createFont;
 {
 	//Display.  Size 32+
 
-	public static Font displayBlack;
-
-	public static Font displayBold;
-	public static Font displayHeavy;
-	public static Font displayLight;
-	public static Font displayMedium;
-	public static Font displayRegular;
-	public static Font displaySemibold;
-	public static Font displayThin;
-	public static Font displayUltralight;
+	public static Font displayBlack         ;
+	public static Font displayBold          ;
+	public static Font displayHeavy         ;
+	public static Font displayLight         ;
+	public static Font displayMedium        ;
+	public static Font displayRegular       ;
+	public static Font displaySemibold      ;
+	public static Font displayThin          ;
+	public static Font displayUltralight    ;
 
 	//Text.  Size 31-
 
-	public static Font textBold           ;
-	public static Font textBoldItalic     ;
-	public static Font textHeavy          ;
-	public static Font textHeavyItalic    ;
-	public static Font textLight          ;
-	public static Font textLightItalic    ;
-	public static Font textMedium         ;
-	public static Font textMediumItalic   ;
-	public static Font textRegular        ;
-	public static Font textRegularItalic  ;
-	public static Font textSemibold       ;
-	public static Font textSemiboldItalic ;
-	public static Font textUltrathin      ;
-	public static Font textUltrathinItalic;
+	public static Font textBold             ;
+	public static Font textBoldItalic       ;
+	public static Font textHeavy            ;
+	public static Font textHeavyItalic      ;
+	public static Font textLight            ;
+	public static Font textLightItalic      ;
+	public static Font textMedium           ;
+	public static Font textMediumItalic     ;
+	public static Font textRegular          ;
+	public static Font textRegularItalic    ;
+	public static Font textSemibold         ;
+	public static Font textSemiboldItalic   ;
+	public static Font textUltrathin        ;
+	public static Font textUltrathinItalic  ;
 
 	public static void loadIntoGE()
 	{

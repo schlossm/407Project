@@ -1,6 +1,6 @@
 package uikit;
 
-import ui.UIStrings;
+import ui.util.UIStrings;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -11,7 +11,7 @@ class DFNotificationCenterObject
 {
 	final DFNotificationCenterDelegate observer;
 	final String notificationName;
-	
+
 	DFNotificationCenterObject(DFNotificationCenterDelegate object, String notificationName)
 	{
 		observer = object;
@@ -29,7 +29,7 @@ class DFNotificationCenterObject
 @SuppressWarnings({"unchecked", "unused"}) public class DFNotificationCenter
 {
 	public static final DFNotificationCenter defaultCenter = new DFNotificationCenter();
-	
+
 	private final ArrayList<DFNotificationCenterObject> observers = new ArrayList<>();
 	private DFNotificationCenter() { }
 
