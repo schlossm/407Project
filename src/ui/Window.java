@@ -1,8 +1,9 @@
 package ui;
 
-import ui.main.ABCTabBar;
+import ui.util.ABCTabBar;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 class Window
@@ -31,20 +32,32 @@ class Window
 
 	void postLogin()
 	{
-		mainScreen = new JFrame("ABC");
+		mainScreen = new JFrame("ABC - Michael Schloss");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		mainScreen.setBounds(0, 0, screenSize.width, screenSize.height);
 		mainScreen.setBackground(Color.WHITE);
 		mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-		mainScreen.add(new ABCTabBar());
+		FlowLayout layout = new FlowLayout(FlowLayout.LEFT);
+		layout.setHgap(0);
+		layout.setVgap(0);
+
+		JPanel container = new JPanel();
+		container.setLayout(layout);
+		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
+		container.setBorder(new EmptyBorder(0,0,0,0));
+
+		ABCTabBar tabBar = new ABCTabBar();
+
+		Home home = new Home();
+		home.setPreferredSize(new Dimension(screenSize.width, screenSize.height - tabBar.getPreferredSize().height));
+		home.setMinimumSize(new Dimension(600, 600));
+
+		container.add(tabBar);
+		container.add(home);
+		mainScreen.add(container);
 
 		mainScreen.setVisible(true);
-		loginFrame.setVisible(false);
-	}
-
-	static String convertToMultiline(String orig)
-	{
-		return "<html> <head> <style type=\"text/css\"> body { font-family: SF UI Text; font-size: 12px; text-align: center; } </style> </head> <body>" + orig.replaceAll("\n", "<br>") + "</body> </html>";
+		loginFrame.dispose();
 	}
 }

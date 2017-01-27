@@ -1,4 +1,6 @@
-package ui;
+package ui.util;
+
+import ui.util.MLMEventType;
 
 import java.awt.event.MouseEvent;
 

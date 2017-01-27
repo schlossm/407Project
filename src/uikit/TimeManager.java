@@ -1,6 +1,6 @@
 package uikit;
 
-import ui.UIStrings;
+import ui.util.UIStrings;
 
 import java.util.Calendar;
 import java.util.TimeZone;

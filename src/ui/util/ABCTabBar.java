@@ -1,8 +1,5 @@
-package ui.main;
+package ui.util;
 
-import ui.MLMDelegate;
-import ui.MLMEventType;
-import ui.MouseListenerManager;
 import uikit.UIFont;
 
 import javax.swing.*;
@@ -19,9 +16,9 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 
 	public ABCTabBar()
 	{
-		this.setBackground(Color.WHITE);
-		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-		this.setBorder(new EmptyBorder(40, 40, 20, 40));
+		setBackground(Color.WHITE);
+		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+		setBorder(new EmptyBorder(40, 40, 20, 40));
 
 		//TODO: Replace with first name of user
 		firstName = new JLabel("Michael", JLabel.LEFT);
@@ -29,7 +26,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 		firstName.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 		firstName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		firstName.setFocusable(false);
-		this.add(firstName);
+		add(firstName);
 
 		//TODO: Replace with last name of user
 		lastName = new JLabel("Schloss", JLabel.LEFT);
@@ -39,7 +36,8 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 		lastName.setVerticalTextPosition(JLabel.BOTTOM);
 		lastName.setVerticalAlignment(JLabel.BOTTOM);
 		lastName.setFocusable(false);
-		this.add(lastName);
+		add(lastName);
+
 		addCorrectButtons();
 	}
 
@@ -93,7 +91,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 			return;
 		}
 
-		final int spaceBetweenEachButton = leftoverWidth/buttons.size();
+		final int spaceBetweenEachButton = leftoverWidth/numberOfButtons;
 
 		for (JLabel button: buttons)
 		{
