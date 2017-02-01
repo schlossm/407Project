@@ -1,11 +1,14 @@
 package ui;
 
-import javax.swing.*;
+import uikit.autolayout.uiobjects.ALJPanel;
 
-class Home extends JPanel
+import java.awt.*;
+
+class Home extends ALJPanel
 {
 	Home()
 	{
-		
+		setBackground(Color.BLACK);
+		setPreferredSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 	}
 }

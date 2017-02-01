@@ -5,17 +5,22 @@ import uikit.UIFont;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class ABCTabBar extends JPanel implements MLMDelegate
+public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 {
 	private JLabel firstName;
 	private JLabel lastName;
 	private ArrayList<JLabel> buttons = new ArrayList<>();
 
+	private int renderCount = 0;
+
 	public ABCTabBar()
 	{
+		addComponentListener(this);
 		setBackground(Color.WHITE);
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		setBorder(new EmptyBorder(40, 40, 20, 40));
@@ -72,8 +77,8 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 	private void layoutButtons()
 	{
 		final int numberOfButtons = buttons.size();
-		final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		final int totalWidthToWorkWith = screenSize.width - 40 - firstName.getPreferredSize().width - lastName.getPreferredSize().width - 40;
+		final int width = getBounds().width == 0 ? Integer.MAX_VALUE : getBounds().width;
+		final int totalWidthToWorkWith = width - 40 - firstName.getPreferredSize().width - lastName.getPreferredSize().width - 40;
 		int totalWidthOfAllButtons = 0;
 		for (JLabel button: buttons)
 		{
@@ -83,9 +88,10 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 		final int leftoverWidth = Integer.max(totalWidthToWorkWith - totalWidthOfAllButtons, 0);
 		if (leftoverWidth < buttons.size())
 		{
+			renderCount++;
 			for (JLabel button: buttons)
 			{
-				button.setFont(button.getFont().deriveFont(button.getFont().getSize() - 1));
+				button.setFont(UIFont.textHeavy.deriveFont(9.0f - renderCount));
 			}
 			layoutButtons();
 			return;
@@ -133,6 +139,53 @@ public class ABCTabBar extends JPanel implements MLMDelegate
 			activeLabel.setBackground(new Color(0,0,0,0));
 		}
 	}
+
+	@Override
+	public void componentResized(ComponentEvent e)
+	{
+		removeAll();
+
+		revalidate();
+		repaint();
+
+		renderCount = 0;
+
+		buttons = new ArrayList<>();
+		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+		setBorder(new EmptyBorder(40, 40, 20, 40));
+
+		//TODO: Replace with first name of user
+		firstName = new JLabel("Michael", JLabel.LEFT);
+		firstName.setFont(UIFont.displayBlack.deriveFont(38f));
+		firstName.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
+		firstName.setAlignmentX(Component.LEFT_ALIGNMENT);
+		firstName.setFocusable(false);
+		add(firstName);
+
+		//TODO: Replace with last name of user
+		lastName = new JLabel("Schloss", JLabel.LEFT);
+		lastName.setFont(UIFont.textRegular.deriveFont(24.0f));
+		lastName.setBorder(BorderFactory.createEmptyBorder(26,0,0,0));
+		lastName.setAlignmentX(Component.LEFT_ALIGNMENT);
+		lastName.setVerticalTextPosition(JLabel.BOTTOM);
+		lastName.setVerticalAlignment(JLabel.BOTTOM);
+		lastName.setFocusable(false);
+		add(lastName);
+
+		addCorrectButtons();
+
+		revalidate();
+		repaint();
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) { }
+
+	@Override
+	public void componentShown(ComponentEvent e) { }
+
+	@Override
+	public void componentHidden(ComponentEvent e) { }
 }
 
 
