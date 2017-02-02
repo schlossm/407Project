@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class ALJPanel extends JPanel implements Constrainable
 {
-	private ArrayList<LayoutConstraint> _constraints = new ArrayList<>();
+	private final ArrayList<LayoutConstraint> _constraints = new ArrayList<>();
 
 	public ALJPanel()
 	{

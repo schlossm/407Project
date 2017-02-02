@@ -58,12 +58,11 @@ class Window
 		container.add(tabBar);
 		container.add(home);
 
-
 		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading,   LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
 		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.trailing,  LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
 		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top,       LayoutRelation.equal, container,    LayoutAttribute.top,        1.0, 0));
 
-		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 20));
+		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
 		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
 		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
 		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
@@ -71,8 +70,6 @@ class Window
 		mainScreen.getContentPane().add(container);
 
 		container.layoutSubviews();
-
-		System.out.println("Home View Bounds: " + home.getBounds());
 
 		mainScreen.setVisible(true);
 		loginFrame.dispose();

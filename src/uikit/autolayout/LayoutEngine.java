@@ -12,7 +12,7 @@ import static java.lang.Integer.max;
 @SuppressWarnings("ConstantConditions")
 public class LayoutEngine
 {
-	public static LayoutEngine current = new LayoutEngine();
+	public static final LayoutEngine current = new LayoutEngine();
 	private LayoutEngine() { }
 
 	public void processConstraintsIn(Constrainable view)
@@ -233,7 +233,7 @@ public class LayoutEngine
 			{
 				if ((attributesSatisfied.contains(LayoutAttribute.trailing) || attributesSatisfied.contains(LayoutAttribute.centerX)) && attributesSatisfied.contains(LayoutAttribute.width))
 				{
-					System.out.println("Cannot satisfy constraint: " + constraint.toString() + ".  You have already specified (.trailing or .centerX) and .wifth.  Setting .leading would break the constraints");
+					System.out.println("Cannot satisfy constraint: " + constraint.toString() + ".  You have already specified (.trailing or .centerX) and .width.  Setting .leading would break the constraints");
 					break;
 				}
 
@@ -599,7 +599,7 @@ public class LayoutEngine
 			{
 				if ((attributesSatisfied.contains(LayoutAttribute.trailing) || attributesSatisfied.contains(LayoutAttribute.centerX)) && attributesSatisfied.contains(LayoutAttribute.width))
 				{
-					System.out.println("Cannot satisfy constraint: " + constraint.toString() + ".  You have already specified (.trailing or .centerX) and .wifth.  Setting .leading would break the constraints");
+					System.out.println("Cannot satisfy constraint: " + constraint.toString() + ".  You have already specified (.trailing or .centerX) and .width.  Setting .leading would break the constraints");
 					break;
 				}
 

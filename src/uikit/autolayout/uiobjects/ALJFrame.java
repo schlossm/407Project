@@ -7,14 +7,11 @@ import java.awt.event.ComponentListener;
 
 /**
  * Created by michaelschloss on 2/1/17.
+ *
+ * Custom subclass of JFrame.  Subclass ALJFrame to get automatic AutoLayout inheritance.
  */
 public class ALJFrame extends JFrame implements ComponentListener
 {
-	public ALJFrame()
-	{
-		addComponentListener(this);
-	}
-
 	@Override
 	public Component add(Component comp)
 	{
