@@ -1,8 +1,14 @@
 package ui;
 
-import ui.main.ABCTabBar;
+import ui.util.ABCTabBar;
+import uikit.autolayout.LayoutAttribute;
+import uikit.autolayout.LayoutConstraint;
+import uikit.autolayout.LayoutRelation;
+import uikit.autolayout.uiobjects.ALJFrame;
+import uikit.autolayout.uiobjects.ALJPanel;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 class Window
@@ -31,20 +37,41 @@ class Window
 
 	void postLogin()
 	{
-		mainScreen = new JFrame("ABC");
+		//TODO: Replace with user's actual name
+		mainScreen = new ALJFrame("ABC - Michael Schloss");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		mainScreen.setBounds(0, 0, screenSize.width, screenSize.height);
 		mainScreen.setBackground(Color.WHITE);
 		mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-		mainScreen.add(new ABCTabBar());
+		mainScreen.getContentPane().setLayout(null);
+
+		ALJPanel container = new ALJPanel();
+		container.setLayout(null);
+		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
+		container.setBorder(new EmptyBorder(0,0,0,0));
+
+		ABCTabBar tabBar = new ABCTabBar();
+
+		Home home = new Home();
+
+		container.add(tabBar);
+		container.add(home);
+
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading,   LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.trailing,  LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top,       LayoutRelation.equal, container,    LayoutAttribute.top,        1.0, 0));
+
+		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
+		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
+		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
+		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
+
+		mainScreen.getContentPane().add(container);
+
+		container.layoutSubviews();
 
 		mainScreen.setVisible(true);
-		loginFrame.setVisible(false);
-	}
-
-	static String convertToMultiline(String orig)
-	{
-		return "<html> <head> <style type=\"text/css\"> body { font-family: SF UI Text; font-size: 12px; text-align: center; } </style> </head> <body>" + orig.replaceAll("\n", "<br>") + "</body> </html>";
+		loginFrame.dispose();
 	}
 }
