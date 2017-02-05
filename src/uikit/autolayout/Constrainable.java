@@ -10,4 +10,6 @@ public interface Constrainable
 
 	int compressionResistanceWidth();
 	int compressionResistanceHeight();
+	void setCompressionResistanceWidth(int compressionResistanceWidth);
+	void setCompressionResistanceHeight(int compressionResistanceHeight);
 }
