@@ -15,8 +15,9 @@ public class Grade {
         this.score = score;
     }
 
-    public prevGrade(String userID, int assignmentID) {
+    public Grade prevGrade(String userID, int assignmentID) {
         // TODO: get previously-created grade with these attributes from the DB
+        return null;
     }
 
     public String getScore() {
