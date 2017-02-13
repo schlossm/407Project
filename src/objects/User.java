@@ -4,7 +4,7 @@ package objects;
  * User.java
  * Alex Rosenberg
  */
-public class User {
+public class User implements Serializable {
     private String userID;
     private String email;
     private String birthday;
@@ -15,7 +15,8 @@ public class User {
     private int maxStorage;
 
     public User(String userID) {
-        // TODO: get user with userID from database and return it
+        // User will always exist in the database, don't worry about that case
+        // TODO: getUser, return
     }
 
     public String getUserID() {
@@ -24,7 +25,6 @@ public class User {
 
     public void setUserID(String newID) {
         this.userID = newID;
-        // TODO: set the user's ID in the DB
     }
 
     public String getEmail() {
@@ -33,7 +33,6 @@ public class User {
 
     public void setEmail(String newEmail) {
         this.email = newEmail;
-        // TODO: set the user's email in the DB
     }
 
     public String getBirthday() {
@@ -42,7 +41,6 @@ public class User {
 
     public void setBirthday(String newBirthday) {
         this.birthday = newBirthday;
-        // TODO: set the user's birthday in the DB
     }
 
     public standing getStanding() {
@@ -51,7 +49,6 @@ public class User {
 
     public void setStanding(standing newStanding) {
         this.standing = newStanding;
-        // TODO: set the user's standing in the DB
     }
 
     public String getFirstName() {
@@ -60,7 +57,6 @@ public class User {
 
     public void setFirstName(String newFirst) {
         this.firstName = newFirst;
-        // TODO: set the user's firstName in the DB
     }
 
     public String getLastName() {
@@ -69,7 +65,6 @@ public class User {
 
     public void setLastName(String newLast) {
         this.lastName = newLast;
-        // TODO: set user's lastName in the DB
     }
 
     public userType getUserType() {
@@ -78,7 +73,6 @@ public class User {
 
     public void setUserType(userType newUserType) {
         this.userType = newUserType;
-        // TODO: set user's userType in the DB
     }
 
     public int getMaxStorage() {
@@ -87,7 +81,6 @@ public class User {
 
     public void setMaxStorage(int newMax) {
         this.maxStorage = newMax;
-        // TODO: set user's maxStorage in the DB
     }
 
     public String toString() {
