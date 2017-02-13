@@ -69,8 +69,6 @@ class Window
 
 		mainScreen.getContentPane().add(container);
 
-		container.layoutSubviews();
-
 		mainScreen.setVisible(true);
 		loginFrame.dispose();
 	}
