@@ -1,5 +1,7 @@
 package objects;
 
+import java.io.Serializable;
+
 /**
  * Grade.java
  * Alex Rosenberg
