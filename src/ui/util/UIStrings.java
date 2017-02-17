@@ -14,6 +14,8 @@ public class UIStrings
 	//Used when inputted data is a duplicate
 	public static final String exists = "exists";
 
+	public static final String ABCTabBarButtonClickedNotification = "ABCTabBar Button Was Clicked";
+
 	//TIME MANAGER CONSTANTS
 	public static final String fiveMinutesHavePassedNotification        = "Five Minutes Have Passed";
 	public static final String tenMinutesHavePassedNotification         = "Ten Minutes Have Passed";
