@@ -23,6 +23,8 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     private boolean getUserReturn, getUserExistsReturn;
     private JsonObject jsonObject;
     private String bufferString;
+    private boolean verifyUserLoginReturn;
+
 
     public void getUser(String username) {
         DFSQL dfsql = new DFSQL();
@@ -50,16 +52,21 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
 
     private void returnHandler(){
         if(getUserReturn){
-            String usernameReceived = null;
-            boolean isBanned;
-            int isBannedInt = 0, userPrivInt = 0;
+            String usernameReceived = null, userEmail = null, userBirthday = null, userFirstName = null, userLastName = null;
+            int userTypeInt = 0;
             try {
                 usernameReceived = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userID").getAsString();
-                isBannedInt = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("banned").getAsInt();
-                userPrivInt = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("privilegeLevel").getAsInt();
-                isBanned = isBannedInt != 0;
-                UserType userType = userPriviligeIntToEnumConverter(userPrivInt);
-                User user = new User(usernameReceived, userType, isBanned);
+                userEmail = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("email").getAsString();
+                userBirthday = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("birthday").getAsString();
+                userFirstName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("firstName").getAsString();
+                userLastName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("lastName").getAsString();
+                userTypeInt = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userType").getAsInt();
+                User user = new User(usernameReceived);
+                user.setEmail(userEmail);
+                user.setFirstName(userFirstName);
+                user.setLastName(userLastName);
+                user.setBirthday(userBirthday);
+
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, user);
             }catch (NullPointerException e2){
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
@@ -88,7 +95,6 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 DFNotificationCenter.defaultCenter.post(UIStrings.exists, true);
             }
         }
-
         getUserReturn = false;
         getUserExistsReturn = false;
         bufferString = null;
