@@ -1,6 +1,11 @@
 package ui;
 
+import ui.admin.Group;
+import ui.admin.ManageGroup;
 import ui.util.ABCTabBar;
+import ui.util.UIStrings;
+import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
 import uikit.autolayout.LayoutRelation;
@@ -11,12 +16,14 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-class Window
+class Window implements DFNotificationCenterDelegate
 {
 	static Window current;
 
 	private JFrame loginFrame;
-	private JFrame mainScreen;
+	private ALJPanel activePanel;
+	private ALJPanel container;
+	private ABCTabBar tabBar;
 
 	Window()
 	{
@@ -37,8 +44,10 @@ class Window
 
 	void postLogin()
 	{
+
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.ABCTabBarButtonClickedNotification);
 		//TODO: Replace with user's actual name
-		mainScreen = new ALJFrame("ABC - Michael Schloss");
+		ALJFrame mainScreen = new ALJFrame("ABC - Michael Schloss");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		mainScreen.setBounds(0, 0, screenSize.width, screenSize.height);
 		mainScreen.setBackground(Color.WHITE);
@@ -46,30 +55,145 @@ class Window
 
 		mainScreen.getContentPane().setLayout(null);
 
-		ALJPanel container = new ALJPanel();
+		container = new ALJPanel();
 		container.setLayout(null);
 		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
 		container.setBorder(new EmptyBorder(0,0,0,0));
 
-		ABCTabBar tabBar = new ABCTabBar();
+		tabBar = new ABCTabBar();
 
-		Home home = new Home();
+		activePanel = new Home();
 
 		container.add(tabBar);
-		container.add(home);
+		container.add(activePanel);
 
 		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading,   LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
 		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.trailing,  LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
 		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top,       LayoutRelation.equal, container,    LayoutAttribute.top,        1.0, 0));
 
-		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
-		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
-		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
-		container.addConstraint(new LayoutConstraint(home, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
 
 		mainScreen.getContentPane().add(container);
 
 		mainScreen.setVisible(true);
 		loginFrame.dispose();
+	}
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+		if (!(userData instanceof String)) return;
+
+		String buttonClicked = (String)userData;
+
+		switch (buttonClicked)
+		{
+			case "Manage Teachers":
+			{
+				if (activePanel instanceof ManageGroup)
+				{
+					if (((ManageGroup)activePanel).currentGroup() == Group.teachers)
+					{
+						return;
+					}
+					else
+					{
+						container.remove(activePanel);
+
+						activePanel = new ManageGroup(Group.teachers);
+					}
+				}
+				else
+				{
+					container.remove(activePanel);
+
+					activePanel = new ManageGroup(Group.teachers);
+				}
+				break;
+			}
+
+			case "Manage Students":
+			{
+				if (activePanel instanceof ManageGroup)
+				{
+					if (((ManageGroup)activePanel).currentGroup() == Group.students)
+					{
+						return;
+					}
+					else
+					{
+						container.remove(activePanel);
+
+						activePanel = new ManageGroup(Group.students);
+					}
+				}
+				else
+				{
+					container.remove(activePanel);
+
+					activePanel = new ManageGroup(Group.students);
+				}
+				break;
+			}
+
+			case "Manage Courses":
+			{
+				if (activePanel instanceof ManageGroup)
+				{
+					if (((ManageGroup)activePanel).currentGroup() == Group.courses)
+					{
+						return;
+					}
+					else
+					{
+						container.remove(activePanel);
+
+						activePanel = new ManageGroup(Group.courses);
+					}
+				}
+				else
+				{
+					container.remove(activePanel);
+
+					activePanel = new ManageGroup(Group.courses);
+				}
+				break;
+			}
+
+			case "Grades":
+			{
+				break;
+			}
+
+			case "Home":
+			{
+				if (activePanel instanceof Home)
+				{
+					return;
+				}
+				else
+				{
+					container.remove(activePanel);
+
+					activePanel = new Home();
+				}
+				break;
+			}
+
+			default: break;
+		}
+
+		container.add(activePanel);
+
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
+
+		container.layoutSubviews();
+		activePanel.layoutSubviews();
 	}
 }

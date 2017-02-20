@@ -37,7 +37,7 @@ class DFNotificationCenterObject
 	 *	@param observer The object that will be receiving the notification.  This object must conform to the DFNotificationCenterDelegate interface
 	 *  @param notificationName The notification name the object wishes to listen for.  All other notifications will be ignored
 	 */
-	public void register(DFNotificationCenterDelegate observer, String notificationName)
+	public synchronized void register(DFNotificationCenterDelegate observer, String notificationName)
 	{
 		for (DFNotificationCenterObject object : observers)
 		{
@@ -53,7 +53,7 @@ class DFNotificationCenterObject
 	 * 	A convenience method for removing all instances of an Object
 	 * 	@param observer The object that wishes to be removed
 	 */
-	public void remove(DFNotificationCenterDelegate observer)
+	public synchronized void remove(DFNotificationCenterDelegate observer)
 	{
 		((ArrayList<DFNotificationCenterObject>) observers.clone()).stream().filter(object -> object.observer == observer).forEach(observers::remove);
 	}
@@ -62,7 +62,7 @@ class DFNotificationCenterObject
 	 * 	@param notificationName The notification name the object wishes to post for
 	 * 	@param userData Optional data the object calling this function wishes to pass on to any observers
 	 */
-	public void post(String notificationName, Object userData)
+	public synchronized void post(String notificationName, Object userData)
 	{
 		if (Objects.equals(notificationName, UIStrings.oneHourHasPassedNotification) || Objects.equals(notificationName, UIStrings.tenMinutesHavePassedNotification) || Objects.equals(notificationName, UIStrings.twentyFiveMinutesHavePassedNotification) || Objects.equals(notificationName, UIStrings.fiveMinutesHavePassedNotification) || Objects.equals(notificationName, UIStrings.newDayNotification))
 		{
@@ -79,6 +79,7 @@ class DFNotificationCenterObject
 				return;
 			}
 		}
-		observers.stream().filter(observer -> Objects.equals(observer.notificationName, notificationName)).forEach(observer -> observer.observer.performActionFor(notificationName, userData));
+
+		((ArrayList<DFNotificationCenterObject>) observers.clone()).stream().filter(observer -> Objects.equals(observer.notificationName, notificationName)).forEach(observer -> observer.observer.performActionFor(notificationName, userData));
 	}
 }

@@ -1,5 +1,7 @@
 package ui;
 
+import ui.util.CurrentOS;
+import ui.util.UIVariables;
 import uikit.TimeManager;
 import uikit.UIFont;
 
@@ -15,7 +17,7 @@ public class Main
 	{
 		try
 		{
-			if (System.getProperty("os.name").contains("Mac") || System.getProperty("os.name").contains("mac"))
+			if (UIVariables.current.currentOS == CurrentOS.macOS)
 			{
 				System.setProperty("apple.laf.useScreenMenuBar", "true");
 			}
