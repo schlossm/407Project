@@ -10,6 +10,7 @@ import static database.DFDatabase.queue;
 import uikit.LocalStorage;
 import objects.Grade;
 import java.util.ArrayList;
+import java.io.File;
 
 public class Main
 {
@@ -39,13 +40,13 @@ public class Main
 			Grade g = new Grade("0", 0, Integer.toString((i + 1) * 10));
 			System.out.println(g.getScore()); // print scores in order they are written
 
-			LocalStorage.defaultManager.saveObjectToFile(g, "cache/test_grades.ser");
+			LocalStorage.defaultManager.saveObjectToFile(g, "cache" + File.separator + "test_grades.ser");
 		}
 
 		// Read the 10 Grade objects back into memory
 		ArrayList<Grade> grades = new ArrayList<Grade>();
 		for (int i = 0; i < 10; ++i) {
-			Grade g = (Grade) LocalStorage.defaultManager.loadObjectFromFile("cache/test_grades.ser");
+			Grade g = (Grade) LocalStorage.defaultManager.loadObjectFromFile("cache" + File.separator + "test_grades.ser");
 			grades.add(g);
 
 			System.out.println(g.getScore()); // print scores in order they are read
