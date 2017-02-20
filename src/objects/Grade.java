@@ -1,10 +1,12 @@
 package objects;
 
+import java.io.Serializable;
+
 /**
  * Grade.java
  * Alex Rosenberg
  */
-public class Grade {
+public class Grade implements Serializable {
     private String score;
     private String userID;
     private int assignmentID;

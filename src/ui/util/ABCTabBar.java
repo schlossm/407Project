@@ -1,5 +1,6 @@
 package ui.util;
 
+import uikit.DFNotificationCenter;
 import uikit.UIFont;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 	private JLabel lastName;
 	private ArrayList<JLabel> buttons = new ArrayList<>();
 
-	private int renderCount = 0;
+	private float renderCount = 0;
 
 	public ABCTabBar()
 	{
@@ -60,7 +61,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 		buttonTitles = new String[] {"Home", "My Courses", "My ABCDrive",/*..............*/"Grades",/*...........................................*/"Help", "Settings"};
 
 		//User is an Admin
-		buttonTitles = new String[] {"Home",/*...........*/"My ABCDrive", "Announcements", "Manage Courses", "Manage Teachers", "Manage Students", "Help", "Settings"};
+		buttonTitles = new String[] {"Home", "Grades",/*.*/"My ABCDrive", "Announcements", "Manage Courses", "Manage Teachers", "Manage Students", "Help", "Settings"};
 
 		for (String buttonTitle : buttonTitles)
 		{
@@ -91,7 +92,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 			renderCount++;
 			for (JLabel button: buttons)
 			{
-				button.setFont(UIFont.textHeavy.deriveFont(9.0f - renderCount));
+				button.setFont(UIFont.textHeavy.deriveFont(9.0f - renderCount/10f));
 			}
 			layoutButtons();
 			return;
@@ -125,12 +126,11 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 		}
 		else if (eventType == MLMEventType.released)
 		{
-
-			if (action.getSource() != activeLabel || !activeLabel.isOpaque()) return;
+			if (action.getSource() != activeLabel || !activeLabel.isOpaque() || activeLabel == null) return;
 			activeLabel.setOpaque(false);
 			activeLabel.setBackground(new Color(0,0,0,0));
+			DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, activeLabel.getText());
 			activeLabel = null;
-			//TODO: Process Click
 		}
 		else if (eventType == MLMEventType.draggedOut)
 		{
@@ -186,6 +186,15 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 
 	@Override
 	public void componentHidden(ComponentEvent e) { }
+
+	@Override
+	protected void paintComponent(Graphics g)
+	{
+		super.paintComponent(g);
+
+		g.setColor(Color.BLACK);
+		g.drawRect(0, this.getHeight() - 1, this.getWidth(), 1);
+	}
 }
 
 
