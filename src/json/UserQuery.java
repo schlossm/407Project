@@ -10,6 +10,7 @@ import database.DFSQL.DFSQL;
 import database.DFSQL.DFSQLError;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.User;
+import objects.userType;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
@@ -21,6 +22,7 @@ import static database.DFDatabase.debugLog;
 
 public class UserQuery implements DFDatabaseCallbackDelegate {
     private boolean getUserReturn, getUserExistsReturn;
+    private DFDataUploaderReturnStatus uploadSuccess;
     private JsonObject jsonObject;
     private String bufferString;
     private boolean verifyUserLoginReturn;
@@ -54,6 +56,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         if(getUserReturn){
             String usernameReceived = null, userEmail = null, userBirthday = null, userFirstName = null, userLastName = null;
             int userTypeInt = 0;
+            userType userType = null;
             try {
                 usernameReceived = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userID").getAsString();
                 userEmail = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("email").getAsString();
@@ -61,6 +64,8 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 userFirstName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("firstName").getAsString();
                 userLastName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("lastName").getAsString();
                 userTypeInt = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userType").getAsInt();
+                userType = intToUserTypeConverter(userTypeInt);
+
                 User user = new User(usernameReceived);
                 user.setEmail(userEmail);
                 user.setFirstName(userFirstName);
@@ -95,14 +100,70 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 DFNotificationCenter.defaultCenter.post(UIStrings.exists, true);
             }
         }
+
         getUserReturn = false;
         getUserExistsReturn = false;
         bufferString = null;
     }
 
+    public boolean addNewUser(String userUserId, String userPassword,  String userEmail, String userBirthday, String userFirstName, String userLastName, userType userUserType){
+        int convertedUserType = userTypeToIntConverter(userUserType);
+        boolean isaddSuccess;
+        String[] rows = {"userID", "password", "email", "birthday", "firstName", "lastName", "userType"};
+        String[] values = {userUserId, userPassword, userEmail, userBirthday, userFirstName, userLastName ,String.valueOf(convertedUserType)};
+        DFSQL dfsql = new DFSQL();
+        try {
+            dfsql.insert("User", values, rows);
+            debugLog(dfsql.formattedSQLStatement());
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
+		/*
+		if(isaddSuccess){
+			return getUser(userName);
+		} else {
+			return null;
+		}*/
+        return isaddSuccess;
+    }
+
+    private int userTypeToIntConverter(userType userType){
+        if(userType == userType.ADMIN){
+            return 1;
+        } else if (userType == userType.TEACHER){
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+
+    private userType intToUserTypeConverter(int userTypeInt){
+        if(userTypeInt == 1){
+            return userType.ADMIN;
+        } else if (userTypeInt == 2){
+            return userType.TEACHER;
+        } else {
+            return userType.STUDENT;
+        }
+    }
+
     @Override
     public void uploadStatus(@NotNull DFDataUploaderReturnStatus success, @Nullable DFError error) {
-
+        this.uploadSuccess = null;
+        if(success == DFDataUploaderReturnStatus.success){
+            debugLog("success uploading this");
+        } else if (success == DFDataUploaderReturnStatus.failure) {
+            debugLog("Failure uploading this");
+        }
+        else if(success == DFDataUploaderReturnStatus.error){
+            debugLog("Error uploading this");
+            DFDatabase.print(error.toString());
+        } else {
+            debugLog("I have no clue!");
+        }
+        this.uploadSuccess = success;
     }
     public static void main(String[] args){
         UserQuery userQuery = new UserQuery();
