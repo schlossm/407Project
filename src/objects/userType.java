@@ -7,5 +7,6 @@ package objects;
 public enum userType {
     ADMIN,
     TEACHER,
-    STUDENT
+    STUDENT,
+    TA
 }
