@@ -39,6 +39,19 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             e1.printStackTrace();
         }
     }
+
+    public void verifyUserLogin(String username) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectedRows = {"password"};
+        verifyUserLoginReturn = true;
+        try {
+            dfsql.select(selectedRows).from("User").whereEquals("userID", username);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
     @Override
     public void returnedData(@Nullable JsonObject jsonObject, @Nullable DFError error) {
         this.jsonObject = null;
