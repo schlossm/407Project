@@ -1,6 +1,7 @@
 package objects;
 
 import java.io.Serializable;
+import json.UserQuery;
 
 /**
  * User.java
@@ -16,9 +17,11 @@ public class User implements Serializable {
     private userType userType;
     private int maxStorage;
 
+    private UserQuery userQuery;
+
     public User(String userID) {
         // User will always exist in the database, don't worry about that case
-        // TODO: getUser, return
+        userQuery.getUser(userID);
     }
 
     public String getUserID() {
