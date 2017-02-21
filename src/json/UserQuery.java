@@ -7,6 +7,7 @@ import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
 import database.DFSQL.DFSQL;
+import database.DFSQL.DFSQLEquivalence;
 import database.DFSQL.DFSQLError;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.User;
@@ -33,7 +34,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         getUserReturn = true;
         try {
-            dfsql.select(selectedRows).from("User").whereEquals("userID", username);
+            dfsql.select(selectedRows, false, null, null).from("User").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
@@ -114,7 +115,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         DFSQL dfsql = new DFSQL();
         try {
             dfsql.insert("User", values, rows);
-            debugLog(dfsql.formattedSQLStatement());
+            debugLog(dfsql.formattedStatement());
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
