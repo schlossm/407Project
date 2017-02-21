@@ -1,16 +1,15 @@
 package ui;
 
+import objects.Grade;
 import ui.util.CurrentOS;
 import ui.util.UIVariables;
 import uikit.TimeManager;
 import uikit.UIFont;
 
-import static database.DFDatabase.queue;
-
-import objects.Grade;
-
 import java.io.*;
 import java.util.ArrayList;
+
+import static database.DFDatabase.queue;
 
 public class Main
 {
@@ -36,7 +35,7 @@ public class Main
 		 */
 
 		// Create 10 Grade objects and write them to a *.ser cache file
-		String filename = "cache" + File.separator + "test_grades.ser";
+		String filename = UIVariables.current.applicationDirectories.temp + File.separator + "test_grades.ser";
 
 		try {
 			FileOutputStream fileOut = new FileOutputStream(filename);

@@ -47,15 +47,15 @@ public class UIVariables
 						System.exit(-1);
 					}
 				}
-				if(!new File(System.getProperty("user.home") + "/" + "ABC").exists())
+				if(!new File(System.getProperty("user.home") + "/" + "ABC/Library").exists())
 				{
-					if (!new File(System.getProperty("user.home") + "/" + "ABC").mkdirs())
+					if (!new File(System.getProperty("user.home") + "/" + "ABC/Library").mkdirs())
 					{
 						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
 					}
 				}
-				directory.library = System.getProperty("user.home") + "/" + "ABC";
+				directory.library = System.getProperty("user.home") + "/" + "ABC/Library";
 				directory.temp = System.getProperty("java.io.tmpdir");
 				directory.documents = System.getProperty("user.home") + "/" + "ABC";
 				break;
@@ -117,5 +117,6 @@ public class UIVariables
 				break;
 			}
 		}
+		applicationDirectories = directory;
 	}
 }
