@@ -46,7 +46,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         String[] selectedRows = {"password"};
         verifyUserLoginReturn = true;
         try {
-            dfsql.select(selectedRows).from("User").whereEquals("userID", username);
+            dfsql.select(selectedRows, false, null, null).from("User").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
