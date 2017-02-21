@@ -18,6 +18,7 @@ import static uikit.autolayout.LayoutEngine.getClassAndHashCode;
 public class ALJTable extends JScrollPane implements ComponentListener, ALJTableCellDelegate
 {
 	public ALJTableDataSource dataSource;
+	public ALJTableDelegate delegate;
 	public int heightForRow = -1;
 	private boolean _isLoaded = false;
 
@@ -51,6 +52,17 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 		tableView.setBounds(0,0,getBounds().width, tableView.calculatedHeight());
 		tableView.layoutSubviews();
 		tableView.setBounds(0,0,getBounds().width, tableView.calculatedHeight());
+	}
+
+	private void clearAndReload()
+	{
+		for (Component component : tableView.getComponents())
+		{
+			tableView.remove(component);
+		}
+
+		reloadData();
+		layoutSubviews();
 	}
 
 	public void reloadData()
@@ -92,6 +104,7 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 			{
 				ALJTableCell cell = dataSource.cellForRowAtIndexInTable(this, new ALJTableIndex(section, item));
 				cell.delegate = this;
+				cell.currentIndex = new ALJTableIndex(section, item);
 				tableView.add(cell);
 
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.leading,  LayoutRelation.equal, tableView,   LayoutAttribute.leading,  1.0, 0));
@@ -141,8 +154,39 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 	public void componentHidden(ComponentEvent e) { }
 
 	@Override
-	public void accessoryViewClicked(ALJTableCellAccessoryViewType accessoryViewType)
+	public void accessoryViewClicked(ALJTableCellAccessoryViewType accessoryViewType, ALJTableIndex atIndex)
 	{
-		System.out.println(accessoryViewType);
+		switch (accessoryViewType)
+		{
+			case none:
+			{
+				if (delegate != null) delegate.didSelectItemAtIndexInTable(this, atIndex);
+				break;
+			}
+
+			case delete:
+			{
+				dataSource.tableView(this, ALJTableCellEditingStyle.delete, atIndex);
+				clearAndReload();
+				break;
+			}
+
+			case detail:
+			{
+				if (delegate != null) delegate.didSelectItemAtIndexInTable(this, atIndex);
+				break;
+			}
+
+			case info:
+			{
+				if (delegate != null) delegate.didSelectItemAtIndexInTable(this, atIndex);
+				break;
+			}
+
+			case move:
+			{
+				break;
+			}
+		}
 	}
 }
