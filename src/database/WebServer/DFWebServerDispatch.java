@@ -18,11 +18,11 @@ import static database.DFDatabase.debugLog;
  */
 public class DFWebServerDispatch implements DFDatabaseCallbackDelegate
 {
-	static final String website			    = "https://www.michaelschlosstech.com/debateforum";
+	static final String website			    = "https://www.mascomputech.com/abc";
 	static final String readFile			= "ReadFile.php";
 	static final String writeFile			= "WriteFile.php";
-	static final String websiteUserName	    = "DFJavaApp";
-	static final String databaseUserPass    = "3xT-MA8-HEm-sTd";
+	static final String websiteUserName	    = "tokanone_abcapp";
+	static final String databaseUserPass    = "RAD-88Q-gDx-pEZ";
 
 	private final DFDataDownloader dataDownloader	= new DFDataDownloader();
 	private final DFDataUploader dataUploader		= new DFDataUploader();
