@@ -2,13 +2,13 @@ package json;
 
 import database.DFDatabase;
 import objects.User;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 
-import static com.sun.xml.internal.ws.dump.LoggingDumpTube.Position.After;
-import static com.sun.xml.internal.ws.dump.LoggingDumpTube.Position.Before;
 import static org.junit.Assert.assertTrue;
 
 /**
