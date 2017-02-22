@@ -52,8 +52,13 @@ public class DFDatabase
 	/**
 	 * Wanna debug DFDatabase and related components? Set this flag to 1.
 	 */
+<<<<<<< HEAD
 	public int debug = 1;
 	
+=======
+	public int debug = 0;
+
+>>>>>>> master
 	private Cipher encryptor, decryptor;
 
 	private DFDatabase()
@@ -63,7 +68,7 @@ public class DFDatabase
 				return new PasswordAuthentication (websiteUserName, websiteUserPass.toCharArray());
 			}
 		});
-		try 
+		try
 		{
 			Security.addProvider(new BouncyCastleProvider());
 
@@ -83,7 +88,7 @@ public class DFDatabase
 			random.nextBytes(iv);
 			IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
 			encryptor.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
-		} 
+		}
 		catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e)
 		{
 			e.printStackTrace();
@@ -98,7 +103,7 @@ public class DFDatabase
 	 */
 	public void execute(@NotNull DFSQL SQLStatement, @NotNull DFDatabaseCallbackDelegate delegate)
 	{
-		if (Objects.equals(SQLStatement.formattedSQLStatement(), ""))
+		if (Objects.equals(SQLStatement.formattedStatement(), ""))
 		{
 			Map<String, String> errorInfo = new HashMap<>();
 			errorInfo.put(kMethodName, getMethodName());
@@ -110,7 +115,7 @@ public class DFDatabase
 			return;
 		}
 
-		DFWebServerDispatch.current.add(SQLStatement.formattedSQLStatement().contains("UPDATE") || SQLStatement.formattedSQLStatement().contains("INSERT") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, delegate);
+		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, delegate);
 	}
 
 	public @NotNull String hashString(@NotNull String decryptedString)
@@ -181,7 +186,7 @@ public class DFDatabase
 		    return encryptedString;
 	    }
 	}
-    
+
     private @NotNull String bytesToHex(byte[] bytes)
     {
         char[] hexChars = new char[bytes.length * 2];
@@ -193,12 +198,12 @@ public class DFDatabase
         }
         return new String(hexChars);
     }
-    
+
     private @NotNull byte[] hexToBytes(String s)
     {
         int len = s.length();
         byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) 
+        for (int i = 0; i < len; i += 2)
         {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
         }
