@@ -1174,13 +1174,4 @@ public class LayoutEngine
 		}
 		return false;
 	}
-
-	private boolean contains(ArrayList<LayoutAttribute[]> attributes, LayoutAttribute[] attributePair)
-	{
-		for (LayoutAttribute[] pair : attributes)
-		{
-			if (pair == attributePair) return true;
-		}
-		return false;
-	}
 }

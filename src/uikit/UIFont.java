@@ -5,9 +5,6 @@ import java.io.IOException;
 
 import static java.awt.Font.createFont;
 
-/**
- * Created by michaelschloss on 1/18/17.
- */
 @SuppressWarnings("unused") public class UIFont
 {
 	//Display.  Size 32+

@@ -1,9 +1,7 @@
 package ui.util.ALJTable;
 
-/**
- * Created by michaelschloss on 2/15/17.
- */
+@SuppressWarnings("unused")
 public interface ALJTableDelegate
 {
-	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index);
+	void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index);
 }

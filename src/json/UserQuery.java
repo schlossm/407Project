@@ -1,8 +1,6 @@
 package json;
 
 import com.google.gson.JsonObject;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
@@ -12,7 +10,6 @@ import objects.User;
 import objects.userType;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
-import uikit.DFNotificationCenterDelegate;
 
 import static database.DFDatabase.debugLog;
 
@@ -108,7 +105,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     }
 
     @Override
-    public void returnedData(@Nullable JsonObject jsonObject, @Nullable DFError error) {
+    public void returnedData(JsonObject jsonObject, DFError error) {
         System.out.println("triggered returnedData");
         this.jsonObject = null;
         if(error != null){
@@ -225,7 +222,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     }
 
     @Override
-    public void uploadStatus(@NotNull DFDataUploaderReturnStatus success, @Nullable DFError error) {
+    public void uploadStatus(DFDataUploaderReturnStatus success, DFError error) {
         this.uploadSuccess = null;
         if(success == DFDataUploaderReturnStatus.success){
             debugLog("success uploading this");
