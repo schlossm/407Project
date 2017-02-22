@@ -6,9 +6,7 @@ import com.sun.istack.internal.Nullable;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
-import database.DFSQL.DFSQL;
-import database.DFSQL.DFSQLEquivalence;
-import database.DFSQL.DFSQLError;
+import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.User;
 import objects.userType;
@@ -41,16 +39,69 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         }
     }
 
+    public void removeUser(String username) {
+        DFSQL dfsql = new DFSQL();
+        try {
+            dfsql.delete("users", new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("userid", username)));
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
     public void verifyUserLogin(String username) {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"password"};
         verifyUserLoginReturn = true;
         try {
-            dfsql.select(selectedRows, false, null, null).from("User").where(DFSQLEquivalence.equals, "userID", username);
+            dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
+    }
+
+    public boolean addUserAsStudent(String username) {
+        boolean isaddSuccess;
+        DFSQL dfsql = new DFSQL();
+        String attr = "userType";
+        String value = userTypeToIntConverter(userType.STUDENT) + "";
+        String[] rows = {"userid"};
+        String[] values = {username};
+        try {
+            dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
+            debugLog(dfsql.formattedStatement());
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+            dfsql.insert("students", rows, values);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
+        return  isaddSuccess;
+    }
+
+    public boolean removeUserAsStudent(String username) {
+        boolean isaddSuccess;
+        DFSQL dfsql = new DFSQL();
+        String attr = "userType";
+        String value = "0";
+        try {
+            dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
+            debugLog(dfsql.formattedStatement());
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+            dfsql.delete(   "students",
+                            new Where(  DFSQLConjunction.none,
+                                        DFSQLEquivalence.equals,
+                                        new DFSQLClause("userid", username)
+                            )
+                        );
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
+        return  isaddSuccess;
     }
 
     @Override
