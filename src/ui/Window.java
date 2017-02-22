@@ -21,11 +21,11 @@ class Window implements DFNotificationCenterDelegate
 {
 	static Window current;
 
-	private JFrame loginFrame;
+	private final JFrame loginFrame;
 	private ALJPanel activePanel;
 	private ALJPanel container;
 	private ABCTabBar tabBar;
-	Login loginPanel;
+	private final Login loginPanel;
 
 	Window()
 	{
@@ -33,7 +33,9 @@ class Window implements DFNotificationCenterDelegate
 		loginFrame = new JFrame("ABC");
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		loginFrame.setBounds(screenSize.width/10, screenSize.height/10, screenSize.width/5 * 4, screenSize.height/5 * 4);
+		int width = Integer.min(screenSize.width/5 * 4, 1344);
+		int height = Integer.min(screenSize.height/5 * 4, 840);
+		loginFrame.setBounds(width != 1344 ? screenSize.width/10 : screenSize.width/2 - 1344/2, height != 840 ? screenSize.height/10 : screenSize.height/2 - 420, width, height);
 		loginFrame.setBackground(Color.WHITE);
 		loginFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		loginFrame.setUndecorated(true);
@@ -42,6 +44,7 @@ class Window implements DFNotificationCenterDelegate
 		loginFrame.add(loginPanel);
 
 		loginFrame.setVisible(true);
+		System.out.println(loginFrame.getBounds());
 	}
 
 	void postLogin()

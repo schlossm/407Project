@@ -1,5 +1,6 @@
 package ui.util.ALJTable;
 
+@SuppressWarnings("unused")
 public class ALJTableIndex
 {
 	public final int item;

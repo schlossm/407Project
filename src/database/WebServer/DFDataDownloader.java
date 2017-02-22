@@ -84,7 +84,7 @@ class DFDataDownloader
             }
             catch (Exception e)
             {
-                if (defaultDatabase.debug == 1)
+                if (defaultDatabase.debug() == 1)
                 {
                     e.printStackTrace();
                 }

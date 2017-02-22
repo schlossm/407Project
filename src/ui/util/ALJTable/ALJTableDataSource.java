@@ -1,5 +1,6 @@
 package ui.util.ALJTable;
 
+@SuppressWarnings({"SameParameterValue", "unused", "SameReturnValue"})
 public interface ALJTableDataSource
 {
 	int numberOfSectionsIn(ALJTable table);

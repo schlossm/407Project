@@ -4,9 +4,10 @@ import objects.User;
 
 import java.io.File;
 
+@SuppressWarnings("unused")
 public class UIVariables
 {
-	public static UIVariables current = new UIVariables();
+	public static final UIVariables current = new UIVariables();
 
 	public CurrentOS currentOS = CurrentOS.unknown;
 

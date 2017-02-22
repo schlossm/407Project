@@ -22,13 +22,13 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 	private JTextField      usernameField;
 	private JPasswordField  passwordField;
 	private JButton         loginButton;
-	private JButton         quitButton;
+	private final JButton         quitButton;
 	private Object          activeTextField;
 	private boolean         typingPassword = true;
 
-	private UserQuery query = new UserQuery();
+	private final UserQuery query = new UserQuery();
 
-	private JFrame presentingFrame;
+	private final JFrame presentingFrame;
 
 	Login(JFrame frame)
 	{
@@ -285,8 +285,9 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			typingPassword = false;
 			usernameField.setEditable(false);
 			passwordField.setEditable(false);
-			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 			this.requestFocus();
+			stage = Stage.verify;
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 		}
 		else if (e.getSource() == loginButton)
 		{
@@ -294,6 +295,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			this.requestFocus();
 			usernameField.setEditable(false);
 			passwordField.setEditable(false);
+			stage = Stage.verify;
 			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 		}
 		else if (e.getSource() == quitButton)
@@ -417,27 +419,45 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		}
 	}
 
+	private enum Stage
+	{
+		verify, loadUser, none
+	}
+
+	private Stage stage = Stage.none;
+
 	@Override
 	public void performActionFor(String notificationName, Object userData)
 	{
 		if (Objects.equals(notificationName, UIStrings.success))
 		{
+			stage = Stage.loadUser;
 			query.getUser(usernameField.getText());
 		}
 		else if (Objects.equals(notificationName, UIStrings.failure))
 		{
 			usernameField.setEditable(true);
 			passwordField.setEditable(true);
-			Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
-			incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
+			if (stage == Stage.verify)
 			{
-				usernameField.requestFocus();
-				usernameField.selectAll();
-			});
-			incorrectPassword.show(presentingFrame);
+				Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
+				{
+					usernameField.requestFocus();
+					usernameField.selectAll();
+				});
+				incorrectPassword.show(presentingFrame);
+			}
+			else if (stage == Stage.loadUser)
+			{
+				Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> { });
+				incorrectPassword.show(presentingFrame);
+			}
 		}
 		else if (Objects.equals(notificationName, UIStrings.returned))
 		{
+			stage = Stage.none;
 			Window.current.postLogin();
 		}
 	}

@@ -22,9 +22,10 @@ interface ALJTableCellDelegate
 	void accessoryViewClicked(ALJTableCellAccessoryViewType accessoryViewType, ALJTableIndex atIndex);
 }
 
+@SuppressWarnings("WeakerAccess")
 public class ALJTableCell extends ALJPanel implements MLMDelegate
 {
-	public  JLabel titleLabel;
+	public final JLabel titleLabel;
 	private JLabel accessoryView;
 	private ALJTableCellAccessoryViewType _accessoryViewType = ALJTableCellAccessoryViewType.none;
 	ALJTableIndex currentIndex;

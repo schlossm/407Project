@@ -5,6 +5,7 @@ package database.DFSQL;
 
  - Note: `.none` does not insert " NONE" into the SQL Statement, it is used as a placeholder
  */
+@SuppressWarnings("unused")
 public enum DFSQLConjunction
 {
     and(" AND"), or(" OR"), none(" NONE"), andNot(" AND NOT"), orNot(" OR NOT");

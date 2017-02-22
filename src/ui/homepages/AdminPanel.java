@@ -15,7 +15,9 @@ import java.util.Objects;
 
 public class AdminPanel extends ALJPanel implements DFNotificationCenterDelegate
 {
-	private JLabel numStudentsLabel, numTeachersLabel, numClassesLabel;
+	private final JLabel numStudentsLabel;
+	private final JLabel numTeachersLabel;
+	private final JLabel numClassesLabel;
 
 	public AdminPanel()
 	{
@@ -51,12 +53,6 @@ public class AdminPanel extends ALJPanel implements DFNotificationCenterDelegate
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.oneHourHasPassedNotification);
 
 		loadNumbers();
-	}
-
-	@Override
-	public void layoutSubviews()
-	{
-		super.layoutSubviews();
 	}
 
 	private void loadNumbers()

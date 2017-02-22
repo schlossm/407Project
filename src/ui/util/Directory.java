@@ -1,5 +1,6 @@
 package ui.util;
 
+@SuppressWarnings("unused")
 public class Directory
 {
 	public String documents;
