@@ -65,6 +65,11 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource
 		return groupToManage;
 	}
 
+	public void add()
+	{
+		fakeData.add("Fake " + groupToManage);
+	}
+
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
 	{
