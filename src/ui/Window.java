@@ -25,6 +25,7 @@ class Window implements DFNotificationCenterDelegate
 	private ALJPanel activePanel;
 	private ALJPanel container;
 	private ABCTabBar tabBar;
+	Login loginPanel;
 
 	Window()
 	{
@@ -37,7 +38,7 @@ class Window implements DFNotificationCenterDelegate
 		loginFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		loginFrame.setUndecorated(true);
 
-		Login loginPanel = new Login(loginFrame);
+		loginPanel = new Login(loginFrame);
 		loginFrame.add(loginPanel);
 
 		loginFrame.setVisible(true);
@@ -80,6 +81,7 @@ class Window implements DFNotificationCenterDelegate
 		mainScreen.getContentPane().add(container);
 
 		mainScreen.setVisible(true);
+		DFNotificationCenter.defaultCenter.remove(loginPanel);
 		loginFrame.dispose();
 	}
 
