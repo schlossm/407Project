@@ -11,4 +11,6 @@ public interface ALJTableDataSource
 	String titleForHeaderInSectionInTable(ALJTable table, int section);
 
 	String titleForFooterInSectionInTable(ALJTable table, int section);
+
+	void tableView(ALJTable tableView, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt);
 }

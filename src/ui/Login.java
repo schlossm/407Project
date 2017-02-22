@@ -10,12 +10,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.Objects;
 
-class Login extends JPanel implements ActionListener, DocumentListener, MLMDelegate
+class Login extends JPanel implements ActionListener, DocumentListener, MLMDelegate, KeyListener
 {
 	private JTextField      usernameField;
 	private JPasswordField  passwordField;
@@ -46,6 +44,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 						usernameField.setForeground(Color.white);
 						usernameField.setText("");
 					}
+					activeTextField = usernameField;
 					return usernameField;
 				}
 				else if (aComponent == usernameField)
@@ -55,6 +54,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 						usernameField.setText("Username");
 						usernameField.setForeground(Color.lightGray);
 					}
+					activeTextField = passwordField;
 					passwordField.selectAll();
 					return passwordField;
 				}
@@ -63,6 +63,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 					typingPassword = false;
 					if (loginButton.isVisible())
 					{
+						activeTextField = null;
 						return loginButton;
 					}
 					else
@@ -72,6 +73,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 							usernameField.setForeground(Color.white);
 							usernameField.setText("");
 						}
+						activeTextField = usernameField;
 						return usernameField;
 					}
 				}
@@ -83,6 +85,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 						usernameField.setForeground(Color.white);
 						usernameField.setText("");
 					}
+					activeTextField = usernameField;
 					return usernameField;
 				}
 
@@ -99,6 +102,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 						usernameField.setForeground(Color.white);
 						usernameField.setText("");
 					}
+					activeTextField = usernameField;
 					return usernameField;
 				}
 				else if (aComponent == usernameField)
@@ -111,8 +115,10 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 					typingPassword = false;
 					if (loginButton.isVisible())
 					{
+						activeTextField = null;
 						return loginButton;
 					}
+					activeTextField = passwordField;
 					passwordField.selectAll();
 					return passwordField;
 				}
@@ -123,11 +129,13 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 						usernameField.setForeground(Color.white);
 						usernameField.setText("");
 					}
+					activeTextField = usernameField;
 					typingPassword = false;
 					return usernameField;
 				}
 				else if (aComponent == loginButton)
 				{
+					activeTextField = passwordField;
 					typingPassword = false;
 					return passwordField;
 				}
@@ -211,6 +219,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		passwordField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		passwordField.addActionListener(this);
 		passwordField.getDocument().addDocumentListener(this);
+		passwordField.addKeyListener(this);
 		passwordField.addMouseListener(new MouseListenerManager(this));
 		passwordField.setBorder(new EmptyBorder(0, 20, 0, 20));
 		passwordField.setBackground(Color.gray);
@@ -317,26 +326,24 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 	}
 
 	@Override
-	public void changedUpdate(DocumentEvent e) { }
+	public void changedUpdate(DocumentEvent e)
+	{
+		if (activeTextField == passwordField && !typingPassword)
+		{
+			typingPassword = true;
+		}
+		if (Objects.equals(usernameField.getText(), "") || Objects.equals(usernameField.getText(), "Username") || passwordField.getPassword().length == 0)
+		{
+			loginButton.setVisible(false);
+		}
+	}
 
 	@Override
 	public void mousePoint(MouseEvent action, MLMEventType eventType)
 	{
 		if (eventType == MLMEventType.pressed)
 		{
-			if (action.getSource().getClass() == JTextField.class)
-			{
-				typingPassword = false;
-				JTextField field = ((JTextField) (action.getSource()));
-				field.requestFocus();
-				if (Objects.equals(field.getText(), "Username"))
-				{
-					field.setForeground(Color.white);
-					field.setText("");
-				}
-				activeTextField = field;
-			}
-			else if (action.getSource().getClass() == JPasswordField.class)
+			if (action.getSource() instanceof JPasswordField)
 			{
 				JPasswordField field = (JPasswordField) (action.getSource());
 				if (field.getPassword().length != 0 && !typingPassword) { field.selectAll(); }
@@ -348,15 +355,27 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 				}
 				activeTextField = field;
 			}
+			else if (action.getSource() instanceof JTextField)
+			{
+				typingPassword = false;
+				JTextField field = ((JTextField) (action.getSource()));
+				field.requestFocus();
+				if (Objects.equals(field.getText(), "Username"))
+				{
+					field.setForeground(Color.white);
+					field.setText("");
+				}
+				activeTextField = field;
+			}
 		}
 		else if (eventType == MLMEventType.released)
 		{
-			if (action.getSource().getClass() == JPasswordField.class)
+			if (action.getSource() instanceof JPasswordField)
 			{
 				JPasswordField field = (JPasswordField) (action.getSource());
 				if (field.getPassword().length != 0 && !typingPassword) { field.selectAll(); }
 			}
-			else if (action.getSource() == this && activeTextField != null)
+			else if (action.getSource() == this)
 			{
 				typingPassword = false;
 				this.requestFocus();
@@ -367,6 +386,27 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 				}
 				activeTextField = null;
 			}
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) { }
+
+	@Override
+	public void keyPressed(KeyEvent e) { }
+
+	@Override
+	public void keyReleased(KeyEvent e)
+	{
+		if (e.getKeyCode() == KeyEvent.VK_LEFT)
+		{
+			JPasswordField field = (JPasswordField) (e.getSource());
+			if (field.getPassword().length != 0 && !typingPassword) { field.selectAll(); }
+		}
+		else if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+		{
+			JPasswordField field = (JPasswordField) (e.getSource());
+			if (field.getPassword().length != 0 && !typingPassword) { field.selectAll(); }
 		}
 	}
 }

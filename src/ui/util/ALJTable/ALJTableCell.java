@@ -19,7 +19,7 @@ import static javax.imageio.ImageIO.read;
 
 interface ALJTableCellDelegate
 {
-	void accessoryViewClicked(ALJTableCellAccessoryViewType accessoryViewType);
+	void accessoryViewClicked(ALJTableCellAccessoryViewType accessoryViewType, ALJTableIndex atIndex);
 }
 
 public class ALJTableCell extends ALJPanel implements MLMDelegate
@@ -27,6 +27,7 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 	public  JLabel titleLabel;
 	private JLabel accessoryView;
 	private ALJTableCellAccessoryViewType _accessoryViewType = ALJTableCellAccessoryViewType.none;
+	ALJTableIndex currentIndex;
 
 	ALJTableCellDelegate delegate;
 
@@ -169,7 +170,7 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 			if (action.getSource() != accessoryView && !accessoryView.isOpaque()) return;
 			accessoryView.setOpaque(false);
 			accessoryView.setBackground(new Color(0,0,0,0));
-			delegate.accessoryViewClicked(_accessoryViewType);
+			delegate.accessoryViewClicked(_accessoryViewType, currentIndex);
 		}
 		else if (eventType == MLMEventType.draggedOut)
 		{
