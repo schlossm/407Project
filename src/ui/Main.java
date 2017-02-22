@@ -66,7 +66,6 @@ public class Main
 		{
 			try
 			{
-				System.out.println(queue.size());
 				if (queue.size() != 0) queue.take().run();
 			}
 			catch (InterruptedException e)
