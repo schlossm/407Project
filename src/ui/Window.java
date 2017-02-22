@@ -1,5 +1,6 @@
 package ui;
 
+import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
 import ui.util.ABCTabBar;
@@ -165,6 +166,19 @@ class Window implements DFNotificationCenterDelegate
 
 			case "Grades":
 			{
+				//TODO: Actually get usertype, but for now assume Admin
+
+				if (activePanel instanceof AdminGrades)
+				{
+					return;
+				}
+				else
+				{
+					container.remove(activePanel);
+
+					activePanel = new AdminGrades();
+				}
+
 				break;
 			}
 
@@ -194,6 +208,8 @@ class Window implements DFNotificationCenterDelegate
 		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
 
 		container.layoutSubviews();
+		activePanel.layoutSubviews();
+		activePanel.repaint();
 		activePanel.layoutSubviews();
 	}
 }

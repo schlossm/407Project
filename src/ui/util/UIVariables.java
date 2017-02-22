@@ -47,14 +47,6 @@ public class UIVariables
 						System.exit(-1);
 					}
 				}
-				if(!new File(System.getProperty("user.home") + "/" + "ABC/Library").exists())
-				{
-					if (!new File(System.getProperty("user.home") + "/" + "ABC/Library").mkdirs())
-					{
-						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
-						System.exit(-1);
-					}
-				}
 				directory.library = System.getProperty("user.home") + "/" + "ABC/Library";
 				directory.temp = System.getProperty("java.io.tmpdir");
 				directory.documents = System.getProperty("user.home") + "/" + "ABC";
@@ -66,14 +58,6 @@ public class UIVariables
 				if(!new File(System.getProperty("user.home") + "/Library/" + "ABC").exists())
 				{
 					if (!new File(System.getProperty("user.home") + "/Library/" + "ABC").mkdirs())
-					{
-						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
-						System.exit(-1);
-					}
-				}
-				if(!new File(System.getProperty("user.home") + "/Documents/" + "ABC").exists())
-				{
-					if (!new File(System.getProperty("user.home") + "/Documents/" + "ABC").mkdirs())
 					{
 						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
@@ -98,14 +82,6 @@ public class UIVariables
 				if(!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC").exists())
 				{
 					if (!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC").mkdirs())
-					{
-						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
-						System.exit(-1);
-					}
-				}
-				if(!new File(System.getProperty("user.home") + "/Documents/" + "ABC").exists())
-				{
-					if (!new File(System.getProperty("user.home") + "/Documents/" + "ABC").mkdirs())
 					{
 						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
