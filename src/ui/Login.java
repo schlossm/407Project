@@ -283,7 +283,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		if (e.getSource() == passwordField)
 		{
 			typingPassword = false;
-			query.verifyUserLogin(usernameField.getText());
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 			this.requestFocus();
 			//TODO: Request Verification of user/pass combination
 		}
@@ -291,7 +291,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		{
 			typingPassword = false;
 			this.requestFocus();
-			query.verifyUserLogin(usernameField.getText());
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 		}
 		else if (e.getSource() == quitButton)
 		{
