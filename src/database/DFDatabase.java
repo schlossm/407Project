@@ -40,8 +40,8 @@ public class DFDatabase
 	 */
 	public static final DFDatabase defaultDatabase = new DFDatabase();
 
-	private final String websiteUserName	= "DFJavaApp";
-	private final String websiteUserPass	= "3xT-MA8-HEm-sTd";
+	private final String websiteUserName	= "tokanone_abcapp";
+	private final String websiteUserPass	= "RAD-88Q-gDx-pEZ";
 
 	private final char[] hexArray			= "0123456789ABCDEF".toCharArray();
 	private boolean      useEncryption      = true;
@@ -52,8 +52,8 @@ public class DFDatabase
 	/**
 	 * Wanna debug DFDatabase and related components? Set this flag to 1.
 	 */
-	public int debug = 0;
 
+	public int debug = 1;
 	private Cipher encryptor, decryptor;
 
 	private DFDatabase()
