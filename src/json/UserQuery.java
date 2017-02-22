@@ -12,6 +12,7 @@ import objects.User;
 import objects.userType;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 
 import static database.DFDatabase.debugLog;
 
@@ -32,12 +33,13 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         getUserReturn = true;
         try {
-            dfsql.select(selectedRows, false, null, null).from("User").where(DFSQLEquivalence.equals, "userID", username);
+            dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
     }
+
 
     public void removeUser(String username) {
         DFSQL dfsql = new DFSQL();
@@ -49,8 +51,9 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         }
     }
 
-    public void verifyUserLogin(String username) {
+    public void verifyUserLogin(String username, String password) {
         DFSQL dfsql = new DFSQL();
+        bufferString = password;
         String[] selectedRows = {"password"};
         verifyUserLoginReturn = true;
         try {
@@ -106,6 +109,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
 
     @Override
     public void returnedData(@Nullable JsonObject jsonObject, @Nullable DFError error) {
+        System.out.println("triggered returnedData");
         this.jsonObject = null;
         if(error != null){
             DFDatabase.print(error.toString());
@@ -118,6 +122,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
 
 
     private void returnHandler(){
+        System.out.println("triggers return handler");
         if(getUserReturn){
             String usernameReceived = null, userEmail = null, userBirthday = null, userFirstName = null, userLastName = null;
             int userTypeInt = 0;
@@ -142,6 +147,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
             }
         } else if (verifyUserLoginReturn) {
+            System.out.println("gets to verifyuserlogin");
             String databasePassword = "";
             try {
                 databasePassword = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("password").getAsString();
@@ -178,7 +184,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         String[] values = {userUserId, userPassword, userEmail, userBirthday, userFirstName, userLastName ,String.valueOf(convertedUserType)};
         DFSQL dfsql = new DFSQL();
         try {
-            dfsql.insert("User", values, rows);
+            dfsql.insert("users", values, rows);
             debugLog(dfsql.formattedStatement());
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
@@ -236,5 +242,6 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     }
     public static void main(String[] args){
         UserQuery userQuery = new UserQuery();
+        userQuery.getUser("testUserStudent");
     }
 }
