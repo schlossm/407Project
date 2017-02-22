@@ -7,6 +7,7 @@ import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
 import database.DFSQL.DFSQL;
+import database.DFSQL.DFSQLEquivalence;
 import database.DFSQL.DFSQLError;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.User;
@@ -33,12 +34,25 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         getUserReturn = true;
         try {
-            dfsql.select(selectedRows).from("User").whereEquals("userID", username);
+            dfsql.select(selectedRows, false, null, null).from("User").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
     }
+
+    public void verifyUserLogin(String username) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectedRows = {"password"};
+        verifyUserLoginReturn = true;
+        try {
+            dfsql.select(selectedRows, false, null, null).from("User").where(DFSQLEquivalence.equals, "userID", username);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
     @Override
     public void returnedData(@Nullable JsonObject jsonObject, @Nullable DFError error) {
         this.jsonObject = null;
@@ -114,7 +128,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         DFSQL dfsql = new DFSQL();
         try {
             dfsql.insert("User", values, rows);
-            debugLog(dfsql.formattedSQLStatement());
+            debugLog(dfsql.formattedStatement());
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
@@ -134,8 +148,10 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             return 1;
         } else if (userType == userType.TEACHER){
             return 2;
-        } else {
+        } else if(userType == userType.STUDENT){
             return 3;
+        } else {
+            return 4;
         }
     }
 
@@ -144,8 +160,10 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             return userType.ADMIN;
         } else if (userTypeInt == 2){
             return userType.TEACHER;
-        } else {
+        } else if (userTypeInt == 3){
             return userType.STUDENT;
+        } else{
+            return userType.TA;
         }
     }
 

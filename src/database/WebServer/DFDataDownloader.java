@@ -25,14 +25,14 @@ class DFDataDownloader
 {
     void downloadDataWith(DFSQL SQLStatement, DFDatabaseCallbackDelegate delegate)
 	{
-        debugLog(SQLStatement.formattedSQLStatement());
+        debugLog(SQLStatement.formattedStatement());
         String calleeMethod = getMethodNameOfSuperMethod();
 		new Thread(() ->
         {
             try
             {
                 debugLog("Downloading Data...");
-                String urlParameters = "Password=" + databaseUserPass + "&Username=" + websiteUserName + "&SQLQuery=" + SQLStatement.formattedSQLStatement();
+                String urlParameters = "Password=" + databaseUserPass + "&Username=" + websiteUserName + "&SQLQuery=" + SQLStatement.formattedStatement();
                 byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
                 int postDataLength = postData.length;
                 String request = website + "/" + readFile;
@@ -71,7 +71,7 @@ class DFDataDownloader
                     errorInfo.put(kMethodName, calleeMethod);
                     errorInfo.put(kExpandedDescription, "No data was returned from the database.  Response: " + response);
                     errorInfo.put(kURL, website + "/" + readFile);
-                    errorInfo.put(kSQLStatement, SQLStatement.formattedSQLStatement());
+                    errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
                     DFError error = new DFError(1, "No data was returned", errorInfo);
                     queue.add(() -> delegate.returnedData(null, error));
                 }
@@ -93,7 +93,7 @@ class DFDataDownloader
                 errorInfo.put(kMethodName, calleeMethod);
                 errorInfo.put(kExpandedDescription, "A(n) "+ e.getCause() + " Exception was raised.  Setting DFDatabase -debug to 1 will print the stack trace for this error");
                 errorInfo.put(kURL, website + "/" + readFile);
-                errorInfo.put(kSQLStatement, SQLStatement.formattedSQLStatement());
+                errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
                 DFError error = new DFError(0, "There was a(n) " + e.getCause() + " error", errorInfo);
                 queue.add(() -> delegate.returnedData(null, error));
             }

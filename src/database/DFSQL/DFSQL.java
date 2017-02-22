@@ -1,28 +1,44 @@
 package database.DFSQL;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * The main SQL class.  DFDatabase uses a custom built SQL wrapper to add a layer of security and overload safety
  */
-@SuppressWarnings("unused") public class DFSQL
-{	
-    private String[] selectRows;
-    private String[] fromTables;
-    private ArrayList<JoinStruct> joinStatements;
-    private ArrayList<WhereStruct> whereStatements;
-    
-    private String[] insertRows;
-    private String[] insertData;
-    
-    private DFSQLClauseStruct[] updateStatements;
-    private final ArrayList<DFSQL> appendedDFSQL;
-    
-    public DFSQL()
+@SuppressWarnings({ "unused", "WeakerAccess"}) public class DFSQL
+{
+    private static String WhereStatementComparesNullString = "Where Statement is comparing a null statement.";
+
+    private String[] selectRows = new String[] {};
+    private boolean distinctSelect = false;
+    private String intoTable = "";
+    private String inDB = "";
+
+    String deleteFromTable = "";
+    String[] fromTables = new String[] {};
+    private InternalJoin[] joinStatements = new InternalJoin[] {};
+    private Where[] whereStatements = new Where[] {};
+    private OrderBy[] orderByStatements = new OrderBy[] {};
+
+    private int limitNum = -1;
+
+    private String[] insertRows = new String[] {};
+    private String[] insertValues = new String[] {};
+    private String[] duplicateKeys = new String[] {};
+    private String[] duplicateValues = new String[] {};
+
+    private DFSQLClause[] updateStatements = new DFSQLClause[] {};
+
+    private final ArrayList<DFSQL> appendedSQL = new ArrayList<>();
+
+    public String formattedStatement()
     {
-        appendedDFSQL = new ArrayList<>();
+        return formatted();
     }
+
+    public DFSQL() { }
 
     /**
      * Appends an already built DFSQL object to the callee
@@ -31,269 +47,336 @@ import java.util.Objects;
      */
     public DFSQL append(DFSQL object)
     {
-    	appendedDFSQL.add(object);
-        
+        if (!appendedSQL.contains(object))
+            appendedSQL.add(object);
+
         return this;
     }
+
+	private String insertWhereAndOrderByStatements(String returnString)
+	{
+		if (whereStatements.length == 0) return returnString;
+
+		returnString += " WHERE";
+		for (Where whereStatement : whereStatements)
+		{
+			final String left = whereStatement.clause.attribute;
+			String right = whereStatement.clause.value;
+
+			if (whereStatement.equivalence != DFSQLEquivalence.isNull && whereStatement.equivalence != DFSQLEquivalence.isNotNull)
+			{
+				boolean isNum = false;
+				try
+				{
+					new Integer(right);
+					isNum = true;
+				}
+				catch (Exception ignored) { }
+				if (right.contains(" ") || !isNum)
+				{
+					right = "'" + right + "'";
+				}
+
+				returnString += " " + left + whereStatement.equivalence + right;
+			}
+			else
+			{
+				returnString += " " + left + whereStatement.equivalence;
+			}
+		}
+
+		if (orderByStatements.length == 0) { return returnString; }
+		returnString += " ORDERED BY";
+		if (orderByStatements.length == 1)
+		{
+			for (OrderBy orderByStatement : orderByStatements)
+			{
+				String attribute = orderByStatement.attribute;
+				String direction = orderByStatement.orderBy.toString();
+
+				returnString += " " + attribute + direction;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < orderByStatements.length - 1; i++)
+			{
+				OrderBy orderByStatement = orderByStatements[i];
+
+				String attribute = orderByStatement.attribute;
+				String direction = orderByStatement.orderBy.toString();
+
+				returnString += " " + attribute + direction;
+			}
+			OrderBy orderByStatement = orderByStatements[orderByStatements.length - 1];
+
+			String attribute = orderByStatement.attribute;
+			String direction = orderByStatement.orderBy.toString();
+
+			returnString += " " + attribute + direction;
+		}
+
+		return returnString;
+	}
+
+	private String insertAppendedStatements(String returnString)
+	{
+		if (appendedSQL.size() == 0)
+		{
+			return returnString;
+		}
+
+		for (DFSQL statement : appendedSQL)
+		{
+			returnString += " " + statement.formatted();
+		}
+
+		return returnString;
+	}
+
+	private String insertLimit(String returnString)
+	{
+		if (limitNum <= 0) { return returnString; }
+
+		returnString += " LIMIT " + limitNum;
+
+		return returnString;
+	}
 
     /**
      * @return A human readable formatted SQL statement
      */
-    public final String formattedSQLStatement()
+    private String formatted()
     {
-    	String returnString;
-    	if (updateStatements != null)	//This will be an UPDATE SET
-    	{
-    		if (fromTables == null)		{ return ""; }
-    		if (fromTables.length != 1)	{ return ""; }
-    		
-    		returnString = "UPDATE " + fromTables[0] + " SET ";
-    		
-    		for (DFSQLClauseStruct statement : updateStatements)
-    		{
-    			String left = statement.leftHandSide;
-    			String right = statement.rightHandSide;
-    			
-    			if (right.contains(" ") || hasCharacter(right))
-    			{
-    				right = "'" + right + "'";
-    			}
-    			
-    			returnString += left + "=" + right + ", ";
-    		}
-    		
-    		returnString = returnString.substring(0, returnString.length() - 2);
-    		
-    		if (whereStatements != null)
-        	{
-        		returnString += " WHERE";
-        		for (WhereStruct whereStatement : whereStatements)
-        		{
-        			String left = whereStatement.clause.leftHandSide;
-        			String right = whereStatement.clause.rightHandSide;
-        			
-        			if (right.contains(" ") || hasCharacter(right))
-        			{
-        				right = "'" + right + "'";
-        			}
-        			String joiner = "";
-    				if (whereStatement.joiner == DFSQLConjunctionClause.equals)
-    				{
-    					joiner = "=";
-    				}
-    				else if (whereStatement.joiner == DFSQLConjunctionClause.notEquals)
-    				{
-    					joiner = "!=";
-    				}
-    				else if (whereStatement.joiner == DFSQLConjunctionClause.greaterThan)
-    				{
-    					joiner = ">";
-    				}
-    				else if (whereStatement.joiner == DFSQLConjunctionClause.greaterThanOrEqualTo)
-    				{
-    					joiner = ">=";
-    				}
-    				else if (whereStatement.joiner == DFSQLConjunctionClause.lessThan)
-    				{
-    					joiner = "<";
-    				}
-    				else if (whereStatement.joiner == DFSQLConjunctionClause.lessThanOrEqualTo)
-    				{
-    					joiner = "<=";
-    				}
-    				
-        			if (whereStatement.conjunction == DFSQLConjunctionClause.none)
-        			{
-        				returnString += " " + left + joiner + right;
-        			}
-        			else
-        			{
-        				String conjunction = "";
-        				if (whereStatement.conjunction == DFSQLConjunctionClause.and)
-        				{
-        					conjunction = " AND";
-        				}
-        				else if (whereStatement.conjunction == DFSQLConjunctionClause.or)
-        				{
-        					conjunction = " OR";
-        				}
-        				returnString += " " + left + joiner + right + conjunction;
-        			}
-        		}
-        	}
-        	
-        	returnString += ";";
+    	String returnString = "";
 
-		    if (appendedDFSQL.size() != 0)
-		    {
-			    for (DFSQL statement : appendedDFSQL)
-			    {
-				    returnString += " " + statement.formattedSQLStatement();
-			    }
-		    }
-
-    		return returnString;
-    	}
-    	
-    	if (insertRows != null)
-    	{
-    		if (fromTables == null)		{ return ""; }
-    		if (fromTables.length != 1)	{ return ""; }
-    		
-    		returnString = "INSERT INTO `" + fromTables[0] + "`(";
-    		for (String row : insertRows)
-    		{
-    			returnString += "`" + row + "`,";
-    		}
-    		returnString = returnString.substring(0, returnString.length() - 1) + ") VALUES (";
-    		for (String value : insertData)
-    		{
-    			if (value.contains(" ") || hasCharacter(value))
-    			{
-    				returnString += "'" + value + "',";
-    			}
-    			else
-    			{
-    				returnString += value + ",";
-    			}
-    		}
-    		returnString = returnString.substring(0, returnString.length() - 1) + ");";
-
-		    if (appendedDFSQL.size() != 0)
-		    {
-			    for (DFSQL statement : appendedDFSQL)
-			    {
-				    returnString += " " + statement.formattedSQLStatement();
-			    }
-		    }
-
-    		return returnString;
-    	}
-    	
-    	if (selectRows == null) return ""; //We're assuming all that's left is SELECT statements
-    	
-    	returnString = "SELECT ";
-    	for (String row : selectRows)
-    	{
-    		returnString += row + ",";
-    	}
-    	returnString = returnString.substring(0, returnString.length() - 1) + " FROM ";
-    	for (String table : fromTables)
-    	{
-    		returnString += "`" + table + "`,";
-    	}
-    	returnString = returnString.substring(0, returnString.length() - 1);
-    	
-    	if (joinStatements != null)
-    	{
-    		for (JoinStruct joinStatement : joinStatements)
-    		{
-    			String left = joinStatement.clause.leftHandSide;
-    			String right = joinStatement.clause.rightHandSide;
-    			
-    			if (right.contains(" "))
-    			{
-    				right = "'" + right + "'";
-    			}
-
-    			if (joinStatement.joinType == DFSQLConjunctionClause.natural)
-    			{
-    				returnString += " NATURAL JOIN `" + joinStatement.table + "`";
-    			}
-    			else if (joinStatement.joinType == DFSQLConjunctionClause.leftOuter)
-    			{
-    				returnString += " LEFT OUTER JOIN `" + joinStatement.table + "` ON `" + left + "`=" + right;
-    			}
-    			else if (joinStatement.joinType == DFSQLConjunctionClause.rightOuter)
-    			{
-    				returnString += " RIGHT OUTER JOIN `" + joinStatement.table + "` ON `" + left + "`=" + right;
-    			}
-    			else if (joinStatement.joinType == DFSQLConjunctionClause.fullOuter)
-    			{
-    				returnString += " FULL OUTER JOIN `" + joinStatement.table + "` ON `" + left + "`=" + right;
-    			}
-    			else if (joinStatement.joinType == DFSQLConjunctionClause.cross)
-    			{
-    				returnString += " CROSS JOIN `" + joinStatement.table + "` ON `" + left + "`=" + right;
-    			}
-    			else if (joinStatement.joinType == DFSQLConjunctionClause.inner)
-    			{
-    				returnString += " INNER JOIN `" + joinStatement.table + "` ON `" + left + "`=" + right;
-    			}
-    		}
-    	}
-    	
-    	if (whereStatements != null)
-    	{
-    		returnString += " WHERE";
-    		for (WhereStruct whereStatement : whereStatements)
-    		{
-    			String left = whereStatement.clause.leftHandSide;
-    			String right = whereStatement.clause.rightHandSide;
-    			
-    			if (right.contains(" ") || hasCharacter(right))
-    			{
-    				right = "'" + right + "'";
-    			}
-    			String joiner = "";
-				if (whereStatement.joiner == DFSQLConjunctionClause.equals)
-				{
-					joiner = "=";
-				}
-				else if (whereStatement.joiner == DFSQLConjunctionClause.notEquals)
-				{
-					joiner = "!=";
-				}
-				else if (whereStatement.joiner == DFSQLConjunctionClause.greaterThan)
-				{
-					joiner = ">";
-				}
-				else if (whereStatement.joiner == DFSQLConjunctionClause.greaterThanOrEqualTo)
-				{
-					joiner = ">=";
-				}
-				else if (whereStatement.joiner == DFSQLConjunctionClause.lessThan)
-				{
-					joiner = "<";
-				}
-				else if (whereStatement.joiner == DFSQLConjunctionClause.lessThanOrEqualTo)
-				{
-					joiner = "<=";
-				}
-				
-    			if (whereStatement.conjunction == DFSQLConjunctionClause.none)
-    			{
-    				returnString += " " + left + joiner + right;
-    			}
-    			else
-    			{
-    				String conjunction = "";
-    				if (whereStatement.conjunction == DFSQLConjunctionClause.and)
-    				{
-    					conjunction = " AND";
-    				}
-    				else if (whereStatement.conjunction == DFSQLConjunctionClause.or)
-    				{
-    					conjunction = " OR";
-    				}
-    				returnString += " " + left + joiner + right + conjunction;
-    			}
-    		}
-    	}
-    	
-    	returnString += ";";
-
-	    if (appendedDFSQL.size() != 0)
+    	//DELETE FROM Statements
+    	if (!deleteFromTable.isEmpty())
 	    {
-		    for (DFSQL statement : appendedDFSQL)
+	    	if (whereStatements.length != 1) { return returnString; }
+
+	    	returnString += "DELETE FROM " + deleteFromTable;
+	    	returnString = insertWhereAndOrderByStatements(returnString);
+	    	returnString += ";";
+	    	returnString = insertAppendedStatements(returnString);
+	    	return returnString;
+	    }
+
+	    //UPDATE Statements
+	    if (updateStatements.length != 0)
+	    {
+	    	if (fromTables.length == 0 || fromTables.length != 1)
 		    {
-			    returnString += " " + statement.formattedSQLStatement();
+		    	return returnString;
+		    }
+
+		    returnString = "UPDATE `" + fromTables[0] + "` SET ";
+
+	    	for (DFSQLClause clause : updateStatements)
+		    {
+		    	final String left = clause.attribute;
+		    	String right = clause.value;
+
+			    boolean isNum = false;
+			    try
+			    {
+				    new Integer(right);
+				    isNum = true;
+			    }
+			    catch (Exception ignored) { }
+			    if (right.contains(" ") || !isNum)
+			    {
+				    right = "'" + right + "'";
+			    }
+			    returnString += left + "=" + right + ", ";
+		    }
+
+		    returnString = returnString.substring(0, returnString.length() - 2);
+
+		    returnString = insertWhereAndOrderByStatements(returnString);
+	    	returnString += ";";
+		    returnString = insertAppendedStatements(returnString);
+
+	    	return returnString;
+	    }
+
+	    //INSERT Statements
+	    if (insertRows.length != 0)
+	    {
+	    	if (fromTables.length == 0 || fromTables.length != 1) { return returnString; }
+
+	    	returnString = "INSERT INTO `" + fromTables[0] + "`(";
+	    	for (String row : insertRows)
+		    {
+		    	returnString += "`" + row + "`,";
+		    }
+
+		    returnString = returnString.substring(0, returnString.length() - 1) + ") VALUES (";
+
+	    	for (String value : insertValues)
+		    {
+			    boolean isNum = false;
+			    try
+			    {
+				    new Integer(value);
+				    isNum = true;
+			    }
+			    catch (Exception ignored) { }
+			    if (value.contains(" ") || !isNum)
+			    {
+				    returnString += "'" + value + "',";
+			    }
+			    else
+			    {
+			    	returnString += value + ",";
+			    }
+		    }
+
+		    returnString = returnString.substring(0, returnString.length() - 1) + ")";
+
+	    	if (duplicateKeys.length != 0)
+		    {
+		    	returnString += " ON DUPLICATE KEY UPDATE ";
+		    	int count = 0;
+		    	for (String row : duplicateKeys)
+			    {
+			    	returnString += "`" + row + "`='" + duplicateValues[count] + "',";
+			    	count++;
+			    }
+
+			    returnString = returnString.substring(0, returnString.length() - 1);
+		    }
+
+		    returnString += ";";
+
+		    returnString = insertAppendedStatements(returnString);
+
+	    	return returnString;
+	    }
+
+	    //REST OF THE STUFF
+
+	    if (selectRows.length == 0) return returnString;
+
+    	returnString = "SELECT ";
+    	if (distinctSelect)
+	    {
+	    	returnString += "DISTINCT ";
+	    }
+	    for (String row : selectRows)
+	    {
+	    	if (!row.contains("(") && !row.contains(")"))
+		    {
+		    	returnString += "`" + row + "`,";
+		    }
+		    else
+		    {
+		    	returnString += row + ",";
 		    }
 	    }
 
-    	return returnString;
+	    returnString = returnString.substring(0, returnString.length() - 1) + " FROM ";
+
+    	for (String table : fromTables)
+	    {
+	    	returnString += "`" + table + "`,";
+	    }
+
+	    returnString = returnString.substring(0, returnString.length() - 1);
+
+    	if (joinStatements.length != 0)
+	    {
+	    	for (InternalJoin join : joinStatements)
+		    {
+		    	final String left = join.clause.attribute;
+		    	String right = join.clause.value;
+
+			    boolean isNum = false;
+			    try
+			    {
+				    new Integer(right);
+				    isNum = true;
+			    }
+			    catch (Exception ignored) { }
+			    if (right.contains(" ") || !isNum)
+			    {
+				    returnString = "'" + right + "',";
+			    }
+
+			    returnString += join.joinType + " JOIN `" + join.table + (join.joinType != DFSQLJoin.natural ? ("` ON `" + left + "=" + right) : "`");
+		    }
+	    }
+
+	    returnString = insertWhereAndOrderByStatements(returnString);
+	    returnString = insertLimit(returnString);
+    	returnString += ";";
+	    returnString = insertAppendedStatements(returnString);
+
+		return returnString;
     }
-    
+
+    private void check(String attribute) throws DFSQLError
+    {
+        if (attribute.contains("*")) throw DFSQLError.cannotUseWildcardSpecifier;
+        if (Objects.equals(attribute, "")) throw DFSQLError.cannotUseEmptyValue;
+
+        String[] specifiers = new String[] {"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " AND", " OR"};
+
+        for (String specifier : specifiers)
+        {
+            if (attribute.toUpperCase().contains(specifier)) throw DFSQLError.unexpectedValueFound;
+        }
+
+        if (!attribute.contains("."))
+        {
+            if (attribute.length() > 64)
+            {
+                throw DFSQLError.attributeLengthTooLong;
+            }
+        }
+        else
+        {
+            String[] components = attribute.split(Pattern.quote("."));
+	        String table = components[0];
+	        String row = components[1];
+
+	        if (table.contains("`"))
+	        {
+	        	if (table.length() > 66)
+		        {
+		        	throw DFSQLError.attributeLengthTooLong;
+		        }
+	        }
+	        else
+	        {
+		        if (table.length() > 64)
+		        {
+			        throw DFSQLError.attributeLengthTooLong;
+		        }
+	        }
+        }
+    }
+
+    private void check(String value, DFSQLEquivalence equivalence) throws DFSQLError
+    {
+        if (Objects.equals(value, "")) { throw DFSQLError.cannotUseEmptyValue; }
+
+        String[] specifiers;
+        if (equivalence != DFSQLEquivalence.between && equivalence != DFSQLEquivalence.notBetween)
+        {
+        	specifiers = new String[] {"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " AND", " OR"};
+        }
+        else
+        {
+        	specifiers = new String[] {"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " OR"};
+        }
+
+	    for (String specifier : specifiers)
+	    {
+		    if (value.toUpperCase().contains(specifier)) throw DFSQLError.unexpectedValueFound;
+	    }
+    }
+
     private boolean hasCharacter(String string)
     {
     	String  lowered = string.toLowerCase();
@@ -307,1221 +390,530 @@ import java.util.Objects;
                 lowered.contains("v") || lowered.contains("w") || lowered.contains("x") ||
                 lowered.contains("y") || lowered.contains("z");
     }
-    
+
     //MARK: - SELECT Constructors
 
-    /**
-     * SELECT statement with 1 row
-     * @param row the attribute to request
-     * @return self
-     * @throws DFSQLError If no row specified, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL select(String row) throws DFSQLError
-    {
-        if (selectRows != null)         { throw DFSQLError.conditionAlreadyExists; }
-        if (row.contains("*")) 		   	{ throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(row, ""))               	{ throw DFSQLError.cannotUseEmptyValue; }
-        if (row.length() > 64)			{ throw DFSQLError.rowLengthTooLong; }
-        
-        selectRows = new String[] { row };
-        
-        return this;
-    }
-
-    /**
-     * SELECT statement with multiple row
-     * @param rows the attributes to request
-     * @return self
-     * @throws DFSQLError If no rows specified, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL select(String[] rows) throws DFSQLError
-    {
-        if (selectRows != null)	{ throw DFSQLError.conditionAlreadyExists; }
-        
-        for (String row : rows)
-        {
-            if (row.contains("*"))	{ throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(row, ""))         	{ throw DFSQLError.cannotUseEmptyValue; }
-            if (row.length() > 64)	{ throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        selectRows = rows;
-        
-        return this;
-    }
-    
-    //MARK: - FROM Constructors
-
-    /**
-     * FROM statement with one table
-     * @param table the table to request
-     * @return self
-     * @throws DFSQLError If no table specified, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL from(String table) throws DFSQLError
-    {
-        if (fromTables != null)         { throw DFSQLError.conditionAlreadyExists; }
-        if (table.contains("*"))        { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, ""))  { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64)        { throw DFSQLError.tableLengthTooLong; }
-
-        fromTables = new String[] {table};
-        
-        return this;
-    }
-
-    /**
-     * FROM statement with multiple tables
-     * @param tables the tables to request
-     * @return self
-     * @throws DFSQLError If no tables specified, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL from(String[] tables) throws DFSQLError
-    {
-        if (fromTables != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        for (String table : tables)
-        {
-            if (table.contains("*"))        { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(table, ""))  { throw DFSQLError.cannotUseEmptyValue; }
-            if (table.length() > 64)        { throw DFSQLError.tableLengthTooLong; }
-        }
-        
-        fromTables = tables;
-        
-        return this;
-    }
-    
-    //MARK: - UPDATE SET Constructor
-
-    /**
-     * UPDATE statement with one clause
-     * @param table the table to request
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL update(String table, String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (fromTables != null)         { throw DFSQLError.conditionAlreadyExists; }
-        if (table.contains("*"))        { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, ""))  { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64)        { throw DFSQLError.tableLengthTooLong; }
-
-        fromTables = new String[] {table};
-
-        if (leftHandSide.contains("*"))         { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(leftHandSide, ""))   { throw DFSQLError.cannotUseEmptyValue; }
-        if (leftHandSide.length() > 64)         { throw DFSQLError.rowLengthTooLong; }
-        if (rightHandSide.contains("*"))        { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, ""))  { throw DFSQLError.cannotUseEmptyValue; }
-
-        updateStatements = new DFSQLClauseStruct[] {new DFSQLClauseStruct(leftHandSide, rightHandSide)};
-        
-        return this;
-    }
-
-    /**
-     * UPDATE statement with multiple clauses
-     * @param table the table to request
-     * @param statements the clause(s)
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL update(String table, DFSQLClauseStruct[] statements) throws DFSQLError
-    {
-        if (fromTables != null)         { throw DFSQLError.conditionAlreadyExists; }
-        if (table.contains("*"))        { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, ""))  { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64)        { throw DFSQLError.tableLengthTooLong; }
-
-        fromTables = new String[] {table};
-        
-        for (DFSQLClauseStruct statement : statements)
-        {
-            if (statement.leftHandSide.contains("*"))           { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.leftHandSide, ""))     { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.leftHandSide.length() > 64)           { throw DFSQLError.rowLengthTooLong; }
-
-            if (statement.rightHandSide.contains("*"))          { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.rightHandSide, ""))    { throw DFSQLError.cannotUseEmptyValue; }
-        }
-        
-        updateStatements = statements;
-        
-        return this;
-    }
-    
-    //MARK: - INSERT INTO Constructor
-
-    /**
-     * INSERT INTO statement
-     * @param table the table to insert into
-     * @param values the values for the entry
-     * @param rows the attributes to insert into
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, values and rows do not match, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL insert(String table, String[] values, String[] rows) throws DFSQLError
-    {
-        if (fromTables != null) { throw DFSQLError.conditionAlreadyExists; }
-        if (insertData != null) { throw DFSQLError.conditionAlreadyExists; }
-        if (insertRows != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        if (values.length != rows.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-        fromTables = new String[] {table};
-        
-        for (String value : values)
-        {
-            if (value.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(value, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        }
-        
-        for (String row : rows)
-        {
-            if (row.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(row, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (row.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        insertData = values;
-        insertRows = rows;
-        
-        return this;
-    }
-    
-    //MARK: - JOIN ON Constructors
-
-    /**
-     * JOIN statement convenience method
-     * @param table the table to join on
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinOn(String table, String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        if (leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        if (rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-        if (table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-        joinStatements = new ArrayList<>();
-        joinStatements.add(new JoinStruct(DFSQLConjunctionClause.natural, table, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * JOIN statement convenience method
-     * @param joins a variable amount of JOIN clauses using NATURAL JOIN
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinOn(JoinParam[] joins) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        joinStatements = new ArrayList<>();
-        
-        for (JoinParam statement : joins)
-        {
-            if (statement.leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-            if (statement.rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-            if (statement.table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-            joinStatements.add(new JoinStruct(DFSQLConjunctionClause.natural, statement.table, new DFSQLClauseStruct(statement.leftHandSide, statement.rightHandSide)));
-        }
-        
-        return this;
-    }
-
-    /**
-     * NATURAL JOIN statement
-     * @param table the table to join on
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinNatural(String table, String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        if (leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        if (rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-        if (table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-        joinStatements = new ArrayList<>();
-        joinStatements.add(new JoinStruct(DFSQLConjunctionClause.natural, table, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * NATURAL JOIN statement
-     * @param joins a variable amount of JOIN clauses using NATURAL JOIN
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinNatural(JoinParam[] joins) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        joinStatements = new ArrayList<>();
-        
-        for (JoinParam statement : joins)
-        {
-            if (statement.leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-            if (statement.rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-            if (statement.table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-            joinStatements.add(new JoinStruct(DFSQLConjunctionClause.natural, statement.table, new DFSQLClauseStruct(statement.leftHandSide, statement.rightHandSide)));
-        }
-        
-        return this;
-    }
-
-    /**
-     * LEFT OUTER JOIN statement
-     * @param table the table to join on
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinLeftOuter(String table, String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        if (leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        if (rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-        if (table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-        joinStatements = new ArrayList<>();
-        joinStatements.add(new JoinStruct(DFSQLConjunctionClause.leftOuter, table, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * LEFT OUTER JOIN statement
-     * @param joins a variable amount of JOIN clauses using NATURAL JOIN
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinLeftOuter(JoinParam[] joins) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        joinStatements = new ArrayList<>();
-        
-        for (JoinParam statement : joins)
-        {
-            if (statement.leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-            if (statement.rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-            if (statement.table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-            joinStatements.add(new JoinStruct(DFSQLConjunctionClause.leftOuter, statement.table, new DFSQLClauseStruct(statement.leftHandSide, statement.rightHandSide)));
-        }
-        
-        return this;
-    }
-
-    /**
-     * RIGHT OUTER JOIN statement
-     * @param table the table to join on
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinRightOuter(String table, String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        if (leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        if (rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-        if (table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-        joinStatements = new ArrayList<>();
-        joinStatements.add(new JoinStruct(DFSQLConjunctionClause.rightOuter, table, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * RIGHT OUTER JOIN statement
-     * @param joins a variable amount of JOIN clauses using NATURAL JOIN
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinRightOuter(JoinParam[] joins) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        joinStatements = new ArrayList<>();
-        
-        for (JoinParam statement : joins)
-        {
-            if (statement.leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-            if (statement.rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-            if (statement.table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-            joinStatements.add(new JoinStruct(DFSQLConjunctionClause.rightOuter, statement.table, new DFSQLClauseStruct(statement.leftHandSide, statement.rightHandSide)));
-        }
-        
-        return this;
-    }
-
-    /**
-     * FULL OUTER JOIN statement
-     * @param table the table to join on
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinFullOuter(String table, String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        if (leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        if (rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-        if (table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-        joinStatements = new ArrayList<>();
-        joinStatements.add(new JoinStruct(DFSQLConjunctionClause.fullOuter, table, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * FULL OUTER JOIN statement
-     * @param joins a variable amount of JOIN clauses using NATURAL JOIN
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinFullOuter(JoinParam[] joins) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        joinStatements = new ArrayList<>();
-        
-        for (JoinParam statement : joins)
-        {
-            if (statement.leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-            if (statement.rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-            if (statement.table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-            joinStatements.add(new JoinStruct(DFSQLConjunctionClause.fullOuter, statement.table, new DFSQLClauseStruct(statement.leftHandSide, statement.rightHandSide)));
-        }
-        
-        return this;
-    }
-
-    /**
-     * CROSS JOIN statement
-     * @param table the table to join on
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinCross(String table, String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        if (leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        if (rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-        if (table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-        joinStatements = new ArrayList<>();
-        joinStatements.add(new JoinStruct(DFSQLConjunctionClause.cross, table, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * CROSS JOIN statement
-     * @param joins a variable amount of JOIN clauses using NATURAL JOIN
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinCross(JoinParam[] joins) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        joinStatements = new ArrayList<>();
-        
-        for (JoinParam statement : joins)
-        {
-            if (statement.leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-            if (statement.rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-            if (statement.table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-            joinStatements.add(new JoinStruct(DFSQLConjunctionClause.cross, statement.table, new DFSQLClauseStruct(statement.leftHandSide, statement.rightHandSide)));
-        }
-        
-        return this;
-    }
-
-    /**
-     * INNER JOIN statement
-     * @param table the table to join on
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinInner(String table, String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        if (leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        if (rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-        if (table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-        if (table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-        joinStatements = new ArrayList<>();
-        joinStatements.add(new JoinStruct(DFSQLConjunctionClause.inner, table, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * INNER JOIN statement
-     * @param joins a variable amount of JOIN clauses using NATURAL JOIN
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL joinInner(JoinParam[] joins) throws DFSQLError
-    {
-        if (joinStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        joinStatements = new ArrayList<>();
-        
-        for (JoinParam statement : joins)
-        {
-            if (statement.leftHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.leftHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-            if (statement.rightHandSide.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.rightHandSide, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-            if (statement.table.contains("*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (Objects.equals(statement.table, "")) { throw DFSQLError.cannotUseEmptyValue; }
-            if (statement.table.length() > 64) { throw DFSQLError.tableLengthTooLong; }
-
-            joinStatements.add(new JoinStruct(DFSQLConjunctionClause.inner, statement.table, new DFSQLClauseStruct(statement.leftHandSide, statement.rightHandSide)));
-        }
-        
-        return this;
-    }
-    
-    //MARK: - WHERE Constructors
-    
-    //MARK: Single
-
-    /**
-     * WHERE ...=... statement
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereEquals(String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        whereStatements = new ArrayList<>();
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.equals, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...!=... statement
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereDoesNotEqual(String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        whereStatements = new ArrayList<>();
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.notEquals, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&lt;... statement
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereIsLessThan(String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        whereStatements = new ArrayList<>();
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.lessThan, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&lt;=... statement
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereLessThanOrEqual(String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        whereStatements = new ArrayList<>();
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.lessThanOrEqualTo, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-
-        return this;
-    }
-
-    /**
-     * WHERE ...&gt;... statement
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereGreaterThan(String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        whereStatements = new ArrayList<>();
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.greaterThan, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&gt;=... statement
-     * @param leftHandSide the left hand side of the clause
-     * @param rightHandSide the right hand side of the clause
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereGreaterThanOrEqual(String leftHandSide, String rightHandSide) throws DFSQLError
-    {
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-        if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-
-        whereStatements = new ArrayList<>();
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.greaterThanOrEqualTo, new DFSQLClauseStruct(leftHandSide, rightHandSide)));
-        
-        return this;
-    }
-    
-    //MARK: AND
-
-    /**
-     * WHERE ...=... AND ...=... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereAndEquals(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.and, DFSQLConjunctionClause.equals, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.equals, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...!=... AND ...!=... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereAndDoesNotEqual(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.and, DFSQLConjunctionClause.notEquals, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.notEquals, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&gt;... AND ...&gt;... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereAndGreaterThan(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.and, DFSQLConjunctionClause.greaterThan, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.greaterThan, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&gt;=... AND ...&gt;=... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereAndGreaterThanOrEqual(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.and, DFSQLConjunctionClause.greaterThanOrEqualTo, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.greaterThanOrEqualTo, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&lt;... AND ...&lt;... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereAndLessThan(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.and, DFSQLConjunctionClause.lessThan, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.lessThan, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&lt;=... AND ...&lt;=... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereAndLessThanOrEqual(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.and, DFSQLConjunctionClause.lessThanOrEqualTo, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.lessThanOrEqualTo, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-    
-    //MARK: OR
-
-    /**
-     * WHERE ...=... OR ...=... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereOrEquals(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.or, DFSQLConjunctionClause.equals, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.equals, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...!=... OR ...!=... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereOrNotEqual(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.or, DFSQLConjunctionClause.notEquals, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.notEquals, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&gt;... OR ...&gt;... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereOrGreaterThan(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.or, DFSQLConjunctionClause.greaterThan, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.greaterThan, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&gt;=... OR ...&gt;=... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereOrGreaterThanOrEqual(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.or, DFSQLConjunctionClause.greaterThanOrEqualTo, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.greaterThanOrEqualTo, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&lt;... OR ...&lt;... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereOrLessThan(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.or, DFSQLConjunctionClause.lessThan, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.lessThan, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-
-    /**
-     * WHERE ...&lt;=... OR ...&lt;=... statement
-     * @param leftHandSides the left hand sides of the clauses
-     * @param rightHandSides the right hand sides of the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereOrLessThanOrEqual(String[] leftHandSides, String[] rightHandSides) throws DFSQLError
-    {
-        if (leftHandSides.length != rightHandSides.length) { throw DFSQLError.conditionsMustBeEqual; }
-
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        whereStatements = new ArrayList<>();
-        
-        for (String leftHandSide : leftHandSides)
-        {
-            if (Objects.equals(leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-        }
-        
-        for (String rightHandSide : rightHandSides)
-        {
-            if (Objects.equals(rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-        
-        for (int index = 0; index < leftHandSides.length - 1; index++)
-        {
-            String lhs = leftHandSides[index];
-            String rhs = rightHandSides[index];
-            
-            whereStatements.add(new WhereStruct(DFSQLConjunctionClause.or, DFSQLConjunctionClause.lessThanOrEqualTo, new DFSQLClauseStruct(lhs, rhs)));
-        }
-        
-        whereStatements.add(new WhereStruct(DFSQLConjunctionClause.none, DFSQLConjunctionClause.lessThanOrEqualTo, new DFSQLClauseStruct(leftHandSides[leftHandSides.length - 1], rightHandSides[rightHandSides.length - 1])));
-        
-        return this;
-    }
-    
-    //MARK: Custom
-
-    /**
-     * Custom WHERE statement.  Can take any combination of equalities and conjunctions
-     * @param custom the clauses
-     * @return self
-     * @throws DFSQLError If a parameter is null, already exists, leftHandSides and rightHandSides are not equal, `*` is used, is empty, or is greater than 64 in length
-     */
-    public DFSQL whereCustom(WhereStruct[] custom) throws DFSQLError
-    {
-        if (custom.length == 0) { throw DFSQLError.cannotUseEmptyValue; }
-        if (whereStatements != null) { throw DFSQLError.conditionAlreadyExists; }
-
-        for (WhereStruct whereClause : custom)
-        {
-        	DFSQLClauseStruct SQLClause = whereClause.clause;
-
-            if (Objects.equals(SQLClause.leftHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-            if (SQLClause.leftHandSide.length() > 64) { throw DFSQLError.rowLengthTooLong; }
-            if (Objects.equals(SQLClause.rightHandSide, "*")) { throw DFSQLError.cannotUseAllRowsSQLSpecifier; }
-        }
-       
-        whereStatements = new ArrayList<>();
-        Collections.addAll(whereStatements, custom);
-        
-        return this;
-    }
+	/**
+    * SELECT statement with 1 row
+    * - Parameter attribute: the attribute to request
+    * - Parameter distinct: if the query should return only distinct rows or not.  Defaults to `false`
+    * - Parameter into: A table, if any, to copy(insert) this data into.  Defaults to `nil`
+    * - Parameter in: An exterior database, if any, the `into` table resides.  A value of `nil` assumes the current working database.  Defaults to `nil`
+    * - Returns: An instance of `MSSQL`
+    * - Throws: `MSSQLError`: If no attribute specified, `*` is used, is empty, or is greater than 64 characters in length
+    */
+	public DFSQL select(String attribute, boolean distinct, String into, String in) throws DFSQLError
+	{
+		if (selectRows.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+		check(attribute);
+
+		distinctSelect = distinct;
+		selectRows = new String[] { attribute };
+
+		if (into != null)
+		{
+			if (!Objects.equals(intoTable, ""))
+			{
+				throw DFSQLError.conditionAlreadyExists;
+			}
+			check(into);
+			intoTable = into;
+
+			if (in != null)
+			{
+				if (!Objects.equals(inDB, ""))
+				{
+					throw DFSQLError.conditionAlreadyExists;
+				}
+				check(in);
+				inDB = in;
+			}
+		}
+
+		return this;
+	}
+
+	/**
+	 SELECT statement with multiple rows
+	 - Parameter attributes: the attributes to request
+	 - Parameter distinct: if the query should return only distinct rows or not.  Defaults to `false`
+	 - Parameter into: A table, if any, to copy(insert) this data into.  Defaults to `nil`
+	 - Parameter in: An exterior database, if any, the `into` table resides.  A value of `nil` assumes the current working database.  Defaults to `nil`
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError`: If no attributes specified, `*` is used, is empty, or any attribute is greater than 64 characters in length
+	 */
+	public DFSQL select(String[] attributes, boolean distinct, String into, String in) throws DFSQLError
+	{
+		if (selectRows.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		for (String attribute : attributes)
+		{
+			check(attribute);
+		}
+
+		distinctSelect = distinct;
+		selectRows = attributes;
+
+		if (into != null)
+		{
+			if (!Objects.equals(intoTable, ""))
+			{
+				throw DFSQLError.conditionAlreadyExists;
+			}
+			check(into);
+			intoTable = into;
+
+			if (in != null)
+			{
+				if (!Objects.equals(inDB, ""))
+				{
+					throw DFSQLError.conditionAlreadyExists;
+				}
+				check(in);
+				inDB = in;
+			}
+		}
+
+		return this;
+	}
+
+	//MARK: - FROM Constructors
+
+	/**
+	 FROM statement with one table
+	 - Parameter table: the table to request
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If no table specified, `*` is used, is empty, or table is greater than 64 characters in length
+	 */
+	public DFSQL from(String table) throws DFSQLError
+	{
+		if (fromTables.length != 0)
+		{
+			throw  DFSQLError.conditionAlreadyExists;
+		}
+		check(table);
+
+		fromTables = new String[] { table };
+		return this;
+	}
+
+	/**
+	 FROM statement with multiple tables
+	 - Parameter tables: the tables to request
+	 - Returns: An instance of `DFSQL`
+	 - Throws: `DFSQLError` If no tables specified, `*` is used, is empty, or if any table is greater than 64 characters in length
+	 */
+	public DFSQL from(String[] tables) throws DFSQLError
+	{
+		if (fromTables.length != 0)
+		{
+			throw  DFSQLError.conditionAlreadyExists;
+		}
+		for (String table : tables)
+		{
+			check(table);
+		}
+
+		fromTables = tables;
+		return this;
+	}
+
+	//MARK: - UPDATE SET Constructors
+
+	/**
+	 UPDATE statement with one clause
+	 - Parameter table: The table to request
+	 - Parameter attribute: The left hand side of the clause
+	 - Parameter value: The right hand side of the clause
+	 - Returns: An instance of `DFSQL`
+	 - Throws: `DFSQLError` If a parameter is nil, already exists, `*` is used, is empty, or the `table` | `attribute` is greater than 64 characters in length
+	 */
+	public DFSQL update(String table, String attribute, String value) throws DFSQLError
+	{
+		if (fromTables.length != 0 || updateStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		check(table);
+		check(attribute);
+		check(value, DFSQLEquivalence.lessThan);
+
+		fromTables = new String[] { table };
+		updateStatements = new DFSQLClause[] {new DFSQLClause(attribute, value)};
+
+		return this;
+	}
+
+	/**
+	 UPDATE statements with multiple clauses
+	 - Parameter table: The table to request
+	 - Parameter clauses: The clauses
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If a parameter is nil, already exists, `*` is used, is empty, or the `table` | `attribute` of any clause is greater than 64 characters in length
+	 */
+	public DFSQL update(String table, DFSQLClause[] set) throws DFSQLError
+	{
+		if (fromTables.length != 0 || updateStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		check(table);
+		for (DFSQLClause clause : set)
+		{
+			check(clause.attribute);
+			check(clause.value, DFSQLEquivalence.lessThan);
+		}
+
+		fromTables = new String[] { table };
+		updateStatements = set;
+
+		return this;
+	}
+
+	//MARK: - INSERT INTO Constructor
+
+	/**
+	 INSERT INTO statement
+	 - Parameter table: the table to insert the new row into
+	 - Parameter values: the values for entry
+	 - Parameter attributes: the attributes to set
+	 - Returns: An instance of `MSSQL`
+	 - Throws `MSSQLError` If a parameter is null, already exists, values and attributes do not match in size, `*` is used, is empty, or any attribute | table is greater than 64 characters in length
+	 */
+	public DFSQL insert(String table, String[] values, String[] attributes) throws DFSQLError
+	{
+		if (fromTables.length != 0 || insertRows.length != 0 || insertValues.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		check(table);
+		for (String attribute : attributes)
+		{
+			check(attribute);
+		}
+
+		for (String value : values)
+		{
+			check(value, DFSQLEquivalence.lessThan);
+		}
+
+		fromTables = new String[] { table };
+		insertRows = attributes;
+		insertValues = values;
+
+		return this;
+	}
+
+	/**
+	 INSERT ... ON DUPLICATE KEY UPDATE Constructor
+
+	 Use this statement in conjuction with WHERE and/or LIMIT to specify which row to update if not 100% unique.
+
+	 - Parameter attributes: The attributes to update
+	 - Parameter values: The values to update to
+	 - Returns: An instance of `MSSQL`
+	 - Throws `MSSQLError` If a parameter is null, already exists, values and attributes do not match in size, `*` is used, is empty, or any attribute is greater than 64 characters in length
+	 */
+	public DFSQL onDuplicateKey(String[] attributes, String[] values) throws DFSQLError
+	{
+		if (insertRows.length == 0 || insertValues.length == 0 || duplicateKeys.length != 0 || duplicateValues.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		for (String attribute : attributes)
+		{
+			check(attribute);
+		}
+		for (String value : values)
+		{
+			check(value, DFSQLEquivalence.lessThan);
+		}
+
+		duplicateKeys = attributes;
+		duplicateValues = values;
+
+		return this;
+	}
+
+	//MARK: - DELETE FROM Constructor
+
+	public DFSQL delete(String from, Where where) throws DFSQLError
+	{
+		if (!Objects.equals(deleteFromTable, ""))
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		check(where.clause.attribute);
+		check(where.clause.value, DFSQLEquivalence.lessThan);
+
+		deleteFromTable = from;
+		whereStatements = new Where[] { where };
+
+		return this;
+	}
+
+	//MARK: - JOIN Constructors
+
+	/**
+	 JOIN statement convenience method
+	 - Parameter table: the table to join on
+	 - Parameter attribute: the left hand side of the clause
+	 - Parameter value: the right hand side of the clause
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used, is empty, or if the `table` | `attribute` is greater than 64 characters in length
+	 */
+	public DFSQL join(DFSQLJoin join, String table, String attribute, String value) throws DFSQLError
+	{
+		if (joinStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		check(table);
+		check(attribute);
+		check(value, DFSQLEquivalence.lessThan);
+
+		joinStatements = new InternalJoin[] { new InternalJoin(join, table, new DFSQLClause(attribute, value)) };
+
+		return this;
+	}
+
+	/**
+	 JOIN statement convenience method
+	 - Parameter joins: The joins to make
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used, is empty, or if the `table` | `attribute` of any `Join` is greater than 64 characters in length
+	 */
+	public DFSQL join(DFSQLJoin join, Join[] joins) throws DFSQLError
+	{
+		if (joinStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		for (Join joinn : joins)
+		{
+			check(joinn.table);
+			check(joinn.tableOneAttribute);
+			check(joinn.tableTwoAttribute);
+		}
+
+		ArrayList<InternalJoin> joins1 = new ArrayList<>();
+
+		for (Join joinnn : joins)
+		{
+			joins1.add(new InternalJoin(join, joinnn.table, new DFSQLClause(joinnn.tableOneAttribute, joinnn.tableTwoAttribute)));
+		}
+
+		joinStatements = (InternalJoin[])joins1.toArray();
+
+		return this;
+	}
+
+	//MARK: - WHERE Constructors
+
+	/**
+	 WHERE ...X... statement
+	 - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
+	 - Parameter equivalence: The equivalence of the statement
+	 - Parameter attribute: The left hand side of the clause
+	 - Parameter value: The right hand side of the clause
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used in an attribute, is empty, or the `attribute` is greater than 64 characters in length
+	 */
+	public DFSQL where(DFSQLEquivalence equivalence, String attribute, String value) throws DFSQLError
+	{
+		if (whereStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+		if (Objects.equals(attribute, value))
+		{
+			throw DFSQLError.whereConditionsCannotBeEqual;
+		}
+
+		check(attribute);
+
+		if (!Objects.equals(value, WhereStatementComparesNullString))
+		{
+			check(value, equivalence);
+		}
+
+		whereStatements = new Where[] { new Where(DFSQLConjunction.none, equivalence, new DFSQLClause(attribute, value)) };
+
+		return this;
+	}
+
+	/**
+	 WHERE ...X...[, ...X...] statement
+	 - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
+	 - Parameter equivalence: The equivalence of each statement
+	 - Parameter attribute: The left hand side of the clause
+	 - Parameter value: The right hand side of the clause
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used in an attribute, is empty, or any `attribute` is greater than 64 characters in length
+	 */
+	public DFSQL where(DFSQLConjunction where, DFSQLEquivalence equivalence, String[] attributes, String[] values) throws DFSQLError
+	{
+		if (whereStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+		if (attributes.length != values.length)
+		{
+			throw DFSQLError.conditionsMustBeEqual;
+		}
+
+		for (String attribute : attributes)
+		{
+			check(attribute);
+		}
+		for (String value : values)
+		{
+			if (!Objects.equals(value, WhereStatementComparesNullString))
+			{
+				check(value, equivalence);
+			}
+		}
+
+		ArrayList<Where> wheres = new ArrayList<>();
+
+		for (int i = 0; i < attributes.length - 1; i++)
+		{
+			String attribute = attributes[i];
+			String value = values[i];
+			if (Objects.equals(attribute, value))
+			{
+				throw DFSQLError.whereConditionsCannotBeEqual;
+			}
+
+			wheres.add(new Where(where, equivalence, new DFSQLClause(attribute, value)));
+		}
+
+		wheres.add(new Where(DFSQLConjunction.none, equivalence, new DFSQLClause(attributes[attributes.length - 1], values[attributes.length - 1])));
+
+		whereStatements = (Where[])wheres.toArray();
+
+		return this;
+	}
+
+	/**
+	 WHERE ...X...[, ...Y...] statement
+	 - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
+	 - Parameter custom: A collection of `Where` structs.  The last `Where` struct **MUST** have `.none` as the conjunction
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `table` or `attribute` parameter of any `Where`, is empty, any `attribute` is greater than 64 characters in length, or if the last `Where` struct does not have `.none` as its conjunction
+	 */
+	public DFSQL where(Where[] custom) throws DFSQLError
+	{
+		if (custom.length == 0)
+		{
+			throw DFSQLError.cannotUseEmptyValue;
+		}
+		if (whereStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		for (Where where : custom)
+		{
+			check(where.clause.attribute);
+			if (!Objects.equals(where.clause.value, WhereStatementComparesNullString))
+			{
+				check(where.clause.value, where.equivalence);
+			}
+			if (Objects.equals(where.clause.attribute, where.clause.value))
+			{
+				throw DFSQLError.whereConditionsCannotBeEqual;
+			}
+		}
+
+		if (custom[custom.length - 1].conjunction != DFSQLConjunction.none)
+		{
+			throw DFSQLError.unexpectedValueFound;
+		}
+
+		whereStatements = custom;
+
+		return this;
+	}
+
+	//MARK: - ORDER BY Constructors
+
+	/**
+	 ORDER BY ... ASC|DESC statement
+	 - Parameter attribute: The attribute to order by
+	 - Parameter direction: Order ascending or descending
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `attribute` parameter, is empty, the `attribute` is greater than 64 characters in length
+	 */
+	public DFSQL orderBy(String attribute, DFSQLOrderBy direction) throws DFSQLError
+	{
+		if (orderByStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+		check(attribute);
+
+		orderByStatements = new OrderBy[] { new OrderBy(attribute, direction) };
+
+		return this;
+	}
+
+	/**
+	 ORDER BY ... ASC|DESC[, ... ASC|DESC] statement
+	 - Parameter attributes: The attributes and directions to order by
+	 - Returns: An instance of `MSSQL`
+	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `attribute` parameter of any `OrderBy`, is empty, the `attribute` of any `OrderBy` is greater than 64 characters in length
+	 */
+	public DFSQL orderBy(OrderBy[] attributes) throws DFSQLError
+	{
+		if (orderByStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+		for (OrderBy att : attributes)
+		{
+			check(att.attribute);
+		}
+
+		orderByStatements = attributes;
+		return this;
+	}
+
+	//MARK: - LIMIT Constructor
+
+	/**
+	 LIMIT X statement
+
+	 Can only be used with SELECT statements
+	 - Parameter num: the limit of rows to return for display.  Must be greater than 0
+	 - Throws: `MSSQLError` if `num` is less than 1
+	 - Returns: An instance of `MSSQL`
+	 */
+	public DFSQL limit(int num) throws DFSQLError
+	{
+		if (limitNum != -1)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+		if (num <= 0)
+		{
+			throw DFSQLError.unexpectedValueFound;
+		}
+
+		limitNum = num;
+		return this;
+	}
 }
