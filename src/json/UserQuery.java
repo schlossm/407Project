@@ -148,8 +148,10 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             return 1;
         } else if (userType == userType.TEACHER){
             return 2;
-        } else {
+        } else if(userType == userType.STUDENT){
             return 3;
+        } else {
+            return 4;
         }
     }
 
@@ -158,8 +160,10 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             return userType.ADMIN;
         } else if (userTypeInt == 2){
             return userType.TEACHER;
-        } else {
+        } else if (userTypeInt == 3){
             return userType.STUDENT;
+        } else{
+            return userType.TA;
         }
     }
 
