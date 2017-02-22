@@ -32,7 +32,7 @@ public class TimeManager implements Runnable
 					debugLog("A new day has begun.  Firing notification and resetting time.");
 					oldDay = thisDay;
 					startMillisecond = thisTime;
-					DFNotificationCenter.defaultCenter.post(UIStrings.newDayNotification, null);
+					queue.add(() -> DFNotificationCenter.defaultCenter.post(UIStrings.newDayNotification, null));
 				}
 			}
 			else if ((thisTime - startMillisecond) % 3600000 == 0)
@@ -41,7 +41,7 @@ public class TimeManager implements Runnable
 				{
 					justFiredOffNotification = true;
 					debugLog("One hour has passed!");
-					DFNotificationCenter.defaultCenter.post(UIStrings.oneHourHasPassedNotification, null);
+					queue.add(() -> DFNotificationCenter.defaultCenter.post(UIStrings.oneHourHasPassedNotification, null));
 				}
 			}
 			else if ((thisTime - startMillisecond) % 1500000 == 0)
@@ -50,7 +50,7 @@ public class TimeManager implements Runnable
 				{
 					justFiredOffNotification = true;
 					debugLog("25 minutes have passed!");
-					DFNotificationCenter.defaultCenter.post(UIStrings.twentyFiveMinutesHavePassedNotification, null);
+					queue.add(() -> DFNotificationCenter.defaultCenter.post(UIStrings.twentyFiveMinutesHavePassedNotification, null));
 				}
 			}
 			else if ((thisTime - startMillisecond) % 600000 == 0)
@@ -59,7 +59,7 @@ public class TimeManager implements Runnable
 				{
 					justFiredOffNotification = true;
 					debugLog("10 minutes has passed!");
-					DFNotificationCenter.defaultCenter.post(UIStrings.tenMinutesHavePassedNotification, null);
+					queue.add(() -> DFNotificationCenter.defaultCenter.post(UIStrings.tenMinutesHavePassedNotification, null));
 				}
 			}
 			else if ((thisTime - startMillisecond) % 300000 == 0)
@@ -68,7 +68,7 @@ public class TimeManager implements Runnable
 				{
 					justFiredOffNotification = true;
 					debugLog("5 minutes has passed!");
-					DFNotificationCenter.defaultCenter.post(UIStrings.fiveMinutesHavePassedNotification, null);
+					queue.add(() -> DFNotificationCenter.defaultCenter.post(UIStrings.fiveMinutesHavePassedNotification, null));
 				}
 			}
 			else
