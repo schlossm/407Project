@@ -283,14 +283,17 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		if (e.getSource() == passwordField)
 		{
 			typingPassword = false;
+			usernameField.setEditable(false);
+			passwordField.setEditable(false);
 			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 			this.requestFocus();
-			//TODO: Request Verification of user/pass combination
 		}
 		else if (e.getSource() == loginButton)
 		{
 			typingPassword = false;
 			this.requestFocus();
+			usernameField.setEditable(false);
+			passwordField.setEditable(false);
 			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 		}
 		else if (e.getSource() == quitButton)
@@ -419,10 +422,12 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 	{
 		if (Objects.equals(notificationName, UIStrings.success))
 		{
-			Window.current.postLogin();
+			query.getUser(usernameField.getText());
 		}
 		else if (Objects.equals(notificationName, UIStrings.failure))
 		{
+			usernameField.setEditable(true);
+			passwordField.setEditable(true);
 			Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
 			incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
 			{
@@ -430,6 +435,10 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 				usernameField.selectAll();
 			});
 			incorrectPassword.show(presentingFrame);
+		}
+		else if (Objects.equals(notificationName, UIStrings.returned))
+		{
+			Window.current.postLogin();
 		}
 	}
 }
