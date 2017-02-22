@@ -52,13 +52,8 @@ public class DFDatabase
 	/**
 	 * Wanna debug DFDatabase and related components? Set this flag to 1.
 	 */
-<<<<<<< HEAD
-	public int debug = 1;
-	
-=======
-	public int debug = 0;
 
->>>>>>> master
+	public int debug = 1;
 	private Cipher encryptor, decryptor;
 
 	private DFDatabase()
