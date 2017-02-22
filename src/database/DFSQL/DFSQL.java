@@ -224,7 +224,7 @@ import java.util.regex.Pattern;
 			    catch (Exception ignored) { }
 			    if (value.contains(" ") || !isNum)
 			    {
-				    returnString = "'" + value + "',";
+				    returnString += "'" + value + "',";
 			    }
 			    else
 			    {
