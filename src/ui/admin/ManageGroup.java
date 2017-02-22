@@ -7,16 +7,20 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJPanel;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class ManageGroup extends ALJPanel implements ALJTableDataSource
 {
 	private Group groupToManage = Group.none;
 	private ALJTable manageTable;
 
-	private String[] fakeData = new String[]{"Blah", "BlahBlah", "Blah"};
+	private ArrayList<String> fakeData = new ArrayList<>();
 
 	public ManageGroup(Group groupToManage)
 	{
+		fakeData.add("Blah");
+		fakeData.add("Blah Blah");
+		fakeData.add("Blah Blah Blah");
 		if (groupToManage == Group.none)
 		{
 			System.out.println("You cannot manage a \"none\" group.");
@@ -61,6 +65,11 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource
 		return groupToManage;
 	}
 
+	public void add()
+	{
+		fakeData.add("Fake " + groupToManage);
+	}
+
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
 	{
@@ -70,7 +79,7 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource
 	@Override
 	public int numberOfRowsInSectionForTable(ALJTable table, int section)
 	{
-		return fakeData.length;
+		return fakeData.size();
 	}
 
 	@Override
@@ -78,7 +87,7 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource
 	{
 		ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.delete);
 
-		newCell.titleLabel.setText(fakeData[index.item]);
+		newCell.titleLabel.setText(fakeData.get(index.item));
 
 		return newCell;
 	}
@@ -93,5 +102,20 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource
 	public String titleForFooterInSectionInTable(ALJTable table, int section)
 	{
 		return "";
+	}
+
+	@Override
+	public void tableView(ALJTable tableView, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt)
+	{
+		switch (commit)
+		{
+			case delete:
+			{
+				fakeData.remove(forRowAt.item);
+				break;
+			}
+
+			default: break;
+		}
 	}
 }

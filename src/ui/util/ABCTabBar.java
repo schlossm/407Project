@@ -17,8 +17,6 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 	private JLabel lastName;
 	private ArrayList<JLabel> buttons = new ArrayList<>();
 
-	private float renderCount = 0;
-
 	public ABCTabBar()
 	{
 		addComponentListener(this);
@@ -89,10 +87,9 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 		final int leftoverWidth = Integer.max(totalWidthToWorkWith - totalWidthOfAllButtons, 0);
 		if (leftoverWidth < buttons.size())
 		{
-			renderCount++;
 			for (JLabel button: buttons)
 			{
-				button.setFont(UIFont.textHeavy.deriveFont(9.0f - renderCount/10f));
+				button.setFont(UIFont.textHeavy.deriveFont(9.0f));
 			}
 			layoutButtons();
 			return;
@@ -147,8 +144,6 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 
 		revalidate();
 		repaint();
-
-		renderCount = 0;
 
 		buttons = new ArrayList<>();
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
