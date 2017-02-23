@@ -170,6 +170,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         }
 
         getUserReturn = false;
+        verifyUserLoginReturn = false;
         getUserExistsReturn = false;
         bufferString = null;
     }
