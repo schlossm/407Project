@@ -27,8 +27,8 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
 
     public void getUser(String username) {
         DFSQL dfsql = new DFSQL();
-        String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         getUserReturn = true;
+        String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         try {
             dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -140,9 +140,12 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 user.setBirthday(userBirthday);
 
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, user);
+                System.out.println("getUser posting user to returned");
+
             }catch (NullPointerException e2){
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
             }
+            getUserReturn = false;
         } else if (verifyUserLoginReturn) {
             System.out.println("gets to verifyuserlogin");
             String databasePassword = "";
@@ -156,7 +159,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 DFNotificationCenter.defaultCenter.post(UIStrings.failure, Boolean.FALSE);
                 debugLog("verifylogin returned nothing");
             }
-
+            verifyUserLoginReturn = false;
         } else if (getUserExistsReturn) {
             String usernameReceived = null;
             try {
@@ -169,8 +172,6 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             }
         }
 
-        getUserReturn = false;
-        verifyUserLoginReturn = false;
         getUserExistsReturn = false;
         bufferString = null;
     }

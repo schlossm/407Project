@@ -2,6 +2,7 @@ package json;
 
 import database.DFDatabase;
 import objects.User;
+import objects.userType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,13 +57,28 @@ public class UserQueryTest implements DFNotificationCenterDelegate {
      * This is a method to test a method of the
      * target class
      */
+    @Test
+    public void testGetUser() {
+        user = null;
+        DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
+        userQuery.getUser(name);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(user.getUserID());
+        assertTrue(user.getUserType() == userType.STUDENT);
+        assertTrue(user.getUserID().equals(name));
+    }
 
     @Test
     public void testVerifyLoginValidUserValidPassword(){
         DFNotificationCenter.defaultCenter.register(this, UIStrings.success);
         DFNotificationCenter.defaultCenter.register(this, UIStrings.failure);
 
-        String encryptedPassword = DFDatabase.defaultDatabase.hashString("blahblah");
+        String encryptedPassword = "blahblah";
 
         System.out.println(encryptedPassword);
         userQuery.verifyUserLogin(name, encryptedPassword);
