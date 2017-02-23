@@ -12,8 +12,8 @@ import java.awt.*;
 
 class Home extends ALJPanel
 {
-	private ALJPanel currentPanel;
-	private JScrollPane scrollPane;
+	private final ALJPanel currentPanel;
+	private final JScrollPane scrollPane;
 
 	Home()
 	{

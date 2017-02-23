@@ -27,7 +27,7 @@ import java.io.ObjectOutputStream;
  * typically stored using the file
  * extension .ser
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unused"})
 public class LocalStorage
 {
 	public static LocalStorage defaultManager = new LocalStorage();

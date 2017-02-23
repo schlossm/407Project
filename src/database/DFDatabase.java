@@ -1,6 +1,5 @@
 package database;
 
-import com.sun.istack.internal.NotNull;
 import database.DFSQL.DFSQL;
 import database.WebServer.DFWebServerDispatch;
 import database.WebServer.DispatchDirection;
@@ -28,6 +27,7 @@ import static database.DFError.kMethodName;
 /**
  * The main database communicator class.  All communication with the database will run through this class
  */
+@SuppressWarnings("unused")
 public class DFDatabase
 {
 	/**
@@ -53,8 +53,18 @@ public class DFDatabase
 	 * Wanna debug DFDatabase and related components? Set this flag to 1.
 	 */
 
-	public int debug = 1;
+	private int _debug = 1;
 	private Cipher encryptor, decryptor;
+
+	public int debug()
+	{
+		return _debug;
+	}
+
+	public void enableDebug()
+	{
+		_debug = 1;
+	}
 
 	private DFDatabase()
 	{
@@ -96,7 +106,7 @@ public class DFDatabase
 	 * @param SQLStatement the SQL statement to execute backend side
 	 * @param delegate the delegate object that will respond to data changes.  This object must conform to the DFDatabaseCallbackDelegate interface
 	 */
-	public void execute(@NotNull DFSQL SQLStatement, @NotNull DFDatabaseCallbackDelegate delegate)
+	public void execute( DFSQL SQLStatement,  DFDatabaseCallbackDelegate delegate)
 	{
 		if (Objects.equals(SQLStatement.formattedStatement(), ""))
 		{
@@ -113,7 +123,7 @@ public class DFDatabase
 		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, delegate);
 	}
 
-	public @NotNull String hashString(@NotNull String decryptedString)
+	public  String hashString( String decryptedString)
 	{
 		byte[] key = decryptedString.getBytes();
 		MessageDigest sha;
@@ -130,7 +140,7 @@ public class DFDatabase
 		}
 	}
 
-	public @NotNull String encryptString(@NotNull String decryptedString)
+	public  String encryptString( String decryptedString)
     {
 	    if (useEncryption)
 	    {
@@ -152,7 +162,7 @@ public class DFDatabase
 	    }
     }
 
-	public @NotNull String decryptString(@NotNull String encryptedString)
+	public  String decryptString( String encryptedString)
     {
 	    if (useEncryption)
 	    {
@@ -182,7 +192,7 @@ public class DFDatabase
 	    }
 	}
 
-    private @NotNull String bytesToHex(byte[] bytes)
+    private  String bytesToHex(byte[] bytes)
     {
         char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ )
@@ -194,7 +204,7 @@ public class DFDatabase
         return new String(hexChars);
     }
 
-    private @NotNull byte[] hexToBytes(String s)
+    private  byte[] hexToBytes(String s)
     {
         int len = s.length();
         byte[] data = new byte[len / 2];
@@ -205,7 +215,7 @@ public class DFDatabase
         return data;
     }
 
-	public @NotNull static String getMethodName()
+	public  static String getMethodName()
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
 
@@ -216,7 +226,7 @@ public class DFDatabase
 			       ")`";
 	}
 
-	public @NotNull static String getMethodNameOfSuperMethod()
+	public  static String getMethodNameOfSuperMethod()
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
 
@@ -233,6 +243,6 @@ public class DFDatabase
 
 	public static void debugLog(Object object)
 	{
-		if (DFDatabase.defaultDatabase.debug == 1) print(object);
+		if (DFDatabase.defaultDatabase._debug == 1) print(object);
 	}
 }

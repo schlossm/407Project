@@ -2,8 +2,6 @@ package database.WebServer;
 
 
 import com.google.gson.JsonObject;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
 import database.DFSQL.DFSQL;
@@ -68,14 +66,14 @@ public class DFWebServerDispatch implements DFDatabaseCallbackDelegate
 	}
 
 	@Override
-	public void returnedData(@Nullable JsonObject jsonObject, @Nullable DFError error)
+	public void returnedData(JsonObject jsonObject, DFError error)
 	{
 		nextObject.delegate.returnedData(jsonObject, error);
 		processQueue();
 	}
 
 	@Override
-	public void uploadStatus(@NotNull DFDataUploaderReturnStatus success, @Nullable DFError error)
+	public void uploadStatus(DFDataUploaderReturnStatus success, DFError error)
 	{
 		nextObject.delegate.uploadStatus(success, error);
 		processQueue();

@@ -1,14 +1,10 @@
 package json;
 
 import com.google.gson.JsonObject;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
-import database.DFSQL.DFSQL;
-import database.DFSQL.DFSQLEquivalence;
-import database.DFSQL.DFSQLError;
+import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.User;
 import objects.userType;
@@ -31,30 +27,86 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
 
     public void getUser(String username) {
         DFSQL dfsql = new DFSQL();
-        String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         getUserReturn = true;
+        String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         try {
-            dfsql.select(selectedRows, false, null, null).from("User").where(DFSQLEquivalence.equals, "userID", username);
+            dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
     }
 
-    public void verifyUserLogin(String username) {
+
+    public void removeUser(String username) {
         DFSQL dfsql = new DFSQL();
+        try {
+            dfsql.delete("users", new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("userid", username)));
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public void verifyUserLogin(String username, String password) {
+        DFSQL dfsql = new DFSQL();
+        bufferString = password;
         String[] selectedRows = {"password"};
         verifyUserLoginReturn = true;
         try {
-            dfsql.select(selectedRows, false, null, null).from("User").where(DFSQLEquivalence.equals, "userID", username);
+            dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
     }
 
+    public boolean addUserAsStudent(String username) {
+        boolean isaddSuccess;
+        DFSQL dfsql = new DFSQL();
+        String attr = "userType";
+        String value = userTypeToIntConverter(userType.STUDENT) + "";
+        String[] rows = {"userid"};
+        String[] values = {username};
+        try {
+            dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
+            debugLog(dfsql.formattedStatement());
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+            dfsql.insert("students", rows, values);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
+        return  isaddSuccess;
+    }
+
+    public boolean removeUserAsStudent(String username) {
+        boolean isaddSuccess;
+        DFSQL dfsql = new DFSQL();
+        String attr = "userType";
+        String value = "0";
+        try {
+            dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
+            debugLog(dfsql.formattedStatement());
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+            dfsql.delete(   "students",
+                            new Where(  DFSQLConjunction.none,
+                                        DFSQLEquivalence.equals,
+                                        new DFSQLClause("userid", username)
+                            )
+                        );
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
+        return  isaddSuccess;
+    }
+
     @Override
-    public void returnedData(@Nullable JsonObject jsonObject, @Nullable DFError error) {
+    public void returnedData(JsonObject jsonObject, DFError error) {
+        System.out.println("triggered returnedData");
         this.jsonObject = null;
         if(error != null){
             DFDatabase.print(error.toString());
@@ -67,6 +119,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
 
 
     private void returnHandler(){
+        System.out.println("triggers return handler");
         if(getUserReturn){
             String usernameReceived = null, userEmail = null, userBirthday = null, userFirstName = null, userLastName = null;
             int userTypeInt = 0;
@@ -80,17 +133,22 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 userTypeInt = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userType").getAsInt();
                 userType = intToUserTypeConverter(userTypeInt);
 
-                User user = new User(usernameReceived);
-                user.setEmail(userEmail);
-                user.setFirstName(userFirstName);
-                user.setLastName(userLastName);
-                user.setBirthday(userBirthday);
-
-                DFNotificationCenter.defaultCenter.post(UIStrings.returned, user);
             }catch (NullPointerException e2){
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
             }
+            User user = new User();
+            user.setUserID(usernameReceived);
+            user.setEmail(userEmail);
+            user.setFirstName(userFirstName);
+            user.setLastName(userLastName);
+            user.setBirthday(userBirthday);
+            user.setUserType(userType);
+
+            DFNotificationCenter.defaultCenter.post(UIStrings.returned, user);
+            System.out.println("getUser posting user to returned");
+            getUserReturn = false;
         } else if (verifyUserLoginReturn) {
+            System.out.println("gets to verifyuserlogin");
             String databasePassword = "";
             try {
                 databasePassword = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("password").getAsString();
@@ -102,7 +160,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 DFNotificationCenter.defaultCenter.post(UIStrings.failure, Boolean.FALSE);
                 debugLog("verifylogin returned nothing");
             }
-
+            verifyUserLoginReturn = false;
         } else if (getUserExistsReturn) {
             String usernameReceived = null;
             try {
@@ -115,7 +173,6 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             }
         }
 
-        getUserReturn = false;
         getUserExistsReturn = false;
         bufferString = null;
     }
@@ -127,7 +184,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         String[] values = {userUserId, userPassword, userEmail, userBirthday, userFirstName, userLastName ,String.valueOf(convertedUserType)};
         DFSQL dfsql = new DFSQL();
         try {
-            dfsql.insert("User", values, rows);
+            dfsql.insert("users", values, rows);
             debugLog(dfsql.formattedStatement());
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
@@ -168,7 +225,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     }
 
     @Override
-    public void uploadStatus(@NotNull DFDataUploaderReturnStatus success, @Nullable DFError error) {
+    public void uploadStatus(DFDataUploaderReturnStatus success, DFError error) {
         this.uploadSuccess = null;
         if(success == DFDataUploaderReturnStatus.success){
             debugLog("success uploading this");
@@ -185,5 +242,6 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     }
     public static void main(String[] args){
         UserQuery userQuery = new UserQuery();
+        userQuery.getUser("testUserStudent");
     }
 }

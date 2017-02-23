@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import static uikit.autolayout.LayoutEngine.getClassAndHashCode;
 
+@SuppressWarnings("unused")
 public class ALJTable extends JScrollPane implements ComponentListener, ALJTableCellDelegate
 {
 	public ALJTableDataSource dataSource;
@@ -22,7 +23,7 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 	public int heightForRow = -1;
 	private boolean _isLoaded = false;
 
-	private ALJPanel tableView;
+	private final ALJPanel tableView;
 
 	public ALJTable()
 	{

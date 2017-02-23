@@ -3,6 +3,7 @@ package database.DFSQL;
 /**
  The possible directions an attribute can be ordered
  */
+@SuppressWarnings("unused")
 public enum DFSQLOrderBy
 {
     /**

@@ -18,16 +18,15 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.Objects;
 
-/**
- * Created by michaelschloss on 2/21/17.
- */
+import static java.lang.Integer.parseInt;
+
 public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegate
 {
-	private JLabel ninetyPlusLabel;
-	private JLabel eightyToNinetyLabel;
-	private JLabel seventyToEightyLabel;
-	private JLabel sixtyToSeventyLabel;
-	private JLabel belowSixtyLabel;
+	private final JLabel ninetyPlusLabel;
+	private final JLabel eightyToNinetyLabel;
+	private final JLabel seventyToEightyLabel;
+	private final JLabel sixtyToSeventyLabel;
+	private final JLabel belowSixtyLabel;
 
 	public AdminGrades()
 	{
@@ -107,7 +106,7 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 			for (int i = 0; i < 10; ++i) {
 				Grade g = (Grade) objIn.readObject();
 
-				int gradeInt = new Integer(g.getScore());
+				int gradeInt = parseInt(g.getScore());
 				if (gradeInt >= 90)
 				{
 					num90Plus++;

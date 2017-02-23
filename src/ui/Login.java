@@ -1,8 +1,10 @@
 package ui;
 
-import ui.util.MLMDelegate;
-import ui.util.MLMEventType;
-import ui.util.MouseListenerManager;
+import json.UserQuery;
+import objects.User;
+import ui.util.*;
+import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
 
 import javax.swing.*;
@@ -13,19 +15,25 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Objects;
 
-class Login extends JPanel implements ActionListener, DocumentListener, MLMDelegate, KeyListener
+class Login extends JPanel implements ActionListener, DocumentListener, MLMDelegate, KeyListener, DFNotificationCenterDelegate
 {
 	private JTextField      usernameField;
 	private JPasswordField  passwordField;
 	private JButton         loginButton;
-	private JButton         quitButton;
+	private final JButton         quitButton;
 	private Object          activeTextField;
 	private boolean         typingPassword = true;
 
-	private JFrame presentingFrame;
+	private final UserQuery query = new UserQuery();
+
+	private final JFrame presentingFrame;
 
 	Login(JFrame frame)
 	{
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.success);
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.failure);
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
+
 		presentingFrame = frame;
 		this.addMouseListener(new MouseListenerManager(this));
 		this.setBackground(Color.WHITE);
@@ -274,20 +282,20 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		if (e.getSource() == passwordField)
 		{
 			typingPassword = false;
+			usernameField.setEditable(false);
+			passwordField.setEditable(false);
 			this.requestFocus();
-			Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
-			incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
-			{
-				usernameField.requestFocus();
-				usernameField.selectAll();
-			});
-			incorrectPassword.show(presentingFrame);
-			//TODO: Request Verification of user/pass combination
+			stage = Stage.verify;
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 		}
 		else if (e.getSource() == loginButton)
 		{
-			Window.current.postLogin();
-			//TODO: Request Verification of user/pass combination
+			typingPassword = false;
+			this.requestFocus();
+			usernameField.setEditable(false);
+			passwordField.setEditable(false);
+			stage = Stage.verify;
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
 		}
 		else if (e.getSource() == quitButton)
 		{
@@ -407,6 +415,51 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		{
 			JPasswordField field = (JPasswordField) (e.getSource());
 			if (field.getPassword().length != 0 && !typingPassword) { field.selectAll(); }
+		}
+	}
+
+	private enum Stage
+	{
+		verify, loadUser, none
+	}
+
+	private Stage stage = Stage.none;
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+		if (Objects.equals(notificationName, UIStrings.success))
+		{
+			stage = Stage.loadUser;
+			query.getUser(usernameField.getText());
+		}
+		else if (Objects.equals(notificationName, UIStrings.failure))
+		{
+			usernameField.setEditable(true);
+			passwordField.setEditable(true);
+			if (stage == Stage.verify)
+			{
+				Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
+				{
+					usernameField.requestFocus();
+					usernameField.selectAll();
+				});
+				incorrectPassword.show(presentingFrame);
+			}
+			else if (stage == Stage.loadUser)
+			{
+				Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> { });
+				incorrectPassword.show(presentingFrame);
+			}
+		}
+		else if (Objects.equals(notificationName, UIStrings.returned))
+		{
+			System.out.println("Hello");
+			stage = Stage.none;
+			UIVariables.current.currentUser = (User)userData;
+			Window.current.postLogin();
 		}
 	}
 }

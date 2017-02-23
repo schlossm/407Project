@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static java.lang.Integer.parseInt;
+
 /**
  * The main SQL class.  DFDatabase uses a custom built SQL wrapper to add a layer of security and overload safety
  */
-@SuppressWarnings({ "unused", "WeakerAccess"}) public class DFSQL
+@SuppressWarnings({"unused", "WeakerAccess", "ResultOfMethodCallIgnored"})
+public class DFSQL
 {
     private static String WhereStatementComparesNullString = "Where Statement is comparing a null statement.";
 
@@ -58,6 +61,7 @@ import java.util.regex.Pattern;
 		if (whereStatements.length == 0) return returnString;
 
 		returnString += " WHERE";
+		StringBuilder returnStringBuilder = new StringBuilder(returnString);
 		for (Where whereStatement : whereStatements)
 		{
 			final String left = whereStatement.clause.attribute;
@@ -68,7 +72,7 @@ import java.util.regex.Pattern;
 				boolean isNum = false;
 				try
 				{
-					new Integer(right);
+					parseInt(right);
 					isNum = true;
 				}
 				catch (Exception ignored) { }
@@ -77,28 +81,32 @@ import java.util.regex.Pattern;
 					right = "'" + right + "'";
 				}
 
-				returnString += " " + left + whereStatement.equivalence + right;
+				returnStringBuilder.append(" ").append(left).append(whereStatement.equivalence).append(right);
 			}
 			else
 			{
-				returnString += " " + left + whereStatement.equivalence;
+				returnStringBuilder.append(" ").append(left).append(whereStatement.equivalence);
 			}
 		}
+		returnString = returnStringBuilder.toString();
 
 		if (orderByStatements.length == 0) { return returnString; }
 		returnString += " ORDERED BY";
 		if (orderByStatements.length == 1)
 		{
+			returnStringBuilder = new StringBuilder(returnString);
 			for (OrderBy orderByStatement : orderByStatements)
 			{
 				String attribute = orderByStatement.attribute;
 				String direction = orderByStatement.orderBy.toString();
 
-				returnString += " " + attribute + direction;
+				returnStringBuilder.append(" ").append(attribute).append(direction);
 			}
+			returnString = returnStringBuilder.toString();
 		}
 		else
 		{
+			returnStringBuilder = new StringBuilder(returnString);
 			for (int i = 0; i < orderByStatements.length - 1; i++)
 			{
 				OrderBy orderByStatement = orderByStatements[i];
@@ -106,8 +114,9 @@ import java.util.regex.Pattern;
 				String attribute = orderByStatement.attribute;
 				String direction = orderByStatement.orderBy.toString();
 
-				returnString += " " + attribute + direction;
+				returnStringBuilder.append(" ").append(attribute).append(direction);
 			}
+			returnString = returnStringBuilder.toString();
 			OrderBy orderByStatement = orderByStatements[orderByStatements.length - 1];
 
 			String attribute = orderByStatement.attribute;
@@ -126,10 +135,12 @@ import java.util.regex.Pattern;
 			return returnString;
 		}
 
+		StringBuilder returnStringBuilder = new StringBuilder(returnString);
 		for (DFSQL statement : appendedSQL)
 		{
-			returnString += " " + statement.formatted();
+			returnStringBuilder.append(" ").append(statement.formatted());
 		}
+		returnString = returnStringBuilder.toString();
 
 		return returnString;
 	}
@@ -170,9 +181,8 @@ import java.util.regex.Pattern;
 		    	return returnString;
 		    }
 
-		    returnString = "UPDATE `" + fromTables[0] + "` SET ";
-
-	    	for (DFSQLClause clause : updateStatements)
+		    StringBuilder returnStringBuilder = new StringBuilder("UPDATE `" + fromTables[0] + "` SET ");
+		    for (DFSQLClause clause : updateStatements)
 		    {
 		    	final String left = clause.attribute;
 		    	String right = clause.value;
@@ -180,7 +190,7 @@ import java.util.regex.Pattern;
 			    boolean isNum = false;
 			    try
 			    {
-				    new Integer(right);
+				    parseInt(right);
 				    isNum = true;
 			    }
 			    catch (Exception ignored) { }
@@ -188,8 +198,9 @@ import java.util.regex.Pattern;
 			    {
 				    right = "'" + right + "'";
 			    }
-			    returnString += left + "=" + right + ", ";
+			    returnStringBuilder.append(left).append("=").append(right).append(", ");
 		    }
+		    returnString = returnStringBuilder.toString();
 
 		    returnString = returnString.substring(0, returnString.length() - 2);
 
@@ -205,32 +216,33 @@ import java.util.regex.Pattern;
 	    {
 	    	if (fromTables.length == 0 || fromTables.length != 1) { return returnString; }
 
-	    	returnString = "INSERT INTO `" + fromTables[0] + "`(";
-	    	for (String row : insertRows)
+		    StringBuilder returnStringBuilder = new StringBuilder("INSERT INTO `" + fromTables[0] + "`(");
+		    for (String row : insertRows)
 		    {
-		    	returnString += "`" + row + "`,";
+		    	returnStringBuilder.append("`").append(row).append("`,");
 		    }
+		    returnString = returnStringBuilder.toString();
 
-		    returnString = returnString.substring(0, returnString.length() - 1) + ") VALUES (";
-
-	    	for (String value : insertValues)
+		    returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + ") VALUES (");
+		    for (String value : insertValues)
 		    {
 			    boolean isNum = false;
 			    try
 			    {
-				    new Integer(value);
+				    parseInt(value);
 				    isNum = true;
 			    }
 			    catch (Exception ignored) { }
 			    if (value.contains(" ") || !isNum)
 			    {
-				    returnString += "'" + value + "',";
+				    returnStringBuilder.append("'").append(value).append("',");
 			    }
 			    else
 			    {
-			    	returnString += value + ",";
+			    	returnStringBuilder.append(value).append(",");
 			    }
 		    }
+		    returnString = returnStringBuilder.toString();
 
 		    returnString = returnString.substring(0, returnString.length() - 1) + ")";
 
@@ -238,11 +250,13 @@ import java.util.regex.Pattern;
 		    {
 		    	returnString += " ON DUPLICATE KEY UPDATE ";
 		    	int count = 0;
-		    	for (String row : duplicateKeys)
+			    returnStringBuilder = new StringBuilder(returnString);
+			    for (String row : duplicateKeys)
 			    {
-			    	returnString += "`" + row + "`='" + duplicateValues[count] + "',";
+			    	returnStringBuilder.append("`").append(row).append("`='").append(duplicateValues[count]).append("',");
 			    	count++;
 			    }
+			    returnString = returnStringBuilder.toString();
 
 			    returnString = returnString.substring(0, returnString.length() - 1);
 		    }
@@ -263,30 +277,33 @@ import java.util.regex.Pattern;
 	    {
 	    	returnString += "DISTINCT ";
 	    }
+	    StringBuilder returnStringBuilder = new StringBuilder(returnString);
 	    for (String row : selectRows)
 	    {
 	    	if (!row.contains("(") && !row.contains(")"))
 		    {
-		    	returnString += "`" + row + "`,";
+		    	returnStringBuilder.append("`").append(row).append("`,");
 		    }
 		    else
 		    {
-		    	returnString += row + ",";
+		    	returnStringBuilder.append(row).append(",");
 		    }
 	    }
+	    returnString = returnStringBuilder.toString();
 
-	    returnString = returnString.substring(0, returnString.length() - 1) + " FROM ";
-
-    	for (String table : fromTables)
+	    returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + " FROM ");
+	    for (String table : fromTables)
 	    {
-	    	returnString += "`" + table + "`,";
+	    	returnStringBuilder.append("`").append(table).append("`,");
 	    }
+	    returnString = returnStringBuilder.toString();
 
 	    returnString = returnString.substring(0, returnString.length() - 1);
 
     	if (joinStatements.length != 0)
 	    {
-	    	for (InternalJoin join : joinStatements)
+		    returnStringBuilder = new StringBuilder(returnString);
+		    for (InternalJoin join : joinStatements)
 		    {
 		    	final String left = join.clause.attribute;
 		    	String right = join.clause.value;
@@ -294,17 +311,18 @@ import java.util.regex.Pattern;
 			    boolean isNum = false;
 			    try
 			    {
-				    new Integer(right);
+				    parseInt(right);
 				    isNum = true;
 			    }
 			    catch (Exception ignored) { }
 			    if (right.contains(" ") || !isNum)
 			    {
-				    returnString = "'" + right + "',";
+				    right = "'" + right + "',";
 			    }
 
-			    returnString += join.joinType + " JOIN `" + join.table + (join.joinType != DFSQLJoin.natural ? ("` ON `" + left + "=" + right) : "`");
+			    returnStringBuilder.append(join.joinType).append(" JOIN `").append(join.table).append(join.joinType != DFSQLJoin.natural ? ("` ON `" + left + "=" + right) : "`");
 		    }
+		    returnString = returnStringBuilder.toString();
 	    }
 
 	    returnString = insertWhereAndOrderByStatements(returnString);
@@ -413,25 +431,7 @@ import java.util.regex.Pattern;
 		distinctSelect = distinct;
 		selectRows = new String[] { attribute };
 
-		if (into != null)
-		{
-			if (!Objects.equals(intoTable, ""))
-			{
-				throw DFSQLError.conditionAlreadyExists;
-			}
-			check(into);
-			intoTable = into;
-
-			if (in != null)
-			{
-				if (!Objects.equals(inDB, ""))
-				{
-					throw DFSQLError.conditionAlreadyExists;
-				}
-				check(in);
-				inDB = in;
-			}
-		}
+		in(into, in);
 
 		return this;
 	}
@@ -460,6 +460,13 @@ import java.util.regex.Pattern;
 		distinctSelect = distinct;
 		selectRows = attributes;
 
+		in(into, in);
+
+		return this;
+	}
+
+	private void in(String into, String in) throws DFSQLError
+	{
 		if (into != null)
 		{
 			if (!Objects.equals(intoTable, ""))
@@ -479,8 +486,6 @@ import java.util.regex.Pattern;
 				inDB = in;
 			}
 		}
-
-		return this;
 	}
 
 	//MARK: - FROM Constructors

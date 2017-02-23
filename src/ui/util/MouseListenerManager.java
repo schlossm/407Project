@@ -5,7 +5,7 @@ import java.awt.event.MouseListener;
 
 public class MouseListenerManager implements MouseListener
 {
-	private MLMDelegate delegate;
+	private final MLMDelegate delegate;
 
 	public MouseListenerManager(MLMDelegate delegate)
 	{
