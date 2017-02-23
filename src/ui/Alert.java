@@ -1,6 +1,5 @@
 package ui;
 
-import com.sun.istack.internal.Nullable;
 import uikit.UIFont;
 
 import javax.swing.*;
@@ -20,19 +19,19 @@ enum ButtonType
 	defaultType, cancel, plain, destructive
 }
 
-@SuppressWarnings("SuspiciousMethodCalls")
+@SuppressWarnings({"SuspiciousMethodCalls", "SameParameterValue"})
 class Alert implements KeyListener
 {
-	private JPanel              alert;
+	private final JPanel              alert;
 	private JPanel              buttonPanel;
 	private JFrame              dimView;
 	private JDialog             dialog;
 	private int                 numButtons;
-	private ArrayList<JButton>  buttons             = new ArrayList<>();
+	private final ArrayList<JButton>  buttons             = new ArrayList<>();
 	private boolean             hasCancelAction     = false;
 	private boolean             hasDefaultAction    = false;
 
-	Alert(@Nullable String title, @Nullable String message)
+	Alert(String title, String message)
 	{
 		alert = new JPanel();
 

@@ -8,16 +8,19 @@ import uikit.autolayout.uiobjects.ALJPanel;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
+@SuppressWarnings("unused")
 public class ManageGroup extends ALJPanel implements ALJTableDataSource
 {
 	private Group groupToManage = Group.none;
 	private ALJTable manageTable;
 
-	private ArrayList<String> fakeData = new ArrayList<>();
+	private final ArrayList<String> fakeData = new ArrayList<>();
 
 	public ManageGroup(Group groupToManage)
 	{
+		fakeData.add("New " + groupToManage);
 		fakeData.add("Blah");
 		fakeData.add("Blah Blah");
 		fakeData.add("Blah Blah Blah");
@@ -85,7 +88,7 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource
 	@Override
 	public ALJTableCell cellForRowAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-		ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.delete);
+		ALJTableCell newCell = new ALJTableCell(!Objects.equals(fakeData.get(index.item), "New " + groupToManage) ? ALJTableCellAccessoryViewType.delete : ALJTableCellAccessoryViewType.none);
 
 		newCell.titleLabel.setText(fakeData.get(index.item));
 

@@ -6,5 +6,5 @@ import java.awt.event.MouseEvent;
 
 public interface MLMDelegate
 {
-	public void mousePoint(MouseEvent action, MLMEventType eventType);
+	void mousePoint(MouseEvent action, MLMEventType eventType);
 }

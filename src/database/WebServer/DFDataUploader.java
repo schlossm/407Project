@@ -28,7 +28,7 @@ class DFDataUploader
             {
                 debugLog("Uploading Data...");
                 String urlParameters  = "Password="+ databaseUserPass + "&Username="+ websiteUserName + "&SQLQuery=" + SQLStatement.formattedStatement();
-                if (defaultDatabase.debug == 1)
+                if (defaultDatabase.debug() == 1)
                 {
                     print(urlParameters);
                 }
@@ -82,7 +82,7 @@ class DFDataUploader
             }
             catch(NullPointerException | IOException e)
             {
-                if (defaultDatabase.debug == 1)
+                if (defaultDatabase.debug() == 1)
                 {
                     e.printStackTrace();
                 }

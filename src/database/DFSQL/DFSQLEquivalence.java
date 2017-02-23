@@ -3,6 +3,7 @@ package database.DFSQL;
 /**
  The possible comparators for `WHERE` statements
  */
+@SuppressWarnings("unused")
 public enum DFSQLEquivalence
 {
     /**

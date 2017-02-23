@@ -63,10 +63,7 @@ public class ALJPanel extends JPanel implements Constrainable
 	public void removeAll()
 	{
 		super.removeAll();
-		for (LayoutConstraint constraint : (ArrayList<LayoutConstraint>)_constraints.clone())
-		{
-			_constraints.remove(constraint);
-		}
+		_constraints.removeAll((ArrayList<LayoutConstraint>) _constraints.clone());
 	}
 
 	@Override

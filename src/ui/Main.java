@@ -1,7 +1,6 @@
 package ui;
 
-import database.DFSQL.DFSQL;
-import database.DFSQL.DFSQLError;
+import database.DFDatabase;
 import objects.Grade;
 import ui.util.CurrentOS;
 import ui.util.UIVariables;
@@ -18,14 +17,7 @@ public class Main
 {
 	public static void main(String[] args)
 	{
-		try
-		{
-			System.out.println(new DFSQL().insert("User", new String[] {"username"}, new String[] {"username"}).formattedStatement());
-		}
-		catch (DFSQLError dfsqlError)
-		{
-			dfsqlError.printStackTrace();
-		}
+		DFDatabase.defaultDatabase.enableDebug();
 		try
 		{
 			if (UIVariables.current.currentOS == CurrentOS.macOS)
@@ -72,11 +64,11 @@ public class Main
 		 * End test code
 		 */
 
-		while(true)
+		while (true)
 		{
 			try
 			{
-				queue.take().run();
+				if (queue.size() != 0) queue.take().run();
 			}
 			catch (InterruptedException e)
 			{

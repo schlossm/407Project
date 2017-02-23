@@ -73,18 +73,18 @@ class DFDataDownloader
                     errorInfo.put(kURL, website + "/" + readFile);
                     errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
                     DFError error = new DFError(1, "No data was returned", errorInfo);
-                    queue.add(() -> delegate.returnedData(null, error));
+                    queue.add(() -> { System.out.println("Queue Executed"); delegate.returnedData(null, error); });
                 }
                 else
                 {
                     Gson gsonConverter = new Gson();
                     JsonObject object = gsonConverter.fromJson(response, JsonObject.class);
-                    queue.add(() -> delegate.returnedData(object, null));
+                    queue.add(() -> { System.out.println("Queue Executed"); delegate.returnedData(object, null); });
                 }
             }
             catch (Exception e)
             {
-                if (defaultDatabase.debug == 1)
+                if (defaultDatabase.debug() == 1)
                 {
                     e.printStackTrace();
                 }
