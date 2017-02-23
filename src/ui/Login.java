@@ -1,10 +1,8 @@
 package ui;
 
 import json.UserQuery;
-import ui.util.MLMDelegate;
-import ui.util.MLMEventType;
-import ui.util.MouseListenerManager;
-import ui.util.UIStrings;
+import objects.User;
+import ui.util.*;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
@@ -34,6 +32,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 	{
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.success);
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.failure);
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
 
 		presentingFrame = frame;
 		this.addMouseListener(new MouseListenerManager(this));
@@ -457,7 +456,9 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		}
 		else if (Objects.equals(notificationName, UIStrings.returned))
 		{
+			System.out.println("Hello");
 			stage = Stage.none;
+			UIVariables.current.currentUser = (User)userData;
 			Window.current.postLogin();
 		}
 	}
