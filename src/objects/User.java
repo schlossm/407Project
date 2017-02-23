@@ -18,7 +18,7 @@ public class User implements Serializable {
     private int maxStorage;
 
     private UserQuery userQuery;
-
+    public User(){};
     public User(String userID) {
         // User will always exist in the database, don't worry about that case
         userQuery.getUser(userID);

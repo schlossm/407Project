@@ -133,18 +133,19 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 userTypeInt = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userType").getAsInt();
                 userType = intToUserTypeConverter(userTypeInt);
 
-                User user = new User(usernameReceived);
-                user.setEmail(userEmail);
-                user.setFirstName(userFirstName);
-                user.setLastName(userLastName);
-                user.setBirthday(userBirthday);
-
-                DFNotificationCenter.defaultCenter.post(UIStrings.returned, user);
-                System.out.println("getUser posting user to returned");
-
             }catch (NullPointerException e2){
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
             }
+            User user = new User();
+            user.setUserID(usernameReceived);
+            user.setEmail(userEmail);
+            user.setFirstName(userFirstName);
+            user.setLastName(userLastName);
+            user.setBirthday(userBirthday);
+            user.setUserType(userType);
+
+            DFNotificationCenter.defaultCenter.post(UIStrings.returned, user);
+            System.out.println("getUser posting user to returned");
             getUserReturn = false;
         } else if (verifyUserLoginReturn) {
             System.out.println("gets to verifyuserlogin");
