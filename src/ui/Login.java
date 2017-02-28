@@ -2,6 +2,7 @@ package ui;
 
 import json.UserQuery;
 import objects.User;
+import objects.userType;
 import ui.util.*;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
@@ -456,9 +457,9 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		}
 		else if (Objects.equals(notificationName, UIStrings.returned))
 		{
-			System.out.println("Hello");
 			stage = Stage.none;
 			UIVariables.current.currentUser = (User)userData;
+			UIVariables.current.currentUser.setUserType(userType.ADMIN);
 			Window.current.postLogin();
 		}
 	}
