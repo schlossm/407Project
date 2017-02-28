@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
-public class ManageGroup extends ALJPanel implements ALJTableDataSource
+public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTableDelegate
 {
 	private Group groupToManage = Group.none;
 	private ALJTable manageTable;
@@ -37,6 +37,7 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource
 		manageTable = new ALJTable();
 		manageTable.heightForRow = 66;
 		manageTable.dataSource = this;
+		manageTable.delegate = this;
 
 		add(manageTable);
 
@@ -119,6 +120,16 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource
 			}
 
 			default: break;
+		}
+	}
+
+	@Override
+	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
+	{
+		if (index.item == 0)
+		{
+			add();
+			table.reloadData();
 		}
 	}
 }

@@ -11,6 +11,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Objects;
 
 import static uikit.autolayout.LayoutEngine.getClassAndHashCode;
@@ -107,6 +109,41 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 				cell.delegate = this;
 				cell.currentIndex = new ALJTableIndex(section, item);
 				tableView.add(cell);
+
+				int finalSection = section;
+				int finalItem = item;
+				ALJTable table = this;
+				cell.addMouseListener(new MouseListener() {
+					@Override
+					public void mouseClicked(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mousePressed(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mouseReleased(MouseEvent e)
+					{
+						delegate.didSelectItemAtIndexInTable(table, new ALJTableIndex(finalSection, finalItem));
+					}
+
+					@Override
+					public void mouseEntered(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mouseExited(MouseEvent e)
+					{
+
+					}
+				});
 
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.leading,  LayoutRelation.equal, tableView,   LayoutAttribute.leading,  1.0, 0));
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.trailing, LayoutRelation.equal, tableView,   LayoutAttribute.trailing, 1.0, 0));

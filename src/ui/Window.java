@@ -44,7 +44,6 @@ class Window implements DFNotificationCenterDelegate
 		loginFrame.add(loginPanel);
 
 		loginFrame.setVisible(true);
-		System.out.println(loginFrame.getBounds());
 	}
 
 	void postLogin()
