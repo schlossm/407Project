@@ -1,6 +1,7 @@
 package ui.util;
 
 import objects.User;
+import uikit.LocalStorage;
 
 import java.io.File;
 
@@ -40,34 +41,34 @@ public class UIVariables
 		{
 			case linux:
 			{
-				if(!new File(System.getProperty("user.home") + "/" + "ABC").exists())
+				if(!new File(System.getProperty("user.home") + "/" + "ABC/").exists())
 				{
-					if (!new File(System.getProperty("user.home") + "/" + "ABC").mkdirs())
+					if (!new File(System.getProperty("user.home") + "/" + "ABC/Library/").mkdirs())
 					{
 						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
 					}
 				}
-				directory.library = System.getProperty("user.home") + "/" + "ABC/Library";
+				directory.library = System.getProperty("user.home") + "/" + "ABC/Library/";
 				directory.temp = System.getProperty("java.io.tmpdir");
-				directory.documents = System.getProperty("user.home") + "/" + "ABC";
+				directory.documents = System.getProperty("user.home") + "/" + "ABC/";
 				break;
 			}
 
 			case macOS:
 			{
-				if(!new File(System.getProperty("user.home") + "/Library/" + "ABC").exists())
+				if(!new File(System.getProperty("user.home") + "/Library/" + "ABC/").exists())
 				{
-					if (!new File(System.getProperty("user.home") + "/Library/" + "ABC").mkdirs())
+					if (!new File(System.getProperty("user.home") + "/Library/" + "ABC/").mkdirs())
 					{
 						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
 					}
 				}
 
-				directory.library = System.getProperty("user.home") + "/Library/" + "ABC";
+				directory.library = System.getProperty("user.home") + "/Library/" + "ABC/";
 				directory.temp = System.getProperty("java.io.tmpdir");
-				directory.documents = System.getProperty("user.home") + "/Documents/" + "ABC";
+				directory.documents = System.getProperty("user.home") + "/Documents/" + "ABC/";
 				break;
 			}
 
@@ -80,20 +81,26 @@ public class UIVariables
 
 			case windows:
 			{
-				if(!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC").exists())
+				if(!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC/").exists())
 				{
-					if (!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC").mkdirs())
+					if (!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC/").mkdirs())
 					{
 						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
 					}
 				}
-				directory.library = System.getenv("LocalAppData") + File.pathSeparator + "ABC";
+				directory.library = System.getenv("LocalAppData") + File.pathSeparator + "ABC/";
 				directory.temp = System.getProperty("java.io.tmpdir");
-				directory.documents = System.getProperty("user.home") + "/Documents/" + "ABC";
+				directory.documents = System.getProperty("user.home") + "/Documents/" + "ABC/";
 				break;
 			}
 		}
 		applicationDirectories = directory;
+
+		try
+		{
+			currentUser = (User) LocalStorage.defaultManager.loadObjectFromFile(applicationDirectories.library + ".user.abc");
+		}
+		catch (Exception ignored) { }
 	}
 }

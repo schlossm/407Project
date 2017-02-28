@@ -5,6 +5,7 @@ import ui.admin.Group;
 import ui.admin.ManageGroup;
 import ui.util.ABCTabBar;
 import ui.util.UIStrings;
+import ui.util.UIVariables;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.LayoutAttribute;
@@ -17,19 +18,27 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-class Window implements DFNotificationCenterDelegate
+public class Window implements DFNotificationCenterDelegate
 {
-	static Window current;
+	public static Window current;
 
-	private final JFrame loginFrame;
-	private ALJPanel activePanel;
-	private ALJPanel container;
-	private ABCTabBar tabBar;
-	private final Login loginPanel;
+	private JFrame      loginFrame;
+	private ALJPanel    activePanel;
+	private ALJPanel    container;
+	private ABCTabBar   tabBar;
+	private Login       loginPanel;
+	public  ALJFrame    mainScreen;
 
 	Window()
 	{
 		current = this;
+
+		if (UIVariables.current.currentUser != null)
+		{
+			postLogin();
+			return;
+		}
+
 		loginFrame = new JFrame("ABC");
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -48,10 +57,8 @@ class Window implements DFNotificationCenterDelegate
 
 	void postLogin()
 	{
-
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.ABCTabBarButtonClickedNotification);
-		//TODO: Replace with user's actual name
-		ALJFrame mainScreen = new ALJFrame("ABC - Michael Schloss");
+		mainScreen = new ALJFrame("ABC - " + UIVariables.current.currentUser.getFirstName() + " " + UIVariables.current.currentUser.getLastName());
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		mainScreen.setBounds(0, 0, screenSize.width, screenSize.height);
 		mainScreen.setBackground(Color.WHITE);
