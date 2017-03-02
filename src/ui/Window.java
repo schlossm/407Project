@@ -17,17 +17,20 @@ import uikit.autolayout.uiobjects.ALJPanel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.io.File;
 
-public class Window implements DFNotificationCenterDelegate
+public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 {
 	public static Window current;
 
-	private JFrame      loginFrame;
-	private ALJPanel    activePanel;
-	private ALJPanel    container;
-	private ABCTabBar   tabBar;
-	private Login       loginPanel;
-	public  ALJFrame    mainScreen;
+	JFrame loginFrame;
+	private ALJPanel activePanel;
+	private ALJPanel container;
+	private ABCTabBar tabBar;
+	private Login loginPanel;
+	public ALJFrame mainScreen;
 
 	Window()
 	{
@@ -39,12 +42,18 @@ public class Window implements DFNotificationCenterDelegate
 			return;
 		}
 
+		showLogin();
+	}
+
+	private void showLogin()
+	{
 		loginFrame = new JFrame("ABC");
+		loginFrame.addWindowFocusListener(this);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = Integer.min(screenSize.width/5 * 4, 1344);
-		int height = Integer.min(screenSize.height/5 * 4, 840);
-		loginFrame.setBounds(width != 1344 ? screenSize.width/10 : screenSize.width/2 - 1344/2, height != 840 ? screenSize.height/10 : screenSize.height/2 - 420, width, height);
+		int width = Integer.min(screenSize.width / 5 * 4, 1344);
+		int height = Integer.min(screenSize.height / 5 * 4, 840);
+		loginFrame.setBounds(width != 1344 ? screenSize.width / 10 : screenSize.width / 2 - 1344 / 2, height != 840 ? screenSize.height / 10 : screenSize.height / 2 - 420, width, height);
 		loginFrame.setBackground(Color.WHITE);
 		loginFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		loginFrame.setUndecorated(true);
@@ -69,7 +78,7 @@ public class Window implements DFNotificationCenterDelegate
 		container = new ALJPanel();
 		container.setLayout(null);
 		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
-		container.setBorder(new EmptyBorder(0,0,0,0));
+		container.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		tabBar = new ABCTabBar();
 
@@ -78,28 +87,33 @@ public class Window implements DFNotificationCenterDelegate
 		container.add(tabBar);
 		container.add(activePanel);
 
-		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading,   LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
-		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.trailing,  LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
-		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top,       LayoutRelation.equal, container,    LayoutAttribute.top,        1.0, 0));
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top, LayoutRelation.equal, container, LayoutAttribute.top, 1.0, 0));
 
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
 
 		mainScreen.getContentPane().add(container);
 
 		mainScreen.setVisible(true);
+		mainScreen.setMinimumSize(new Dimension(800, 600));
 		DFNotificationCenter.defaultCenter.remove(loginPanel);
-		loginFrame.dispose();
+		if (loginPanel != null)
+		{
+			loginFrame.dispose();
+		}
+		loadMenuForLoggedInUser();
 	}
 
 	@Override
 	public void performActionFor(String notificationName, Object userData)
 	{
-		if (!(userData instanceof String)) return;
+		if (!(userData instanceof String)) { return; }
 
-		String buttonClicked = (String)userData;
+		String buttonClicked = (String) userData;
 
 		switch (buttonClicked)
 		{
@@ -107,7 +121,7 @@ public class Window implements DFNotificationCenterDelegate
 			{
 				if (activePanel instanceof ManageGroup)
 				{
-					if (((ManageGroup)activePanel).currentGroup() == Group.teachers)
+					if (((ManageGroup) activePanel).currentGroup() == Group.teachers)
 					{
 						return;
 					}
@@ -131,7 +145,7 @@ public class Window implements DFNotificationCenterDelegate
 			{
 				if (activePanel instanceof ManageGroup)
 				{
-					if (((ManageGroup)activePanel).currentGroup() == Group.students)
+					if (((ManageGroup) activePanel).currentGroup() == Group.students)
 					{
 						return;
 					}
@@ -155,7 +169,7 @@ public class Window implements DFNotificationCenterDelegate
 			{
 				if (activePanel instanceof ManageGroup)
 				{
-					if (((ManageGroup)activePanel).currentGroup() == Group.courses)
+					if (((ManageGroup) activePanel).currentGroup() == Group.courses)
 					{
 						return;
 					}
@@ -213,14 +227,52 @@ public class Window implements DFNotificationCenterDelegate
 
 		container.add(activePanel);
 
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
 
 		container.layoutSubviews();
 		activePanel.layoutSubviews();
 		activePanel.repaint();
 		activePanel.layoutSubviews();
+	}
+
+	private void loadMenuForLoggedInUser()
+	{
+		JMenuBar menuBar = new JMenuBar();
+
+		//FILE
+
+		JMenuItem logout = new JMenuItem("Log Out");
+		logout.addActionListener(e ->
+		                         {
+			                         boolean success = new File(UIVariables.current.applicationDirectories.library + ".user.abc").delete();
+			                         if (success)
+			                         {
+				                         mainScreen.dispose();
+				                         showLogin();
+			                         }
+		                         });
+
+		JMenu file = new JMenu("File");
+		file.add(logout);
+
+		//ADD EVERYTHING
+
+		menuBar.add(file);
+		mainScreen.setJMenuBar(menuBar);
+	}
+
+	@Override
+	public void windowGainedFocus(WindowEvent e)
+	{
+		Taskbar.getTaskbar().requestUserAttention(false, false);
+	}
+
+	@Override
+	public void windowLostFocus(WindowEvent e)
+	{
+
 	}
 }

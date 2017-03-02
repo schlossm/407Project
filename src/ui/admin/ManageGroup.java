@@ -36,6 +36,10 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTabl
 		}
 		this.groupToManage = groupToManage;
 
+		ArrayList<String> fakeData = new ArrayList<>();
+		fakeData.add("Michael Schloss");
+		groupData.put(groupToManage + "s", fakeData);
+
 		setBackground(Color.white);
 		setOpaque(true);
 
@@ -82,9 +86,13 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTabl
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
 			Map<String, JTextField> textFields = alert.getTextFields();
-			//TODO: Actually do something with this
-		});
-		alert.addButton("Cancel", ButtonType.cancel, null);
+			//TODO: Upload this user
+			groupData.get(groupToManage + "s").add(alert.textFieldForIdentifier(groupToManage + ".firstName").getText() + " " + alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
+			manageTable.reloadData();
+			layoutSubviews();
+			alert.dispose();
+		}, true);
+		alert.addButton("Cancel", ButtonType.cancel, null, false);
 
 		switch (groupToManage)
 		{
@@ -138,13 +146,13 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTabl
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
 	{
-		return 1;
+		return groupData.keySet().size();
 	}
 
 	@Override
 	public int numberOfRowsInSectionForTable(ALJTable table, int section)
 	{
-		return groupData.size();
+		return groupData.get(titleForHeaderInSectionInTable(table, section)).size();
 	}
 
 	@Override
@@ -176,11 +184,18 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTabl
 		{
 			case delete:
 			{
-				groupData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
-				if (groupData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).size() == 0)
+				Alert deleteConfirmation = new Alert("Confirm Delete", null);
+				deleteConfirmation.addButton("Yes", ButtonType.destructive, e ->
 				{
-					groupData.remove(titleForHeaderInSectionInTable(tableView, forRowAt.section));
-				}
+					groupData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
+					if (groupData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).size() == 0)
+					{
+						groupData.remove(titleForHeaderInSectionInTable(tableView, forRowAt.section));
+					}
+					manageTable.reloadData();
+				}, false);
+				deleteConfirmation.addButton("No", ButtonType.cancel, null, false);
+				deleteConfirmation.show(Window.current.mainScreen);
 				break;
 			}
 
