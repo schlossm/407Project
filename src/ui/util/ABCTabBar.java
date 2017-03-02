@@ -21,19 +21,20 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 	{
 		addComponentListener(this);
 		setBackground(Color.WHITE);
+
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-		setBorder(new EmptyBorder(20, 40, 20, 40));
+		setBorder(new EmptyBorder(0, 20, 20, 20));
 
 		firstName = new JLabel(UIVariables.current.currentUser.getFirstName(), JLabel.LEFT);
-		firstName.setFont(UIFont.displayBlack.deriveFont(38f));
-		firstName.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+		firstName.setFont(UIFont.displayBlack.deriveFont(34f));
+		firstName.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 		firstName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		firstName.setFocusable(false);
 		add(firstName);
 
 		lastName = new JLabel(UIVariables.current.currentUser.getLastName(), JLabel.LEFT);
-		lastName.setFont(UIFont.textRegular.deriveFont(24.0f));
-		lastName.setBorder(BorderFactory.createEmptyBorder(16,0,0,0));
+		lastName.setFont(UIFont.textRegular.deriveFont(22.0f));
+		lastName.setBorder(BorderFactory.createEmptyBorder(26,0,0,0));
 		lastName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		lastName.setVerticalTextPosition(JLabel.BOTTOM);
 		lastName.setVerticalAlignment(JLabel.BOTTOM);
@@ -77,6 +78,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 			buttonToAdd.setFont(UIFont.textHeavy.deriveFont(9.0f));
 			buttonToAdd.addMouseListener(new MouseListenerManager(this));
 			buttonToAdd.setHorizontalTextPosition(JLabel.CENTER);
+			buttonToAdd.setAlignmentY(CENTER_ALIGNMENT);
 			buttons.add(buttonToAdd);
 		}
 		layoutButtons();
@@ -94,17 +96,16 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 		}
 
 		final int leftoverWidth = Integer.max(totalWidthToWorkWith - totalWidthOfAllButtons, 0);
-		if (leftoverWidth < buttons.size())
+		final int spaceBetweenEachButton = leftoverWidth/numberOfButtons;
+		if (spaceBetweenEachButton < 8)
 		{
 			for (JLabel button: buttons)
 			{
-				button.setFont(UIFont.textHeavy.deriveFont(9.0f));
+				button.setFont(UIFont.textHeavy.deriveFont(button.getFont().getSize() - 1.0f));
 			}
 			layoutButtons();
 			return;
 		}
-
-		final int spaceBetweenEachButton = leftoverWidth/numberOfButtons;
 
 		for (JLabel button: buttons)
 		{
