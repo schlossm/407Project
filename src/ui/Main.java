@@ -1,6 +1,5 @@
 package ui;
 
-import database.DFDatabase;
 import objects.Grade;
 import ui.util.CurrentOS;
 import ui.util.UIVariables;
@@ -17,7 +16,6 @@ public class Main
 {
 	public static void main(String[] args)
 	{
-		DFDatabase.defaultDatabase.enableDebug();
 		try
 		{
 			if (UIVariables.current.currentOS == CurrentOS.macOS)

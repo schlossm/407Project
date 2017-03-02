@@ -53,7 +53,7 @@ public class DFDatabase
 	 * Wanna debug DFDatabase and related components? Set this flag to 1.
 	 */
 
-	private int _debug = 1;
+	private int _debug = 0;
 	private Cipher encryptor, decryptor;
 
 	public int debug()

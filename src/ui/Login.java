@@ -5,6 +5,7 @@ import objects.User;
 import ui.util.*;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
+import uikit.LocalStorage;
 import uikit.UIFont;
 
 import javax.swing.*;
@@ -282,6 +283,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		if (e.getSource() == passwordField)
 		{
 			typingPassword = false;
+			if (passwordField.getPassword().length == 0) return;
 			usernameField.setEditable(false);
 			passwordField.setEditable(false);
 			this.requestFocus();
@@ -440,8 +442,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			if (stage == Stage.verify)
 			{
 				Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
-				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
-				{
+				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> {
 					usernameField.requestFocus();
 					usernameField.selectAll();
 				});
@@ -450,15 +451,15 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			else if (stage == Stage.loadUser)
 			{
 				Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
-				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> { });
+				incorrectPassword.addButton("OK", ButtonType.defaultType, null);
 				incorrectPassword.show(presentingFrame);
 			}
 		}
 		else if (Objects.equals(notificationName, UIStrings.returned))
 		{
-			System.out.println("Hello");
 			stage = Stage.none;
 			UIVariables.current.currentUser = (User)userData;
+			LocalStorage.defaultManager.saveObjectToFile((User)userData, UIVariables.current.applicationDirectories.library + ".user.abc");
 			Window.current.postLogin();
 		}
 	}

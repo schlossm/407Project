@@ -1,6 +1,7 @@
 package ui;
 
 import ui.homepages.AdminPanel;
+import ui.util.UIVariables;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
 import uikit.autolayout.LayoutRelation;
@@ -12,7 +13,7 @@ import java.awt.*;
 
 class Home extends ALJPanel
 {
-	private final ALJPanel currentPanel;
+	private ALJPanel currentPanel = null;
 	private final JScrollPane scrollPane;
 
 	Home()
@@ -30,24 +31,31 @@ class Home extends ALJPanel
 		scrollPane.setWheelScrollingEnabled(true);
 		add(scrollPane);
 
-		//FIXME: after debugging
-		//switch (UIVariables.current.currentUser.getUserType())
-		//{
-			//case ADMIN:
-			//{
+		switch (UIVariables.current.currentUser.getUserType())
+		{
+			case ADMIN:
+			{
 				AdminPanel adminPanel = new AdminPanel();
 				scrollPane.getViewport().add(adminPanel);
 				currentPanel = adminPanel;
-			//}
-			//case STUDENT:
-			//{
+				break;
+			}
 
-			//}
-			//case TEACHER:
-			//{
+			case STUDENT:
+			{
+break;
+			}
 
-			//}
-		//}
+			case TEACHER:
+			{
+break;
+			}
+
+			case TA:
+			{
+				break;
+			}
+		}
 
 		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading,     LayoutRelation.equal, this, LayoutAttribute.leading,    1.0, 0));
 		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top,         LayoutRelation.equal, this, LayoutAttribute.top,        1.0, 0));
