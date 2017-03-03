@@ -24,15 +24,15 @@ public class Main
 			{
 				System.setProperty("apple.laf.useScreenMenuBar", "true");
 				System.setProperty("com.apple.mrj.application.apple.menu.about.name", "ABC");
-				Desktop.getDesktop().setAboutHandler(e ->
-				                                     {
-					                                     Alert alert = new Alert("About", "ABC is a collaborative project designed to aid in school communications.");
-					                                     alert.addButton("OK", ButtonType.defaultType, null, false);
-					                                     alert.show(Window.current.mainScreen != null ? Window.current.mainScreen : Window.current.loginFrame);
-				                                     });
-
-				Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
 			}
+			Desktop.getDesktop().setAboutHandler(e ->
+			                                     {
+				                                     Alert alert = new Alert("About", "ABC is a collaborative project designed to aid in school communications.");
+				                                     alert.addButton("OK", ButtonType.defaultType, null, false);
+				                                     alert.show(Window.current.mainScreen != null ? Window.current.mainScreen : Window.current.loginFrame);
+			                                     });
+
+			Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
 		}
 		catch (Exception ignored) { }
 		UIFont.loadIntoGE();

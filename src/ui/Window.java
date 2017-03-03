@@ -1,5 +1,6 @@
 package ui;
 
+import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
@@ -117,6 +118,39 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 		switch (buttonClicked)
 		{
+			case "Announcements":
+			{
+				switch (UIVariables.current.currentUser.getUserType())
+				{
+					case TA:
+					{
+						break;
+					}
+
+					case ADMIN:
+					{
+						if (activePanel instanceof AdminAnnouncements)
+						{
+							return;
+						}
+						else
+						{
+							container.remove(activePanel);
+
+							activePanel = new AdminAnnouncements();
+						}
+						break;
+					}
+
+					case TEACHER:
+					{
+						break;
+					}
+
+					default: break;
+				}
+				break;
+			}
 			case "Manage Teachers":
 			{
 				if (activePanel instanceof ManageGroup)

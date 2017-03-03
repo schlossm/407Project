@@ -41,14 +41,14 @@ public class AdminPanel extends ALJPanel implements DFNotificationCenterDelegate
 		numClassesLabel.setFocusable(false);
 		add(numClassesLabel);
 
-		addConstraint(new LayoutConstraint(numStudentsLabel, LayoutAttribute.leading,   LayoutRelation.equal, this,      LayoutAttribute.leading,  1.0, 20));
-		addConstraint(new LayoutConstraint(numStudentsLabel, LayoutAttribute.top,       LayoutRelation.equal, this,      LayoutAttribute.top,      1.0, 20));
+		addConstraint(new LayoutConstraint(numStudentsLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 20));
+		addConstraint(new LayoutConstraint(numStudentsLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 20));
 
-		addConstraint(new LayoutConstraint(numTeachersLabel, LayoutAttribute.leading,   LayoutRelation.equal, this,      LayoutAttribute.leading,  1.0, 20));
-		addConstraint(new LayoutConstraint(numTeachersLabel, LayoutAttribute.top,       LayoutRelation.equal, numStudentsLabel, LayoutAttribute.bottom,   1.0, 40));
+		addConstraint(new LayoutConstraint(numTeachersLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 20));
+		addConstraint(new LayoutConstraint(numTeachersLabel, LayoutAttribute.top, LayoutRelation.equal, numStudentsLabel, LayoutAttribute.bottom, 1.0, 40));
 
-		addConstraint(new LayoutConstraint(numClassesLabel, LayoutAttribute.leading,    LayoutRelation.equal, this,      LayoutAttribute.leading,  1.0, 20));
-		addConstraint(new LayoutConstraint(numClassesLabel, LayoutAttribute.top,        LayoutRelation.equal, numTeachersLabel, LayoutAttribute.bottom,   1.0, 40));
+		addConstraint(new LayoutConstraint(numClassesLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 20));
+		addConstraint(new LayoutConstraint(numClassesLabel, LayoutAttribute.top, LayoutRelation.equal, numTeachersLabel, LayoutAttribute.bottom, 1.0, 40));
 
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.oneHourHasPassedNotification);
 

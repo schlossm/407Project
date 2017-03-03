@@ -39,18 +39,20 @@ class AlertPasswordField extends JPasswordField
 @SuppressWarnings({"unused", "RedundantCast"})
 public class Alert implements KeyListener, MLMDelegate
 {
-	private final JPanel                    alert;
-	private JPanel                          buttonPanel;
-	private JFrame                          dimView;
-	private JDialog                         dialog;
-	private int                             numButtons;
-	private final Map<String, JTextField>   textFields          = new HashMap<>();
-	private final Map<String, JCheckBox>    checkBoxes          = new HashMap<>();
-	private final ArrayList<JButton>        buttons             = new ArrayList<>();
-	private boolean                         hasCancelAction     = false;
-	private boolean                         hasDefaultAction    = false;
+	private final JPanel alert;
+	private JPanel buttonPanel;
+	private JFrame dimView;
+	private JDialog dialog;
+	private int numButtons;
+	private final Map<String, JTextField> textFields = new HashMap<>();
+	private final Map<String, JCheckBox> checkBoxes = new HashMap<>();
+	private final ArrayList<JButton> buttons = new ArrayList<>();
+	private boolean hasCancelAction = false;
+	private boolean hasDefaultAction = false;
+	private JLabel titleLabel = null;
+	private JLabel messageLabel = null;
 
-	private JTextField                      activeTextField;
+	private JTextField activeTextField;
 
 	public Alert(String title, String message)
 	{
@@ -62,7 +64,7 @@ public class Alert implements KeyListener, MLMDelegate
 
 		if (title != null)
 		{
-			JLabel titleLabel = new JLabel(title, JLabel.CENTER);
+			titleLabel = new JLabel(title, JLabel.CENTER);
 			titleLabel.setFont(UIFont.textBold.deriveFont(12.0f));
 			titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			alert.add(titleLabel);
@@ -70,7 +72,7 @@ public class Alert implements KeyListener, MLMDelegate
 		}
 		if (message != null && !Objects.equals(message, ""))
 		{
-			JLabel messageLabel = new JLabel(convertToMultiline(message), JLabel.CENTER);
+			messageLabel = new JLabel(convertToMultiline(message), JLabel.CENTER);
 			messageLabel.setFont(UIFont.textRegular.deriveFont(12.0f));
 			messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			alert.add(messageLabel);
@@ -84,13 +86,13 @@ public class Alert implements KeyListener, MLMDelegate
 		if (!isSecure)
 		{
 			textField = new AlertTextField(placeholder);
-			((AlertTextField)textField).placeholder = placeholder;
+			((AlertTextField) textField).placeholder = placeholder;
 		}
 		else
 		{
 			textField = new AlertPasswordField(placeholder);
-			((JPasswordField)textField).setEchoChar((char) 0);
-			((AlertPasswordField)textField).placeholder = placeholder;
+			((JPasswordField) textField).setEchoChar((char) 0);
+			((AlertPasswordField) textField).placeholder = placeholder;
 		}
 		textField.setFont(UIFont.textLight.deriveFont(10.0f));
 		textField.setMinimumSize(new Dimension(100, 44));
@@ -138,7 +140,7 @@ public class Alert implements KeyListener, MLMDelegate
 		JButton button = new JButton(text);
 		button.setFont(UIFont.textLight.deriveFont(9.0f));
 		button.setMaximumSize(new Dimension(400, 44));
-		if (customEnterAction) hasDefaultAction = true;
+		if (customEnterAction) { hasDefaultAction = true; }
 		if (type == ButtonType.defaultType && !customEnterAction)
 		{
 			button.setFont(UIFont.textBold.deriveFont(9.0f));
@@ -212,7 +214,6 @@ public class Alert implements KeyListener, MLMDelegate
 		//Present the dialog
 
 		dialog = new JDialog();
-
 		dialog.addKeyListener(this);
 
 		dialog.add(alert);
@@ -258,17 +259,18 @@ public class Alert implements KeyListener, MLMDelegate
 			}
 		}
 
-		dialog.setFocusTraversalPolicy(new FocusTraversalPolicy() {
+		dialog.setFocusTraversalPolicy(new FocusTraversalPolicy()
+		{
 			@Override
 			public Component getComponentAfter(Container aContainer, Component aComponent)
 			{
-				return buttons.get((buttons.indexOf((JButton)aComponent) + 1) % buttons.size());
+				return buttons.get((buttons.indexOf((JButton) aComponent) + 1) % buttons.size());
 			}
 
 			@Override
 			public Component getComponentBefore(Container aContainer, Component aComponent)
 			{
-				return buttons.get((buttons.indexOf((JButton)aComponent) - 1) % buttons.size());
+				return buttons.get((buttons.indexOf((JButton) aComponent) - 1) % buttons.size());
 			}
 
 			@Override
@@ -314,7 +316,7 @@ public class Alert implements KeyListener, MLMDelegate
 				button.setPreferredSize(new Dimension(width, 44));
 			}
 
-			dialog.setBounds(screenSize.width / 2 - max(width + 44, 200), screenSize.height / 2 - dialog.getPreferredSize().height / 2, max(width*2 + 88, 400), dialog.getPreferredSize().height);
+			dialog.setBounds(screenSize.width / 2 - max(width + 44, 200), screenSize.height / 2 - dialog.getPreferredSize().height / 2, max(width * 2 + 88, 400), dialog.getPreferredSize().height);
 		}
 		else
 		{
@@ -372,7 +374,7 @@ public class Alert implements KeyListener, MLMDelegate
 					if (activeTextField != null && Objects.equals(activeTextField.getText(), ""))
 					{
 
-						activeTextField.setText(((AlertTextField)activeTextField).placeholder);
+						activeTextField.setText(((AlertTextField) activeTextField).placeholder);
 						activeTextField.setForeground(Color.lightGray);
 					}
 					activeTextField = field;
