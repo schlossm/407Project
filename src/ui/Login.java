@@ -461,7 +461,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		{
 			stage = Stage.none;
 			UIVariables.current.currentUser = (User)userData;
-			LocalStorage.defaultManager.saveObjectToFile((User)userData, UIVariables.current.applicationDirectories.library + ".user.abc");
+			LocalStorage.defaultManager.saveObjectToFile(userData, UIVariables.current.applicationDirectories.library + ".user.abc");
 			Window.current.postLogin();
 		}
 	}

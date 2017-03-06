@@ -10,7 +10,7 @@ import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 
 @SuppressWarnings("unchecked")
-public class ALJPanel extends JPanel implements Constrainable
+public class ALJPanel extends JLayeredPane implements Constrainable
 {
 	private final ArrayList<LayoutConstraint> _constraints = new ArrayList<>();
 
@@ -39,7 +39,7 @@ public class ALJPanel extends JPanel implements Constrainable
 		int count = 0;
 		for (Object storedConstraint : storedConstraints)
 		{
-			constraintsToReturn[count] = (LayoutConstraint)storedConstraint;
+			constraintsToReturn[count] = (LayoutConstraint) storedConstraint;
 			count++;
 		}
 		return constraintsToReturn;
@@ -50,7 +50,7 @@ public class ALJPanel extends JPanel implements Constrainable
 	{
 		super.remove(comp);
 
-		for (LayoutConstraint constraint : (ArrayList<LayoutConstraint>)_constraints.clone())
+		for (LayoutConstraint constraint : (ArrayList<LayoutConstraint>) _constraints.clone())
 		{
 			if (constraint.viewOne == comp || constraint.viewTwo == comp)
 			{
@@ -74,11 +74,12 @@ public class ALJPanel extends JPanel implements Constrainable
 		{
 			if (component instanceof ALJPanel)
 			{
-				((ALJPanel)component).layoutSubviews();
+				((ALJPanel) component).layoutSubviews();
 			}
 			else if (component instanceof JPanel)
 			{
-				((ComponentListener)component).componentResized(null);
+				((ComponentListener) component).componentResized(null);
+				component.revalidate();
 			}
 			component.repaint();
 		}
