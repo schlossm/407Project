@@ -46,7 +46,7 @@ public class ManageGroup extends ALJTablePanel
 		return groupToManage;
 	}
 
-	public void add()
+	private void add()
 	{
 		Alert alert = new Alert("New " + groupToManage, "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->

@@ -1,7 +1,11 @@
 package ui;
 
+import objects.userType;
 import ui.homepages.AdminPanel;
+import ui.homepages.InstructorPanel;
+import ui.homepages.StudentPanel;
 import ui.util.UIVariables;
+import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
 import uikit.autolayout.LayoutRelation;
@@ -10,6 +14,8 @@ import uikit.autolayout.uiobjects.ALJPanel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 class Home extends ALJPanel
 {
@@ -22,8 +28,8 @@ class Home extends ALJPanel
 		setPreferredSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
 		scrollPane = new JScrollPane();
-		scrollPane.setBorder(new EmptyBorder(0,0,0,0));
-		ScrollPaneLayout layout = (ScrollPaneLayout)(scrollPane.getLayout());
+		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		ScrollPaneLayout layout = (ScrollPaneLayout) (scrollPane.getLayout());
 		layout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		layout.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
@@ -43,26 +49,112 @@ class Home extends ALJPanel
 
 			case STUDENT:
 			{
-break;
+				StudentPanel studentPanel = new StudentPanel();
+				scrollPane.getViewport().add(studentPanel);
+				currentPanel = studentPanel;
+				break;
 			}
 
 			case TEACHER:
 			{
-break;
+				InstructorPanel instructorPanel = new InstructorPanel();
+				scrollPane.getViewport().add(instructorPanel);
+				currentPanel = instructorPanel;
+				break;
 			}
 
 			case TA:
 			{
+				InstructorPanel instructorPanel = new InstructorPanel();
+				scrollPane.getViewport().add(instructorPanel);
+				currentPanel = instructorPanel;
 				break;
 			}
 		}
 
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading,     LayoutRelation.equal, this, LayoutAttribute.leading,    1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top,         LayoutRelation.equal, this, LayoutAttribute.top,        1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing,    LayoutRelation.equal, this, LayoutAttribute.trailing,   1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom,      LayoutRelation.equal, this, LayoutAttribute.bottom,     1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 
-		layoutSubviews();
+		loadAnnouncements();
+	}
+
+	private ALJPanel announcementPanel;
+
+	private void loadAnnouncements()
+	{
+		if (UIVariables.current.currentUser.getUserType() != userType.ADMIN)
+		{
+			//FIXME: See if there is a real announcement
+
+			//FIXME: Remove after debugging
+			Home current = this;
+
+			announcementPanel = new ALJPanel();
+			announcementPanel.setOpaque(true);
+			announcementPanel.setBackground(new Color(0, 0, 0, 0.5f));
+			announcementPanel.addMouseListener(new MouseListener()
+			{
+				@Override
+				public void mouseClicked(MouseEvent e) { }
+
+				@Override
+				public void mousePressed(MouseEvent e) { }
+
+				@Override
+				public void mouseReleased(MouseEvent e)
+				{
+					if (new Rectangle(0, 0, announcementPanel.getWidth(), announcementPanel.getHeight()).contains(e.getPoint()))
+					{
+						current.remove(announcementPanel);
+						current.repaint();
+					}
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) { }
+
+				@Override
+				public void mouseExited(MouseEvent e) { }
+			});
+
+			//ANNOUNCEMENT INFO
+
+			JLabel title = new JLabel("Test Announcement Title");
+			title.setFont(UIFont.textHeavy.deriveFont(12.0f));
+			title.setForeground(Color.white);
+			announcementPanel.add(title);
+
+			announcementPanel.addConstraint(new LayoutConstraint(title, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
+			announcementPanel.addConstraint(new LayoutConstraint(title, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
+
+			JLabel detail = new JLabel("Test Announcement Detail");
+			detail.setFont(UIFont.textLight.deriveFont(9.0f));
+			detail.setForeground(Color.white);
+			announcementPanel.add(detail);
+
+			announcementPanel.addConstraint(new LayoutConstraint(detail, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
+			announcementPanel.addConstraint(new LayoutConstraint(detail, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1.0, 0));
+
+			//CLICK TO DISMISS
+
+			JLabel clickDismiss = new JLabel("(Click to Dismiss)");
+			clickDismiss.setFont(UIFont.textLightItalic.deriveFont(5.0f));
+			clickDismiss.setForeground(Color.white);
+			announcementPanel.add(clickDismiss);
+
+			announcementPanel.addConstraint(new LayoutConstraint(clickDismiss, LayoutAttribute.trailing, LayoutRelation.equal, announcementPanel, LayoutAttribute.trailing, 1.0, -2));
+			announcementPanel.addConstraint(new LayoutConstraint(clickDismiss, LayoutAttribute.bottom, LayoutRelation.equal, announcementPanel, LayoutAttribute.bottom, 1.0, -2));
+
+			//ADD PANEL
+
+			add(announcementPanel, 0);
+			addConstraint(new LayoutConstraint(announcementPanel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
+			addConstraint(new LayoutConstraint(announcementPanel, LayoutAttribute.centerX, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 0));
+			addConstraint(new LayoutConstraint(announcementPanel, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1.0, 600));
+			addConstraint(new LayoutConstraint(announcementPanel, LayoutAttribute.height, LayoutRelation.equal, null, LayoutAttribute.height, 1.0, 150));
+		}
 	}
 
 	@Override
@@ -70,8 +162,24 @@ break;
 	{
 		super.layoutSubviews();
 
-		//FIXME: after debugging
-		currentPanel.setPreferredSize(new Dimension(scrollPane.getBounds().width, currentPanel.getPreferredSize().height));
+		scrollPane.revalidate();
+
+		int height;
+		if (currentPanel.calculatedHeight() > scrollPane.getHeight())
+		{
+			height = currentPanel.calculatedHeight();
+		}
+		else
+		{
+			height = scrollPane.getHeight();
+		}
+
+		currentPanel.setBounds(0, 0, scrollPane.getBounds().width, height);
 		currentPanel.layoutSubviews();
+
+		if (announcementPanel != null)
+		{
+			announcementPanel.layoutSubviews();
+		}
 	}
 }

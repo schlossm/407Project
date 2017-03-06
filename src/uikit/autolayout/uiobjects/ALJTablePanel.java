@@ -9,14 +9,11 @@ import uikit.autolayout.LayoutRelation;
 
 import java.awt.*;
 
-/**
- * Created by michaelschloss on 3/3/17.
- */
 abstract public class ALJTablePanel extends ALJPanel implements ALJTableDataSource, ALJTableDelegate
 {
-	public ALJTable table;
+	protected final ALJTable table;
 
-	public ALJTablePanel()
+	protected ALJTablePanel()
 	{
 		setBackground(Color.white);
 		setPreferredSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));

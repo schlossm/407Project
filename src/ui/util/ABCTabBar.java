@@ -70,7 +70,6 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 			}
 		}
 
-
 		for (String buttonTitle : buttonTitles)
 		{
 			JLabel buttonToAdd = new JLabel(buttonTitle);
@@ -83,6 +82,8 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 		}
 		layoutButtons();
 	}
+
+
 
 	private void layoutButtons()
 	{
