@@ -45,7 +45,7 @@ public class UIVariables
 				{
 					if (!new File(System.getProperty("user.home") + "/" + "ABC/Library/").mkdirs())
 					{
-						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
+						System.err.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
 					}
 				}
@@ -61,7 +61,7 @@ public class UIVariables
 				{
 					if (!new File(System.getProperty("user.home") + "/Library/" + "ABC/").mkdirs())
 					{
-						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
+						System.err.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
 					}
 				}
@@ -85,7 +85,7 @@ public class UIVariables
 				{
 					if (!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC/").mkdirs())
 					{
-						System.out.println("Could not create folders needed.  Exiting application as specific features are needed.");
+						System.err.println("Could not create folders needed.  Exiting application as specific features are needed.");
 						System.exit(-1);
 					}
 				}

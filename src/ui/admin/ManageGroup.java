@@ -4,28 +4,23 @@ import ui.Alert;
 import ui.ButtonType;
 import ui.Window;
 import ui.util.ALJTable.*;
-import uikit.autolayout.LayoutAttribute;
-import uikit.autolayout.LayoutConstraint;
-import uikit.autolayout.LayoutRelation;
-import uikit.autolayout.uiobjects.ALJPanel;
+import uikit.autolayout.uiobjects.ALJTablePanel;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-@SuppressWarnings("unused")
-public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTableDelegate
+public class ManageGroup extends ALJTablePanel
 {
 	private Group groupToManage = Group.none;
-	private ALJTable manageTable;
 
 	private final Map<String, ArrayList<String>> groupData = new HashMap<>();
 
 	public ManageGroup(Group groupToManage)
 	{
+		super();
 		ArrayList<String> starter = new ArrayList<>();
 		starter.add("New " + groupToManage);
 		groupData.put("", starter);
@@ -36,39 +31,14 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTabl
 		}
 		this.groupToManage = groupToManage;
 
+		ArrayList<String> fakeData = new ArrayList<>();
+		fakeData.add("Michael Schloss");
+		groupData.put(groupToManage + "s", fakeData);
+
 		setBackground(Color.white);
 		setOpaque(true);
 
-		manageTable = new ALJTable();
-		manageTable.heightForRow = 66;
-		manageTable.dataSource = this;
-		manageTable.delegate = this;
-
-		add(manageTable);
-
-		addConstraint(new LayoutConstraint(manageTable, LayoutAttribute.leading,    LayoutRelation.equal, this, LayoutAttribute.leading,    1.0, 0));
-		addConstraint(new LayoutConstraint(manageTable, LayoutAttribute.top,        LayoutRelation.equal, this, LayoutAttribute.top,        1.0, 0));
-		addConstraint(new LayoutConstraint(manageTable, LayoutAttribute.trailing,   LayoutRelation.equal, this, LayoutAttribute.trailing,   1.0, 0));
-		addConstraint(new LayoutConstraint(manageTable, LayoutAttribute.bottom,     LayoutRelation.equal, this, LayoutAttribute.bottom,     1.0, 0));
-
 		//TODO: Load proper data from database and save it
-	}
-
-	@Override
-	public void layoutSubviews()
-	{
-		super.layoutSubviews();
-		if (!manageTable.isLoaded())
-		{
-			manageTable.reloadData();
-			manageTable.layoutSubviews();
-			repaint();
-		}
-		else
-		{
-			manageTable.layoutSubviews();
-			repaint();
-		}
 	}
 
 	public Group currentGroup()
@@ -81,10 +51,13 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTabl
 		Alert alert = new Alert("New " + groupToManage, "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
-			Map<String, JTextField> textFields = alert.getTextFields();
-			//TODO: Actually do something with this
-		});
-		alert.addButton("Cancel", ButtonType.cancel, null);
+			//TODO: Upload this user
+			groupData.get(groupToManage + "s").add(alert.textFieldForIdentifier(groupToManage + ".firstName").getText() + " " + alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
+			table.reloadData();
+			layoutSubviews();
+			alert.dispose();
+		}, true);
+		alert.addButton("Cancel", ButtonType.cancel, null, false);
 
 		switch (groupToManage)
 		{
@@ -138,13 +111,13 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTabl
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
 	{
-		return 1;
+		return groupData.keySet().size();
 	}
 
 	@Override
 	public int numberOfRowsInSectionForTable(ALJTable table, int section)
 	{
-		return groupData.size();
+		return groupData.get(titleForHeaderInSectionInTable(table, section)).size();
 	}
 
 	@Override
@@ -176,11 +149,19 @@ public class ManageGroup extends ALJPanel implements ALJTableDataSource, ALJTabl
 		{
 			case delete:
 			{
-				groupData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
-				if (groupData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).size() == 0)
+				Alert deleteConfirmation = new Alert("Confirm Delete", null);
+				deleteConfirmation.addButton("Yes", ButtonType.destructive, e ->
 				{
-					groupData.remove(titleForHeaderInSectionInTable(tableView, forRowAt.section));
-				}
+					//TODO: Actually delete from database
+					groupData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
+					if (groupData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).size() == 0)
+					{
+						groupData.remove(titleForHeaderInSectionInTable(tableView, forRowAt.section));
+					}
+					tableView.reloadData();
+				}, false);
+				deleteConfirmation.addButton("No", ButtonType.cancel, null, false);
+				deleteConfirmation.show(Window.current.mainScreen);
 				break;
 			}
 

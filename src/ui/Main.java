@@ -6,6 +6,8 @@ import ui.util.UIVariables;
 import uikit.TimeManager;
 import uikit.UIFont;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -21,7 +23,16 @@ public class Main
 			if (UIVariables.current.currentOS == CurrentOS.macOS)
 			{
 				System.setProperty("apple.laf.useScreenMenuBar", "true");
+				System.setProperty("com.apple.mrj.application.apple.menu.about.name", "ABC");
 			}
+			Desktop.getDesktop().setAboutHandler(e ->
+			                                     {
+				                                     Alert alert = new Alert("About", "ABC is a collaborative project designed to aid in school communications.");
+				                                     alert.addButton("OK", ButtonType.defaultType, null, false);
+				                                     alert.show(Window.current.mainScreen != null ? Window.current.mainScreen : Window.current.loginFrame);
+			                                     });
+
+			Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
 		}
 		catch (Exception ignored) { }
 		UIFont.loadIntoGE();
@@ -29,14 +40,9 @@ public class Main
 
 		new Thread(new TimeManager()).start();
 
-		/*
-		 * Write random Grades to the cache for UI testing
-		 * (be careful because userID and assignmentID will not
-		 * point to legitimate database entries)
-		 */
+		//MARK: - Test Data
 
-		// Create 10 Grade objects and write them to a *.ser cache file
-		String filename = UIVariables.current.applicationDirectories.temp + File.separator + "test_grades.ser";
+		String filename = UIVariables.current.applicationDirectories.temp + File.separator + "test_grades.abc";
 
 		try
 		{
@@ -66,10 +72,11 @@ public class Main
 		{
 			try
 			{
-				if (queue.size() != 0) queue.take().run();
+				if (queue.size() != 0) { queue.take().run(); }
 			}
 			catch (InterruptedException e)
 			{
+				System.err.print("The application queue has encountered an error)");
 				e.printStackTrace();
 				System.exit(-1);
 			}
