@@ -45,10 +45,7 @@ public class LocalStorage
 			objOut.writeObject(object);
 			objOut.close();
 			fileOut.close();
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		} catch (Exception ignored) { }
 	}
 
 	/*
@@ -74,10 +71,7 @@ public class LocalStorage
 
 			return object;
 		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		catch (Exception ignored) { }
 
 		return null;
 	}

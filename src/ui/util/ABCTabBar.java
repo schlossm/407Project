@@ -21,20 +21,19 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 	{
 		addComponentListener(this);
 		setBackground(Color.WHITE);
-		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-		setBorder(new EmptyBorder(40, 40, 20, 40));
 
-		//TODO: Replace with first name of user
-		firstName = new JLabel("Michael", JLabel.LEFT);
-		firstName.setFont(UIFont.displayBlack.deriveFont(38f));
+		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+		setBorder(new EmptyBorder(0, 20, 20, 20));
+
+		firstName = new JLabel(UIVariables.current.currentUser.getFirstName(), JLabel.LEFT);
+		firstName.setFont(UIFont.displayBlack.deriveFont(34f));
 		firstName.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 		firstName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		firstName.setFocusable(false);
 		add(firstName);
 
-		//TODO: Replace with last name of user
-		lastName = new JLabel("Schloss", JLabel.LEFT);
-		lastName.setFont(UIFont.textRegular.deriveFont(24.0f));
+		lastName = new JLabel(UIVariables.current.currentUser.getLastName(), JLabel.LEFT);
+		lastName.setFont(UIFont.textRegular.deriveFont(22.0f));
 		lastName.setBorder(BorderFactory.createEmptyBorder(26,0,0,0));
 		lastName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		lastName.setVerticalTextPosition(JLabel.BOTTOM);
@@ -47,19 +46,29 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 
 	private void addCorrectButtons()
 	{
-		String[] buttonTitles;
+		String[] buttonTitles = new String[0];
 
-		//TODO: Get userType
-		//TODO: switch userType
+		switch (UIVariables.current.currentUser.getUserType())
+		{
+			case ADMIN:
+			{
+				buttonTitles = new String[] {"Home", "Grades",/*.*/"My ABCDrive", "Announcements", "Manage Courses", "Manage Teachers", "Manage Students", "Help", "Settings"};
+				break;
+			}
 
-		//User is a  Student
-		buttonTitles = new String[] {"Home", "My Courses",/*............*/"Announcements", "Grades",/*...........................................*/"Help", "Settings"};
+			case STUDENT:
+			{
+				buttonTitles = new String[] {"Home", "My Courses",/*............*/"Announcements", "Grades",/*...........................................*/"Help", "Settings"};
+				break;
+			}
 
-		//User is a  Teacher
-		buttonTitles = new String[] {"Home", "My Courses", "My ABCDrive",/*..............*/"Grades",/*...........................................*/"Help", "Settings"};
-
-		//User is an Admin
-		buttonTitles = new String[] {"Home", "Grades",/*.*/"My ABCDrive", "Announcements", "Manage Courses", "Manage Teachers", "Manage Students", "Help", "Settings"};
+			case TEACHER:
+			case TA:
+			{
+				buttonTitles = new String[] {"Home", "My Courses", "My ABCDrive",/*..............*/"Grades",/*...........................................*/"Help", "Settings"};
+				break;
+			}
+		}
 
 		for (String buttonTitle : buttonTitles)
 		{
@@ -68,10 +77,13 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 			buttonToAdd.setFont(UIFont.textHeavy.deriveFont(9.0f));
 			buttonToAdd.addMouseListener(new MouseListenerManager(this));
 			buttonToAdd.setHorizontalTextPosition(JLabel.CENTER);
+			buttonToAdd.setAlignmentY(CENTER_ALIGNMENT);
 			buttons.add(buttonToAdd);
 		}
 		layoutButtons();
 	}
+
+
 
 	private void layoutButtons()
 	{
@@ -85,17 +97,16 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 		}
 
 		final int leftoverWidth = Integer.max(totalWidthToWorkWith - totalWidthOfAllButtons, 0);
-		if (leftoverWidth < buttons.size())
+		final int spaceBetweenEachButton = leftoverWidth/numberOfButtons;
+		if (spaceBetweenEachButton < 8)
 		{
 			for (JLabel button: buttons)
 			{
-				button.setFont(UIFont.textHeavy.deriveFont(9.0f));
+				button.setFont(UIFont.textHeavy.deriveFont(button.getFont().getSize() - 1.0f));
 			}
 			layoutButtons();
 			return;
 		}
-
-		final int spaceBetweenEachButton = leftoverWidth/numberOfButtons;
 
 		for (JLabel button: buttons)
 		{
@@ -147,19 +158,17 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 
 		buttons = new ArrayList<>();
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-		setBorder(new EmptyBorder(40, 40, 20, 40));
+		setBorder(new EmptyBorder(0, 20, 20, 20));
 
-		//TODO: Replace with first name of user
-		firstName = new JLabel("Michael", JLabel.LEFT);
-		firstName.setFont(UIFont.displayBlack.deriveFont(38f));
+		firstName = new JLabel(UIVariables.current.currentUser.getFirstName(), JLabel.LEFT);
+		firstName.setFont(UIFont.displayBlack.deriveFont(34f));
 		firstName.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 		firstName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		firstName.setFocusable(false);
 		add(firstName);
 
-		//TODO: Replace with last name of user
-		lastName = new JLabel("Schloss", JLabel.LEFT);
-		lastName.setFont(UIFont.textRegular.deriveFont(24.0f));
+		lastName = new JLabel(UIVariables.current.currentUser.getLastName(), JLabel.LEFT);
+		lastName.setFont(UIFont.textRegular.deriveFont(22.0f));
 		lastName.setBorder(BorderFactory.createEmptyBorder(26,0,0,0));
 		lastName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		lastName.setVerticalTextPosition(JLabel.BOTTOM);

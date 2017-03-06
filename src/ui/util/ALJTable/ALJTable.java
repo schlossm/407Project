@@ -11,12 +11,14 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Objects;
 
 import static uikit.autolayout.LayoutEngine.getClassAndHashCode;
 
 @SuppressWarnings("unused")
-public class ALJTable extends JScrollPane implements ComponentListener, ALJTableCellDelegate
+public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCellDelegate
 {
 	public ALJTableDataSource dataSource;
 	public ALJTableDelegate delegate;
@@ -24,6 +26,7 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 	private boolean _isLoaded = false;
 
 	private final ALJPanel tableView;
+	private final JScrollPane scrollPane;
 
 	public ALJTable()
 	{
@@ -31,14 +34,23 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 		setBorder(new EmptyBorder(0,0,0,0));
 		tableView = new ALJPanel();
 		tableView.setBackground(Color.white);
-		ScrollPaneLayout layout = (ScrollPaneLayout)(getLayout());
+
+		scrollPane = new JScrollPane();
+		scrollPane.setBorder(new EmptyBorder(0,0,0,0));
+		ScrollPaneLayout layout = (ScrollPaneLayout)(scrollPane.getLayout());
 		layout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		layout.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
-		getVerticalScrollBar().setVisible(false);
-		setWheelScrollingEnabled(true);
+		scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+		scrollPane.getVerticalScrollBar().setVisible(false);
+		scrollPane.setWheelScrollingEnabled(true);
+		add(scrollPane);
 
-		getViewport().add(tableView, ScrollPaneConstants.VIEWPORT);
+		scrollPane.getViewport().add(tableView);
+
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading,     LayoutRelation.equal, this, LayoutAttribute.leading,    1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top,         LayoutRelation.equal, this, LayoutAttribute.top,        1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing,    LayoutRelation.equal, this, LayoutAttribute.trailing,   1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom,      LayoutRelation.equal, this, LayoutAttribute.bottom,     1.0, 0));
 	}
 
 	public boolean isLoaded()
@@ -48,6 +60,10 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 
 	public void layoutSubviews()
 	{
+		super.layoutSubviews();
+
+		tableView.setPreferredSize(new Dimension(scrollPane.getBounds().width, tableView.calculatedHeight()));
+		tableView.layoutSubviews();
 		tableView.setBounds(0,0,getBounds().width, 1000000);
 		tableView.layoutSubviews();
 		tableView.setBounds(0,0,getBounds().width, tableView.calculatedHeight());
@@ -108,6 +124,41 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 				cell.currentIndex = new ALJTableIndex(section, item);
 				tableView.add(cell);
 
+				int finalSection = section;
+				int finalItem = item;
+				ALJTable table = this;
+				cell.addMouseListener(new MouseListener() {
+					@Override
+					public void mouseClicked(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mousePressed(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mouseReleased(MouseEvent e)
+					{
+						delegate.didSelectItemAtIndexInTable(table, new ALJTableIndex(finalSection, finalItem));
+					}
+
+					@Override
+					public void mouseEntered(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mouseExited(MouseEvent e)
+					{
+
+					}
+				});
+
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.leading,  LayoutRelation.equal, tableView,   LayoutAttribute.leading,  1.0, 0));
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.trailing, LayoutRelation.equal, tableView,   LayoutAttribute.trailing, 1.0, 0));
 				if (heightForRow > 44)
@@ -129,11 +180,7 @@ public class ALJTable extends JScrollPane implements ComponentListener, ALJTable
 
 		if (previous != null) setPreferredSize(new Dimension(tableView.getPreferredSize().width, previous.getBounds().y + previous.getPreferredSize().height));
 		_isLoaded = true;
-		tableView.setBounds(0,0,getBounds().width, 1000000);
-		tableView.layoutSubviews();
-		tableView.setBounds(0,0,getBounds().width, tableView.calculatedHeight());
-		tableView.layoutSubviews();
-		tableView.setBounds(0,0,getBounds().width, tableView.calculatedHeight());
+		layoutSubviews();
 	}
 
 	@Override

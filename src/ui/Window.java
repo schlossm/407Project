@@ -1,10 +1,12 @@
 package ui;
 
+import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
 import ui.util.ABCTabBar;
 import ui.util.UIStrings;
+import ui.util.UIVariables;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.LayoutAttribute;
@@ -16,26 +18,43 @@ import uikit.autolayout.uiobjects.ALJPanel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.io.File;
 
-class Window implements DFNotificationCenterDelegate
+public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 {
-	static Window current;
+	public static Window current;
 
-	private final JFrame loginFrame;
+	JFrame loginFrame;
 	private ALJPanel activePanel;
 	private ALJPanel container;
 	private ABCTabBar tabBar;
-	private final Login loginPanel;
+	private Login loginPanel;
+	public ALJFrame mainScreen;
 
 	Window()
 	{
 		current = this;
+
+		if (UIVariables.current.currentUser != null)
+		{
+			postLogin();
+			return;
+		}
+
+		showLogin();
+	}
+
+	private void showLogin()
+	{
 		loginFrame = new JFrame("ABC");
+		loginFrame.addWindowFocusListener(this);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = Integer.min(screenSize.width/5 * 4, 1344);
-		int height = Integer.min(screenSize.height/5 * 4, 840);
-		loginFrame.setBounds(width != 1344 ? screenSize.width/10 : screenSize.width/2 - 1344/2, height != 840 ? screenSize.height/10 : screenSize.height/2 - 420, width, height);
+		int width = Integer.min(screenSize.width / 5 * 4, 1344);
+		int height = Integer.min(screenSize.height / 5 * 4, 840);
+		loginFrame.setBounds(width != 1344 ? screenSize.width / 10 : screenSize.width / 2 - 1344 / 2, height != 840 ? screenSize.height / 10 : screenSize.height / 2 - 420, width, height);
 		loginFrame.setBackground(Color.WHITE);
 		loginFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		loginFrame.setUndecorated(true);
@@ -44,15 +63,12 @@ class Window implements DFNotificationCenterDelegate
 		loginFrame.add(loginPanel);
 
 		loginFrame.setVisible(true);
-		System.out.println(loginFrame.getBounds());
 	}
 
 	void postLogin()
 	{
-
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.ABCTabBarButtonClickedNotification);
-		//TODO: Replace with user's actual name
-		ALJFrame mainScreen = new ALJFrame("ABC - Michael Schloss");
+		mainScreen = new ALJFrame("ABC - " + UIVariables.current.currentUser.getFirstName() + " " + UIVariables.current.currentUser.getLastName());
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		mainScreen.setBounds(0, 0, screenSize.width, screenSize.height);
 		mainScreen.setBackground(Color.WHITE);
@@ -63,7 +79,7 @@ class Window implements DFNotificationCenterDelegate
 		container = new ALJPanel();
 		container.setLayout(null);
 		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
-		container.setBorder(new EmptyBorder(0,0,0,0));
+		container.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		tabBar = new ABCTabBar();
 
@@ -72,36 +88,74 @@ class Window implements DFNotificationCenterDelegate
 		container.add(tabBar);
 		container.add(activePanel);
 
-		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading,   LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
-		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.trailing,  LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
-		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top,       LayoutRelation.equal, container,    LayoutAttribute.top,        1.0, 0));
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top, LayoutRelation.equal, container, LayoutAttribute.top, 1.0, 0));
 
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
 
 		mainScreen.getContentPane().add(container);
 
 		mainScreen.setVisible(true);
+		mainScreen.setMinimumSize(new Dimension(800, 600));
 		DFNotificationCenter.defaultCenter.remove(loginPanel);
-		loginFrame.dispose();
+		if (loginPanel != null)
+		{
+			loginFrame.dispose();
+		}
+		loadMenuForLoggedInUser();
 	}
 
 	@Override
 	public void performActionFor(String notificationName, Object userData)
 	{
-		if (!(userData instanceof String)) return;
+		if (!(userData instanceof String)) { return; }
 
-		String buttonClicked = (String)userData;
+		String buttonClicked = (String) userData;
 
 		switch (buttonClicked)
 		{
+			case "Announcements":
+			{
+				switch (UIVariables.current.currentUser.getUserType())
+				{
+					case TA:
+					{
+						break;
+					}
+
+					case ADMIN:
+					{
+						if (activePanel instanceof AdminAnnouncements)
+						{
+							return;
+						}
+						else
+						{
+							container.remove(activePanel);
+
+							activePanel = new AdminAnnouncements();
+						}
+						break;
+					}
+
+					case TEACHER:
+					{
+						break;
+					}
+
+					default: break;
+				}
+				break;
+			}
 			case "Manage Teachers":
 			{
 				if (activePanel instanceof ManageGroup)
 				{
-					if (((ManageGroup)activePanel).currentGroup() == Group.teachers)
+					if (((ManageGroup) activePanel).currentGroup() == Group.teachers)
 					{
 						return;
 					}
@@ -125,7 +179,7 @@ class Window implements DFNotificationCenterDelegate
 			{
 				if (activePanel instanceof ManageGroup)
 				{
-					if (((ManageGroup)activePanel).currentGroup() == Group.students)
+					if (((ManageGroup) activePanel).currentGroup() == Group.students)
 					{
 						return;
 					}
@@ -149,7 +203,7 @@ class Window implements DFNotificationCenterDelegate
 			{
 				if (activePanel instanceof ManageGroup)
 				{
-					if (((ManageGroup)activePanel).currentGroup() == Group.courses)
+					if (((ManageGroup) activePanel).currentGroup() == Group.courses)
 					{
 						return;
 					}
@@ -207,14 +261,52 @@ class Window implements DFNotificationCenterDelegate
 
 		container.add(activePanel);
 
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top,         LayoutRelation.equal, tabBar,       LayoutAttribute.bottom,     1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing,    LayoutRelation.equal, container,    LayoutAttribute.trailing,   1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading,     LayoutRelation.equal, container,    LayoutAttribute.leading,    1.0, 0));
-		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom,      LayoutRelation.equal, container,    LayoutAttribute.bottom,     1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
 
 		container.layoutSubviews();
 		activePanel.layoutSubviews();
 		activePanel.repaint();
 		activePanel.layoutSubviews();
+	}
+
+	private void loadMenuForLoggedInUser()
+	{
+		JMenuBar menuBar = new JMenuBar();
+
+		//FILE
+
+		JMenuItem logout = new JMenuItem("Log Out");
+		logout.addActionListener(e ->
+		                         {
+			                         boolean success = new File(UIVariables.current.applicationDirectories.library + ".user.abc").delete();
+			                         if (success)
+			                         {
+				                         mainScreen.dispose();
+				                         showLogin();
+			                         }
+		                         });
+
+		JMenu file = new JMenu("File");
+		file.add(logout);
+
+		//ADD EVERYTHING
+
+		menuBar.add(file);
+		mainScreen.setJMenuBar(menuBar);
+	}
+
+	@Override
+	public void windowGainedFocus(WindowEvent e)
+	{
+		Taskbar.getTaskbar().requestUserAttention(false, false);
+	}
+
+	@Override
+	public void windowLostFocus(WindowEvent e)
+	{
+
 	}
 }
