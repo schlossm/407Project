@@ -27,7 +27,10 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     private boolean verifyUserLoginReturn;
 
 
-    //Method to get info of a course
+    /**
+     * Method to get info of a course given courseID
+     *@param  courseID courseID to get info of
+     */
     public void getCourse(String courseID) {
         DFSQL dfsql = new DFSQL();
         getCourseReturn = true;
@@ -40,9 +43,30 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         }
     }
 
-    public void getAllStudentsinCourse(String courseID) {
+    /**
+     * Method to add a class into the system
+     * @param id id of class such as 11111
+     * @param courseID  like CS407
+     * @param courseName name of the course such as Software Engineering
+     * @param description description of the couse
+     * @param roomno room no where the class meets
+     * @param meetingtime time and days the class meets
+     * @param startdate start date of the course in the format of YYYY/MM/DD
+     * @param enddate end date of the course in the format of YYYY/MM/DD
+     */
+    public void addCourse(int id, String courseID, String courseName, String description, String roomno, String meetingtime, String startdate, String enddate) {
         DFSQL dfsql = new DFSQL();
+        String[] rows = {"id", "courseID", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate"};
+        String[] values = {"" + id, courseID, courseName, courseName, description, roomno, meetingtime, startdate, enddate};
+        try {
+            dfsql.insert("courses", rows, values);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError dfsqlError) {
+            dfsqlError.printStackTrace();
+        }
     }
+
+
 
     @Override
     public void returnedData(JsonObject jsonObject, DFError error) {
