@@ -115,6 +115,11 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
             }
             Course course = new Course();
             course.setCourseID(courseId);
+            course.setTitle(courseTitle);
+            course.setCourseName(courseName);
+            course.setDescription(description);
+            course.setRoomNo(roomNo);
+            course.setMeetingTime(meetingTime);
             course.setStartDate(startDate);
             course.setEndDate(endDate);
 
