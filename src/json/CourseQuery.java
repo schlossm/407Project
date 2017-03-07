@@ -4,9 +4,7 @@ import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
-import database.DFSQL.DFSQL;
-import database.DFSQL.DFSQLEquivalence;
-import database.DFSQL.DFSQLError;
+import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.Course;
 import objects.User;
@@ -66,7 +64,21 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         }
     }
 
+    /**
+     * remove a course from the db
+     * @param id id of course to be deleted
+     */
+    public void removeCourse(int id) {
+        DFSQL dfsql = new DFSQL();
+        try {
+            dfsql.delete("courses", new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("id", "" + id)));
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError dfsqlError) {
+            dfsqlError.printStackTrace();
+        }
+    }
 
+    
 
     @Override
     public void returnedData(JsonObject jsonObject, DFError error) {
