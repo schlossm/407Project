@@ -25,16 +25,22 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     private String bufferString;
     private boolean verifyUserLoginReturn;
 
-    public void getCourse(String username) {
+
+    //Method to get info of a course
+    public void getCourse(String courseID) {
         DFSQL dfsql = new DFSQL();
         getCourseReturn = true;
-        String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
+        String[] selectedRows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate"};
         try {
-            dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
+            dfsql.select(selectedRows, false, null, null).from("courses").where(DFSQLEquivalence.equals, "courseID", courseID);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
+    }
+
+    public void getAllStudentsinCourse(String courseID) {
+        DFSQL dfsql = new DFSQL();
     }
 
     @Override
