@@ -19,7 +19,7 @@ import static database.DFDatabase.debugLog;
  * Created by Naveen Ganessin on 3/6/2017.
  */
 public class CourseQuery implements DFDatabaseCallbackDelegate{
-    private boolean getUserReturn, getUserExistsReturn;
+    private boolean getCourseReturn, getUserExistsReturn;
     private DFDataUploaderReturnStatus uploadSuccess;
     private JsonObject jsonObject;
     private String bufferString;
@@ -27,7 +27,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     public void getCourse(String username) {
         DFSQL dfsql = new DFSQL();
-        getUserReturn = true;
+        getCourseReturn = true;
         String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         try {
             dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
