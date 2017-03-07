@@ -8,6 +8,7 @@ import database.DFSQL.DFSQL;
 import database.DFSQL.DFSQLEquivalence;
 import database.DFSQL.DFSQLError;
 import database.WebServer.DFDataUploaderReturnStatus;
+import objects.Course;
 import objects.User;
 import objects.userType;
 import ui.util.UIStrings;
@@ -58,32 +59,33 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     private void returnHandler(){
         System.out.println("triggers return handler");
-        if(getUserReturn){
-            String usernameReceived = null, userEmail = null, userBirthday = null, userFirstName = null, userLastName = null;
+        if(getCourseReturn){
+            String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
+            int courseId = 0;
             int userTypeInt = 0;
             userType userType = null;
             try {
-                usernameReceived = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userID").getAsString();
-                userEmail = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("email").getAsString();
-                userBirthday = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("birthday").getAsString();
-                userFirstName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("firstName").getAsString();
-                userLastName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("lastName").getAsString();
-                userTypeInt = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userType").getAsInt();
+                courseId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
+                courseTitle = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("courseID").getAsString();
+                courseName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("coursename").getAsString();
+                description = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                roomNo = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("roomno").getAsString();
+                meetingTime = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("meetingtime").getAsString();
+                startDate = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("startdate").getAsString();
+                endDate = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("enddate").getAsString();
 
             }catch (NullPointerException e2){
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
             }
-            User user = new User();
-            user.setUserID(usernameReceived);
-            user.setEmail(userEmail);
-            user.setFirstName(userFirstName);
-            user.setLastName(userLastName);
-            user.setBirthday(userBirthday);
-            user.setUserType(userType);
+            Course course = new Course();
+            course.setCourseID(courseId);
+            course.setStartDate(startDate);
+            course.setEndDate(endDate);
 
-            DFNotificationCenter.defaultCenter.post(UIStrings.returned, user);
+            /* Wait for Alex to implement the rest of the fields */
+            DFNotificationCenter.defaultCenter.post(UIStrings.returned, course);
             System.out.println("getUser posting user to returned");
-            getUserReturn = false;
+            getCourseReturn = false;
         } else if (verifyUserLoginReturn) {
             System.out.println("gets to verifyuserlogin");
             String databasePassword = "";
