@@ -1,5 +1,7 @@
 package ui;
 
+import net.sf.plist.NSDictionary;
+import net.sf.plist.io.bin.BinaryParser;
 import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
@@ -20,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
 import java.io.File;
 
 public class Window implements DFNotificationCenterDelegate, WindowFocusListener
@@ -67,14 +70,63 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 	void postLogin()
 	{
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Bounds bounds = new Bounds();
+		bounds.x = 0;
+		bounds.y = 0;
+		bounds.width = screenSize.width;
+		bounds.height = screenSize.height;
+		try
+		{
+			NSDictionary dictionary = (NSDictionary) BinaryParser.parse(new File(UIVariables.current.applicationDirectories.library + "ABCPrefs.plist"));
+
+			bounds.x = dictionary.get("X").toInteger();
+			bounds.y = dictionary.get("Y").toInteger();
+			bounds.width = dictionary.get("W").toInteger();
+			bounds.height = dictionary.get("H").toInteger();
+		}
+		catch (Exception ignored) { }
+
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.ABCTabBarButtonClickedNotification);
 		mainScreen = new ALJFrame("ABC - " + UIVariables.current.currentUser.getFirstName() + " " + UIVariables.current.currentUser.getLastName());
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		mainScreen.setBounds(0, 0, screenSize.width, screenSize.height);
+		mainScreen.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		mainScreen.setBackground(Color.WHITE);
 		mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		mainScreen.getContentPane().setLayout(null);
+
+		mainScreen.addWindowListener(new WindowListener()
+		{
+			@Override
+			public void windowOpened(WindowEvent e)
+			{ }
+
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				UIVariables.current.writeFrame();
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e)
+			{ }
+
+			@Override
+			public void windowIconified(WindowEvent e)
+			{ }
+
+			@Override
+			public void windowDeiconified(WindowEvent e)
+			{ }
+
+			@Override
+			public void windowActivated(WindowEvent e)
+			{ }
+
+			@Override
+			public void windowDeactivated(WindowEvent e)
+			{ }
+		});
 
 		container = new ALJPanel();
 		container.setLayout(null);
@@ -256,7 +308,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 				break;
 			}
 
-			default: break;
+			default: return;
 		}
 
 		container.add(activePanel);
@@ -301,7 +353,10 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	@Override
 	public void windowGainedFocus(WindowEvent e)
 	{
-		Taskbar.getTaskbar().requestUserAttention(false, false);
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+		{
+			Taskbar.getTaskbar().requestUserAttention(false, false);
+		}
 	}
 
 	@Override

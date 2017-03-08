@@ -441,7 +441,10 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			passwordField.setEditable(true);
 			if (stage == Stage.verify)
 			{
-				Taskbar.getTaskbar().requestUserAttention(true, true);
+				if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+				{
+					Taskbar.getTaskbar().requestUserAttention(true, true);
+				}
 				Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
 				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> {
 					usernameField.requestFocus();
@@ -451,7 +454,10 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			}
 			else if (stage == Stage.loadUser)
 			{
-				Taskbar.getTaskbar().requestUserAttention(true, true);
+				if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+				{
+					Taskbar.getTaskbar().requestUserAttention(true, true);
+				}
 				Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
 				incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
 				incorrectPassword.show(presentingFrame);
