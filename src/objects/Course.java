@@ -149,6 +149,9 @@ public class Course implements Serializable {
     public String toString() {
         return "courseID: " + this.courseID
                 + "\ntitle: " + this.title
+                + "\ncourseName: " + this.courseName
+                + "\ndescription" + this.description
+                + "\nroomNo: " + this.roomNo
                 + "\nteachers: " + this.teachers.toString()
                 + "\nstudents: " + this.students.toString()
                 + "\nstartDate: " + this.startDate
