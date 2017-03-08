@@ -10,7 +10,7 @@ public class FileUpload implements Serializable {
     private String name;
     private String location;
     private int courseID;
-    // TODO: privacy field (what type?)
+    private boolean isPrivate;
 
     public FileUpload() {
         // empty constructor
@@ -42,5 +42,20 @@ public class FileUpload implements Serializable {
 
     public void setCourseID(int newID) {
         this.courseID = newID;
+    }
+
+    public boolean getIsPrivate() {
+        return this.isPrivate;
+    }
+
+    public void setIsPrivate(boolean newPrivacy) {
+        this.isPrivate = newPrivacy;
+    }
+
+    public String toString() {
+        return "name: " + this.name
+                + "\nlocation: " + this.location
+                + "\ncourseID: " + this.courseID
+                + "\nisPrivate: " + this.isPrivate;
     }
 }
