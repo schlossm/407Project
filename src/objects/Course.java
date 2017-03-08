@@ -10,8 +10,12 @@ import java.util.ArrayList;
 public class Course implements Serializable {
     private int courseID;
     private String title;
+    private String courseName;
+    private String description;
+    private String roomNo;
     private ArrayList<User> teachers;
     private ArrayList<User> students;
+    private String meetingTime;
     private String startDate;
     private String endDate;
     private ArrayList<Message> messages;
@@ -42,8 +46,40 @@ public class Course implements Serializable {
         this.title = newTitle;
     }
 
+    public String getCourseName() {
+        return this.courseName;
+    }
+
+    public void setCourseName(String newCourseName) {
+        this.courseName = newCourseName;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String newDescription) {
+        this.description = newDescription;
+    }
+
+    public String getMeetingTime() {
+        return this.meetingTime;
+    }
+
+    public void setMeetingTime(String newMeetingTime) {
+        this.meetingTime = newMeetingTime;
+    }
+
     public ArrayList<User> getTeachers() {
         return this.teachers;
+    }
+
+    public String getRoomNo() {
+        return this.roomNo;
+    }
+
+    public void setRoomNo(String newRoomNo) {
+        this.roomNo = newRoomNo;
     }
 
     public void setTeachers(ArrayList<User> newTeachers) {
@@ -113,6 +149,9 @@ public class Course implements Serializable {
     public String toString() {
         return "courseID: " + this.courseID
                 + "\ntitle: " + this.title
+                + "\ncourseName: " + this.courseName
+                + "\ndescription" + this.description
+                + "\nroomNo: " + this.roomNo
                 + "\nteachers: " + this.teachers.toString()
                 + "\nstudents: " + this.students.toString()
                 + "\nstartDate: " + this.startDate
