@@ -25,7 +25,7 @@ public class AdminAnnouncements extends ALJTablePanel
 		//TODO: Load proper data from database and save it
 	}
 
-	public void add()
+	private void add()
 	{
 		Alert alert = new Alert("New Announcement", "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->

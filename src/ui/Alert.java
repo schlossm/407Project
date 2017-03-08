@@ -49,8 +49,6 @@ public class Alert implements KeyListener, MLMDelegate
 	private final ArrayList<JButton> buttons = new ArrayList<>();
 	private boolean hasCancelAction = false;
 	private boolean hasDefaultAction = false;
-	private JLabel titleLabel = null;
-	private JLabel messageLabel = null;
 
 	private JTextField activeTextField;
 
@@ -64,7 +62,7 @@ public class Alert implements KeyListener, MLMDelegate
 
 		if (title != null)
 		{
-			titleLabel = new JLabel(title, JLabel.CENTER);
+			JLabel titleLabel = new JLabel(title, JLabel.CENTER);
 			titleLabel.setFont(UIFont.textBold.deriveFont(12.0f));
 			titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			alert.add(titleLabel);
@@ -72,7 +70,7 @@ public class Alert implements KeyListener, MLMDelegate
 		}
 		if (message != null && !Objects.equals(message, ""))
 		{
-			messageLabel = new JLabel(convertToMultiline(message), JLabel.CENTER);
+			JLabel messageLabel = new JLabel(convertToMultiline(message), JLabel.CENTER);
 			messageLabel.setFont(UIFont.textRegular.deriveFont(12.0f));
 			messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			alert.add(messageLabel);

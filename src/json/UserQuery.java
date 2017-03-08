@@ -104,6 +104,50 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         return  isaddSuccess;
     }
 
+    
+    public boolean addUserAsInstructor(String username, String officehours, String roomno) {
+        boolean isaddSuccess;
+        DFSQL dfsql = new DFSQL();
+        String attr = "userType";
+        String value = userTypeToIntConverter(userType.TEACHER) + "";
+        String[] rows = {"userid", "officehours", "roomno"};
+        String[] values = {username, officehours, roomno};
+        try {
+            dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
+            debugLog(dfsql.formattedStatement());
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+            dfsql.insert("instructor", rows, values);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
+        return  isaddSuccess;
+    }
+
+    public boolean removeUserAsInstructor(String username) {
+        boolean isaddSuccess;
+        DFSQL dfsql = new DFSQL();
+        String attr = "userType";
+        String value = "0";
+        try {
+            dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
+            debugLog(dfsql.formattedStatement());
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+            dfsql.delete(   "instructor",
+                    new Where(  DFSQLConjunction.none,
+                            DFSQLEquivalence.equals,
+                            new DFSQLClause("userid", username)
+                    )
+            );
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
+        return  isaddSuccess;
+    }
+
     @Override
     public void returnedData(JsonObject jsonObject, DFError error) {
         System.out.println("triggered returnedData");

@@ -14,7 +14,7 @@ import java.io.ObjectOutputStream;
 
 import static database.DFDatabase.queue;
 
-public class Main
+class Main
 {
 	public static void main(String[] args)
 	{
