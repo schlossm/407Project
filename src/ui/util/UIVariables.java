@@ -1,9 +1,19 @@
 package ui.util;
 
+import net.sf.plist.NSDictionary;
+import net.sf.plist.NSObject;
+import net.sf.plist.NSString;
+import net.sf.plist.io.PropertyListException;
+import net.sf.plist.io.bin.BinaryParser;
+import net.sf.plist.io.domxml.DOMXMLWriter;
 import objects.User;
+import ui.Window;
 import uikit.LocalStorage;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class UIVariables
@@ -102,5 +112,45 @@ public class UIVariables
 			currentUser = (User) LocalStorage.defaultManager.loadObjectFromFile(applicationDirectories.library + ".user.abc");
 		}
 		catch (Exception ignored) { }
+	}
+
+	public void writeFrame()
+	{
+		NSDictionary dictionary = null;
+		try
+		{
+			dictionary = (NSDictionary) BinaryParser.parse(new File(UIVariables.current.applicationDirectories.library + "ABCPrefs.plist"));
+		}
+		catch (Exception ignored) { }
+
+		Map<String, NSObject> map;
+
+		if (dictionary != null)
+		{
+			map = dictionary.toMap();
+			map.put("X", new NSString(String.valueOf(Window.current.mainScreen.getX())));
+			map.put("Y", new NSString(String.valueOf(Window.current.mainScreen.getY())));
+			map.put("W", new NSString(String.valueOf(Window.current.mainScreen.getWidth())));
+			map.put("H", new NSString(String.valueOf(Window.current.mainScreen.getHeight())));
+		}
+		else
+		{
+			map = new HashMap<>();
+			map.put("X", new NSString(String.valueOf(Window.current.mainScreen.getX())));
+			map.put("Y", new NSString(String.valueOf(Window.current.mainScreen.getY())));
+			map.put("W", new NSString(String.valueOf(Window.current.mainScreen.getWidth())));
+			map.put("H", new NSString(String.valueOf(Window.current.mainScreen.getHeight())));
+		}
+
+		dictionary = new NSDictionary(map);
+
+		try
+		{
+			DOMXMLWriter.write(dictionary, new File(UIVariables.current.applicationDirectories.library + "ABCPrefs.plist"));
+		}
+		catch (PropertyListException | IOException e1)
+		{
+			e1.printStackTrace();
+		}
 	}
 }

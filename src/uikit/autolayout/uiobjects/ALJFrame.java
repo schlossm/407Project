@@ -25,6 +25,9 @@ public class ALJFrame extends JFrame implements ComponentListener
 		process();
 		getContentPane().revalidate();
 		getContentPane().repaint();
+		process();
+		getContentPane().revalidate();
+		getContentPane().repaint();
 	}
 
 	@Override
@@ -34,12 +37,20 @@ public class ALJFrame extends JFrame implements ComponentListener
 		process();
 		getContentPane().revalidate();
 		getContentPane().repaint();
+		process();
+		getContentPane().revalidate();
+		getContentPane().repaint();
 	}
 
 	@Override
 	public void componentShown(ComponentEvent e)
 	{
 		process();
+		getContentPane().revalidate();
+		getContentPane().repaint();
+		process();
+		getContentPane().revalidate();
+		getContentPane().repaint();
 	}
 
 	@Override
