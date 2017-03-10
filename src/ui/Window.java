@@ -1,7 +1,7 @@
 package ui;
 
-import net.sf.plist.NSDictionary;
-import net.sf.plist.io.bin.BinaryParser;
+import net.sf.plist.NSBoolean;
+import net.sf.plist.NSString;
 import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
@@ -21,11 +21,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.io.File;
-import java.io.IOException;
 
 public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 {
@@ -86,12 +83,13 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		bounds.height = screenSize.height;
 		try
 		{
-			NSDictionary dictionary = (NSDictionary) BinaryParser.parse(new File(UIVariables.current.applicationDirectories.library + "ABCPrefs.plist"));
-
-			bounds.x = dictionary.get("X").toInteger();
-			bounds.y = dictionary.get("Y").toInteger();
-			bounds.width = dictionary.get("W").toInteger();
-			bounds.height = dictionary.get("H").toInteger();
+			if (UIVariables.current.valueFor("savesState").toBoolean())
+			{
+				bounds.x = UIVariables.current.valueFor("X").toInteger();
+				bounds.y = UIVariables.current.valueFor("Y").toInteger();
+				bounds.width = UIVariables.current.valueFor("W").toInteger();
+				bounds.height = UIVariables.current.valueFor("H").toInteger();
+			}
 		}
 		catch (Exception ignored) { }
 
@@ -100,6 +98,47 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		mainScreen.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		mainScreen.setBackground(Color.WHITE);
 		mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		mainScreen.addComponentListener(new ComponentListener()
+		{
+			private void writeFrame()
+			{
+				try
+				{
+					if (((NSBoolean)UIVariables.current.valueFor("savesState")).bool())
+					{
+						UIVariables.current.writeValue("X", new NSString(String.valueOf(mainScreen.getX())));
+						UIVariables.current.writeValue("Y", new NSString(String.valueOf(mainScreen.getY())));
+						UIVariables.current.writeValue("W", new NSString(String.valueOf(mainScreen.getWidth())));
+						UIVariables.current.writeValue("H", new NSString(String.valueOf(mainScreen.getHeight())));
+					}
+				}
+				catch (Exception ignored) { }
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e)
+			{
+				writeFrame();
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e)
+			{
+
+			}
+
+			@Override
+			public void componentShown(ComponentEvent e)
+			{
+				writeFrame();
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e)
+			{
+
+			}
+		});
 
 		mainScreen.getContentPane().setLayout(null);
 
@@ -118,7 +157,18 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
-				UIVariables.current.writeFrame();
+				try
+				{
+					if (((NSBoolean)UIVariables.current.valueFor("savesState")).bool())
+					{
+						UIVariables.current.writeValue("X", new NSString(String.valueOf(Window.current.mainScreen.getX())));
+						UIVariables.current.writeValue("Y", new NSString(String.valueOf(Window.current.mainScreen.getY())));
+						UIVariables.current.writeValue("W", new NSString(String.valueOf(Window.current.mainScreen.getWidth())));
+						UIVariables.current.writeValue("H", new NSString(String.valueOf(Window.current.mainScreen.getHeight())));
+						UIVariables.current.synchronize();
+					}
+				}
+				catch (Exception ignored) { }
 			}
 
 			@Override
@@ -199,12 +249,8 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 						{
 							return;
 						}
-						else
-						{
-							container.remove(activePanel);
-
-							activePanel = new AdminAnnouncements();
-						}
+						container.remove(activePanel);
+						activePanel = new AdminAnnouncements();
 						break;
 					}
 
@@ -213,7 +259,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 						break;
 					}
 
-					default: break;
+					default: return;
 				}
 				break;
 			}
@@ -225,19 +271,12 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 					{
 						return;
 					}
-					else
-					{
-						container.remove(activePanel);
-
-						activePanel = new ManageGroup(Group.teachers);
-					}
-				}
-				else
-				{
 					container.remove(activePanel);
-
 					activePanel = new ManageGroup(Group.teachers);
+					break;
 				}
+				container.remove(activePanel);
+				activePanel = new ManageGroup(Group.teachers);
 				break;
 			}
 
@@ -249,19 +288,12 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 					{
 						return;
 					}
-					else
-					{
-						container.remove(activePanel);
-
-						activePanel = new ManageGroup(Group.students);
-					}
-				}
-				else
-				{
 					container.remove(activePanel);
-
 					activePanel = new ManageGroup(Group.students);
+					break;
 				}
+				container.remove(activePanel);
+				activePanel = new ManageGroup(Group.students);
 				break;
 			}
 
@@ -273,19 +305,12 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 					{
 						return;
 					}
-					else
-					{
-						container.remove(activePanel);
-
-						activePanel = new ManageGroup(Group.courses);
-					}
-				}
-				else
-				{
 					container.remove(activePanel);
-
 					activePanel = new ManageGroup(Group.courses);
+					break;
 				}
+				container.remove(activePanel);
+				activePanel = new ManageGroup(Group.courses);
 				break;
 			}
 
@@ -297,13 +322,8 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 				{
 					return;
 				}
-				else
-				{
-					container.remove(activePanel);
-
-					activePanel = new AdminGrades();
-				}
-
+				container.remove(activePanel);
+				activePanel = new AdminGrades();
 				break;
 			}
 
@@ -313,12 +333,19 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 				{
 					return;
 				}
-				else
-				{
-					container.remove(activePanel);
+				container.remove(activePanel);
+				activePanel = new Home();
+				break;
+			}
 
-					activePanel = new Home();
+			case "Settings":
+			{
+				if (activePanel instanceof Settings)
+				{
+					return;
 				}
+				container.remove(activePanel);
+				activePanel = new Settings();
 				break;
 			}
 
