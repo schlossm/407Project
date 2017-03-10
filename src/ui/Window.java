@@ -17,6 +17,7 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJFrame;
 import uikit.autolayout.uiobjects.ALJPanel;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -24,6 +25,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.IOException;
 
 public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 {
@@ -65,6 +67,12 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		loginPanel = new Login(loginFrame);
 		loginFrame.add(loginPanel);
 
+		try
+		{
+			loginFrame.setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
+		}
+		catch (Exception ignored) { }
+
 		loginFrame.setVisible(true);
 	}
 
@@ -94,6 +102,12 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		mainScreen.getContentPane().setLayout(null);
+
+		try
+		{
+			mainScreen.setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
+		}
+		catch (Exception ignored) { }
 
 		mainScreen.addWindowListener(new WindowListener()
 		{
