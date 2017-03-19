@@ -17,7 +17,7 @@ import static database.DFDatabase.debugLog;
  * Created by Naveen Ganessin on 3/6/2017.
  */
 public class CourseQuery implements DFDatabaseCallbackDelegate{
-    private boolean getCourseReturn, getUserExistsReturn;
+    private boolean getCourseReturn, getAllInstructorsInCourseReturn, getAllStudentsInCourseReturn, getAssignmentInfoReturn, getAllAssignmentsReturn;
     private int courseidForInsertionInstrutor = -1;
     private int courseidForDeletionInstructor = -1;
     private int courseidForInsertionStudent = -1;
@@ -149,6 +149,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"userid"};
         String tables[] = {"courseinstructormembership", "instructor"};
+        getAllStudentsInCourseReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null).from(tables).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -224,6 +225,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"userid"};
         String tables[] = {"coursestudentmembership", "students"};
+        getAllStudentsInCourseReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null).from(tables).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -237,6 +239,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id"};
         String table = "";
+        getAssignmentInfoReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null).from(table).where(DFSQLEquivalence.equals, "id", "" + assignmentid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -281,6 +284,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"userid"};
         String table = "assignment";
+        getAllAssignmentsReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null).from(table).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -356,33 +360,16 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
             DFNotificationCenter.defaultCenter.post(UIStrings.returned, course);
             System.out.println("getUser posting user to returned");
             getCourseReturn = false;
-        } else if (verifyUserLoginReturn) {
-            System.out.println("gets to verifyuserlogin");
-            String databasePassword = "";
-            try {
-                databasePassword = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("password").getAsString();
-                if(databasePassword.equals(bufferString)){DFNotificationCenter.defaultCenter.post(UIStrings.success, Boolean.TRUE);
-                    debugLog("verifylogin returned success");}
-                else {DFNotificationCenter.defaultCenter.post(UIStrings.failure, Boolean.FALSE);
-                    debugLog("verifylogin returned fail cause passwords don't match");}
-            } catch (NullPointerException e2){
-                DFNotificationCenter.defaultCenter.post(UIStrings.failure, Boolean.FALSE);
-                debugLog("verifylogin returned nothing");
-            }
-            verifyUserLoginReturn = false;
-        } else if (getUserExistsReturn) {
-            String usernameReceived = null;
-            try {
-                usernameReceived = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userID").getAsString();
-            }catch (NullPointerException e2){
-                DFNotificationCenter.defaultCenter.post(UIStrings.exists, false);
-            }
-            if(usernameReceived != null){
-                DFNotificationCenter.defaultCenter.post(UIStrings.exists, true);
-            }
+        } else if (getAllInstructorsInCourseReturn) {
+            getAllInstructorsInCourseReturn = false;
+        } else if (getAllStudentsInCourseReturn) {
+            getAllStudentsInCourseReturn = false;
+        } else if (getAssignmentInfoReturn) {
+            getAssignmentInfoReturn = false;
+        } else if (getAllAssignmentsReturn) {
+            getAllAssignmentsReturn = false;
         }
 
-        getUserExistsReturn = false;
         bufferString = null;
     }
 
