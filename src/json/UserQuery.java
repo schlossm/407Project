@@ -104,7 +104,6 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         return  isaddSuccess;
     }
 
-    
     public boolean addUserAsInstructor(String username, String officehours, String roomno) {
         boolean isaddSuccess;
         DFSQL dfsql = new DFSQL();
