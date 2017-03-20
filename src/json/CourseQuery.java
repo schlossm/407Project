@@ -11,6 +11,8 @@ import objects.userType;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
+import java.util.ArrayList;
+
 import static database.DFDatabase.debugLog;
 
 /**
@@ -147,7 +149,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      */
     public void getAllInstructorsInCourse(int courseid) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid"};
+        String selectedRows[] = {"userid"}; //username
         String tables[] = {"courseinstructormembership", "instructor"};
         getAllStudentsInCourseReturn = true;
         try {
@@ -332,7 +334,6 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
             String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
             int courseId = 0;
             int userTypeInt = 0;
-            userType userType = null;
             try {
                 courseId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
                 courseTitle = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("courseID").getAsString();
@@ -361,6 +362,17 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
             System.out.println("getUser posting user to returned");
             getCourseReturn = false;
         } else if (getAllInstructorsInCourseReturn) {
+            ArrayList<String> allInstructorsInCourse = new ArrayList<String>();
+            String instructorUserId = null;
+
+
+            try {
+                for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                    instructorUserId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
+                }
+            }catch (NullPointerException e2){
+                DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
+            }
             getAllInstructorsInCourseReturn = false;
         } else if (getAllStudentsInCourseReturn) {
             getAllStudentsInCourseReturn = false;
