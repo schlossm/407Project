@@ -145,6 +145,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     /**
      * List of all Instructors teaching a course
+     * Returns a list of all userid(string) of the instructors in a course
      * @param courseid courseid of the course such as 11111
      */
     public void getAllInstructorsInCourse(int courseid) {
@@ -210,7 +211,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     private void removeStudentFromCourseGiven(int courseid, int studentid) {
         DFSQL dfsql = new DFSQL();
-        String table = "courseintructormembership";
+        String table = "courseinstructormembership";
         try {
             dfsql.delete(table, new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("studentid", "" + studentid)));
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -221,6 +222,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     /**
      * List of all Students enrolled in the course
+     * List of all userid (String) of students in the course
      * @param courseid courseid of the course such as 11111
      */
     public void getAllStudentsInCourse(int courseid) {
@@ -236,7 +238,10 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         }
     }
 
-
+    /**
+     * Returns all info of an assignment given the assignment id
+     * @param assignmentid
+     */
     public void getAssignmentInfo(int assignmentid) {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id"};
@@ -250,10 +255,10 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         }
     }
 
-    public void addAssignment(int courseid) {
+    public void addAssignment(int courseid, String name, String deadline, double maxPoints, String type) {
         DFSQL dfsql = new DFSQL();
-        String[] rows = {"id"};
-        String[] values = {};
+        String[] rows = {"courseid", "name", "deadline", "maxpoints", "type"};
+        String[] values = {courseid + "", name, deadline, "" + maxPoints, type};
         String table = "";
         try {
             dfsql.insert(table, rows, values);
@@ -280,6 +285,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     /**
      * Get all the assignments of a course
+     * Return a list of all ids of an assignment
      * @param courseid courseid such as 1111 of the course
      */
     public void getAllAssignments(int courseid) {
@@ -295,6 +301,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         }
     }
 
+
     @Override
     public void returnedData(JsonObject jsonObject, DFError error) {
         System.out.println("triggered returnedData");
@@ -304,22 +311,22 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
             addInstructorToCourseGiven(courseidForInsertionInstrutor, instructorid);
             courseidForInsertionInstrutor = -1;
         }
-        if(courseidForDeletionInstructor != -1) {
+        else if(courseidForDeletionInstructor != -1) {
             int instructorid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
             removeInstructorFromCourseGiven(courseidForDeletionInstructor, instructorid);
             courseidForDeletionInstructor = -1;
         }
-        if(courseidForInsertionStudent != -1) {
+        else if(courseidForInsertionStudent != -1) {
             int studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
             addStudentToCourseGiven(courseidForInsertionStudent, studentid);
             courseidForInsertionStudent = -1;
         }
-        if(courseidForDeletionStudent != -1) {
+        else if(courseidForDeletionStudent != -1) {
             int studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
             removeStudentFromCourseGiven(courseidForDeletionStudent, studentid);
             courseidForDeletionStudent = -1;
         }
-        if(error != null){
+        else if(error != null){
             DFDatabase.print(error.toString());
             this.jsonObject = null;
         } else {
