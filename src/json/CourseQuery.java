@@ -244,11 +244,11 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      */
     public void getAssignmentInfo(int assignmentid) {
         DFSQL dfsql = new DFSQL();
-        String[] selectedRows = {"id"};
-        String table = "";
+        String[] selectedRows = {"assignmentid, name, courseid", "maxpoints", "type", "deadline"};
+        String table = "assignment";
         getAssignmentInfoReturn = true;
         try {
-            dfsql.select(selectedRows, false, null, null).from(table).where(DFSQLEquivalence.equals, "id", "" + assignmentid);
+            dfsql.select(selectedRows, false, null, null).from(table).where(DFSQLEquivalence.equals, "assignmentid", "" + assignmentid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
@@ -257,9 +257,9 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     public void addAssignment(int courseid, String name, String deadline, double maxPoints, String type) {
         DFSQL dfsql = new DFSQL();
-        String[] rows = {"courseid", "name", "deadline", "maxpoints", "type"};
-        String[] values = {courseid + "", name, deadline, "" + maxPoints, type};
-        String table = "";
+        String[] rows = {"name", "courseid", "maxpoints", "type", "deadline"};
+        String[] values = {name, courseid + "","" + maxPoints, type, deadline};
+        String table = "assignment";
         try {
             dfsql.insert(table, rows, values);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -274,9 +274,9 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      */
     public void removeAssignment(int assignmentid) {
         DFSQL dfsql = new DFSQL();
-        String table = "";
+        String table = "assignment";
         try {
-            dfsql.delete(table, new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("id", "" + assignmentid)));
+            dfsql.delete(table, new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("assignmentid", "" + assignmentid)));
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -290,7 +290,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      */
     public void getAllAssignments(int courseid) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid"};
+        String selectedRows[] = {"assignmentid"};
         String table = "assignment";
         getAllAssignmentsReturn = true;
         try {
