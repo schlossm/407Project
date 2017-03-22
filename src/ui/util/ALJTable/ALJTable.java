@@ -161,9 +161,21 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.leading,  LayoutRelation.equal, tableView,   LayoutAttribute.leading,  1.0, 0));
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.trailing, LayoutRelation.equal, tableView,   LayoutAttribute.trailing, 1.0, 0));
-				if (heightForRow > 44)
+
+				if (dataSource.heightForRow(this, section) != -1)
 				{
-					tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.height, LayoutRelation.equal, null,   LayoutAttribute.height, 1.0, heightForRow));
+					tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.height, LayoutRelation.equal, null,   LayoutAttribute.height, 1.0, dataSource.heightForRow(this, section)));
+				}
+				else
+				{
+					if (heightForRow > 44)
+					{
+						tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.height, LayoutRelation.equal, null, LayoutAttribute.height, 1.0, heightForRow));
+					}
+					else
+					{
+						tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.height, LayoutRelation.equal, null, LayoutAttribute.height, 1.0, 44));
+					}
 				}
 				if (previous == null)
 				{

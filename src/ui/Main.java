@@ -1,6 +1,8 @@
 package ui;
 
 import objects.Grade;
+import ui.util.Alert;
+import ui.util.ButtonType;
 import ui.util.CurrentOS;
 import ui.util.UIVariables;
 import uikit.TimeManager;

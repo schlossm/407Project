@@ -1,7 +1,8 @@
 package ui.admin;
 
-import ui.Alert;
-import ui.ButtonType;
+import objects.Course;
+import ui.util.Alert;
+import ui.util.ButtonType;
 import ui.Window;
 import ui.util.ALJTable.*;
 import uikit.autolayout.uiobjects.ALJTablePanel;
@@ -20,7 +21,6 @@ public class ManageGroup extends ALJTablePanel
 
 	public ManageGroup(Group groupToManage)
 	{
-		super();
 		ArrayList<String> starter = new ArrayList<>();
 		starter.add("New " + groupToManage);
 		groupData.put("", starter);
@@ -130,8 +130,36 @@ public class ManageGroup extends ALJTablePanel
 	}
 
 	@Override
+	public int heightForRow(ALJTable table, int inSection)
+	{
+		if (groupToManage == Group.courses && inSection > 0)
+		{
+			return 110;
+		}
+		else
+		{
+			return 44;
+		}
+	}
+
+	@Override
 	public ALJTableCell cellForRowAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
+		if (groupToManage == Group.courses && index.section > 0)
+		{
+			System.out.println("Hello");
+			ClassCell newCell = new ClassCell(ALJTableCellAccessoryViewType.delete);
+			Course course = new Course();
+			course.setCourseID(0);
+			course.setTitle("Mathematics I");
+			course.setCourseName("Mathematics1-2017-001");
+			course.setRoomNo("LWSN B148");
+			course.setMeetingTime("10:30 AM - 9:20 AM");
+			course.setMaxStorage(100);
+			newCell.setCourse(course);
+			return newCell;
+		}
+
 		ALJTableCell newCell = new ALJTableCell(!Objects.equals(groupData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item), "New " + groupToManage) ? ALJTableCellAccessoryViewType.delete : ALJTableCellAccessoryViewType.none);
 
 		newCell.titleLabel.setText(groupData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));

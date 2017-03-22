@@ -1,7 +1,7 @@
 package ui.admin;
 
-import ui.Alert;
-import ui.ButtonType;
+import ui.util.Alert;
+import ui.util.ButtonType;
 import ui.Window;
 import ui.util.ALJTable.*;
 import uikit.autolayout.uiobjects.ALJTablePanel;
@@ -70,6 +70,12 @@ public class AdminAnnouncements extends ALJTablePanel
 	public int numberOfRowsInSectionForTable(ALJTable table, int section)
 	{
 		return announcementData.get(titleForHeaderInSectionInTable(table, section)).size();
+	}
+
+	@Override
+	public int heightForRow(ALJTable table, int inSection)
+	{
+		return 44;
 	}
 
 	@Override
