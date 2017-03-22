@@ -1,4 +1,4 @@
-package ui;
+package ui.util;
 
 @SuppressWarnings("unused")
 public enum ButtonType

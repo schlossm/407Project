@@ -7,6 +7,8 @@ public interface ALJTableDataSource
 
 	int numberOfRowsInSectionForTable(ALJTable table, int section);
 
+	int heightForRow(ALJTable table, int inSection);
+
 	ALJTableCell cellForRowAtIndexInTable(ALJTable table, ALJTableIndex index);
 
 	String titleForHeaderInSectionInTable(ALJTable table, int section);

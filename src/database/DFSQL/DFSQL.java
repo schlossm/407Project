@@ -668,6 +668,25 @@ public class DFSQL
 		return this;
 	}
 
+	public DFSQL delete(String from, Where[] where) throws DFSQLError
+	{
+		if (!Objects.equals(deleteFromTable, ""))
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+
+		for (Where where1: where)
+		{
+			check(where1.clause.attribute);
+			check(where1.clause.value, DFSQLEquivalence.lessThan);
+		}
+
+		deleteFromTable = from;
+		whereStatements = where;
+
+		return this;
+	}
+
 	//MARK: - JOIN Constructors
 
 	/**
