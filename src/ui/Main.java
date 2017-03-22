@@ -2,6 +2,7 @@ package ui;
 
 import objects.Course;
 import objects.Grade;
+import objects.Message;
 import ui.util.Alert;
 import ui.util.ButtonType;
 import ui.util.CurrentOS;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static database.DFDatabase.queue;
 
@@ -93,6 +95,7 @@ class Main
 		ArrayList<objects.User> students = new ArrayList<objects.User>();
 		ArrayList<objects.User> teachers = new ArrayList<objects.User>();
 
+		Course.testCourse = new Course();
 		Course.testCourse.setCourseID(384053);
 		Course.testCourse.setTitle("Software Engineering Project");
 		Course.testCourse.setCourseName("CS 407");
@@ -102,6 +105,9 @@ class Main
 		Course.testCourse.setStartDate("[Start Date in TBD format]");
 		Course.testCourse.setEndDate("[End Date in TBD format]");
 		Course.testCourse.setMeetingTime("[Meeting Time in TBD format]");
+		Message message = new Message("Hello", "Test Message", new Date().toString());
+		ArrayList<Message> messages = new ArrayList<>();
+		Course.testCourse.setMessages(messages);
 		Course.testCourse.setRoomNo("LWSN 1168");
 		Course.testCourse.setMaxStorage(1000000);
 		Course.testCourse.setStudents(students);
