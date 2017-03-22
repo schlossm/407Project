@@ -397,9 +397,19 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
             DFNotificationCenter.defaultCenter.post(UIStrings.returned, allStudentsInCourse);
             getAllStudentsInCourseReturn = false;
         } else if (getAssignmentInfoReturn) {
+
             getAssignmentInfoReturn = false;
         } else if (getAllAssignmentsReturn) {
-            
+            ArrayList<String> allAssignments = new ArrayList<String>();
+            String assignmentId = null;
+            try {
+                for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                    assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsString();
+                    allAssignments.add(assignmentId);
+                }
+            }catch (NullPointerException e2){
+                DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
+            }
             getAllAssignmentsReturn = false;
         }
 
