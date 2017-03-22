@@ -12,7 +12,6 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJPanel;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -20,29 +19,17 @@ import java.awt.event.MouseListener;
 class Home extends ALJPanel
 {
 	private ALJPanel currentPanel = null;
-	private final JScrollPane scrollPane;
 
 	Home()
 	{
 		setBackground(Color.white);
-		setPreferredSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-
-		scrollPane = new JScrollPane();
-		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-		ScrollPaneLayout layout = (ScrollPaneLayout) (scrollPane.getLayout());
-		layout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		layout.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
-		scrollPane.getVerticalScrollBar().setVisible(false);
-		scrollPane.setWheelScrollingEnabled(true);
-		add(scrollPane);
 
 		switch (UIVariables.current.currentUser.getUserType())
 		{
 			case ADMIN:
 			{
 				AdminPanel adminPanel = new AdminPanel();
-				scrollPane.getViewport().add(adminPanel);
+				add(adminPanel);
 				currentPanel = adminPanel;
 				break;
 			}
@@ -50,7 +37,7 @@ class Home extends ALJPanel
 			case STUDENT:
 			{
 				StudentPanel studentPanel = new StudentPanel();
-				scrollPane.getViewport().add(studentPanel);
+				add(studentPanel);
 				currentPanel = studentPanel;
 				break;
 			}
@@ -58,7 +45,7 @@ class Home extends ALJPanel
 			case TEACHER:
 			{
 				InstructorPanel instructorPanel = new InstructorPanel();
-				scrollPane.getViewport().add(instructorPanel);
+				add(instructorPanel);
 				currentPanel = instructorPanel;
 				break;
 			}
@@ -66,16 +53,16 @@ class Home extends ALJPanel
 			case TA:
 			{
 				InstructorPanel instructorPanel = new InstructorPanel();
-				scrollPane.getViewport().add(instructorPanel);
+				add(instructorPanel);
 				currentPanel = instructorPanel;
 				break;
 			}
 		}
 
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
+		addConstraint(new LayoutConstraint(currentPanel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
+		addConstraint(new LayoutConstraint(currentPanel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
+		addConstraint(new LayoutConstraint(currentPanel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
+		addConstraint(new LayoutConstraint(currentPanel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 
 		loadAnnouncements();
 	}
@@ -161,21 +148,6 @@ class Home extends ALJPanel
 	public void layoutSubviews()
 	{
 		super.layoutSubviews();
-
-		scrollPane.revalidate();
-
-		int height;
-		if (currentPanel.calculatedHeight() > scrollPane.getHeight())
-		{
-			height = currentPanel.calculatedHeight();
-		}
-		else
-		{
-			height = scrollPane.getHeight();
-		}
-
-		currentPanel.setBounds(0, 0, scrollPane.getBounds().width, height);
-		currentPanel.layoutSubviews();
 
 		if (announcementPanel != null)
 		{

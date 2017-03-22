@@ -37,6 +37,15 @@ class Main
 				System.setProperty("apple.laf.useScreenMenuBar", "true");
 				System.setProperty("com.apple.mrj.application.apple.menu.about.name", "ABC");
 			}
+			else
+			{
+				//System Tray Stuff -- App icon
+				//NOTE: Only for Windows and some Linux
+				if (SystemTray.isSupported())
+				{
+					SystemTray.getSystemTray().add(new TrayIcon(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png"))));
+				}
+			}
 
 			//Desktop Stuff -- About handler and Quit handler
 			if (Desktop.isDesktopSupported())
@@ -52,7 +61,7 @@ class Main
 				}
 				if (Desktop.getDesktop().isSupported(Desktop.Action.APP_QUIT_HANDLER))
 				{
-					Desktop.getDesktop().setQuitHandler((e, response) -> UIVariables.current.writeFrame());
+					Desktop.getDesktop().setQuitHandler((e, response) -> { UIVariables.current.synchronize(); System.exit(0); });
 				}
 			}
 
@@ -63,13 +72,6 @@ class Main
 				{
 					Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
 				}
-			}
-
-			//System Tray Stuff -- App icon
-			//NOTE: Only for Windows and some Linux
-			if (SystemTray.isSupported())
-			{
-				SystemTray.getSystemTray().add(new TrayIcon(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png"))));
 			}
 		}
 		catch (Exception ignored) { }

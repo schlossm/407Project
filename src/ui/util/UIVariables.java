@@ -2,21 +2,22 @@ package ui.util;
 
 import net.sf.plist.NSDictionary;
 import net.sf.plist.NSObject;
-import net.sf.plist.NSString;
 import net.sf.plist.io.PropertyListException;
 import net.sf.plist.io.bin.BinaryParser;
 import net.sf.plist.io.domxml.DOMXMLWriter;
 import objects.User;
-import ui.Window;
+import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.LocalStorage;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
-public class UIVariables
+public class UIVariables implements DFNotificationCenterDelegate
 {
 	public static final UIVariables current = new UIVariables();
 
@@ -25,6 +26,8 @@ public class UIVariables
 	public User currentUser;
 
 	public Directory applicationDirectories;
+
+	private Map<String, NSObject> map = new HashMap<>();
 
 	private UIVariables()
 	{
@@ -41,6 +44,9 @@ public class UIVariables
 			currentOS = CurrentOS.linux;
 		}
 		linkDirectories();
+		loadPrefs();
+
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.fiveMinutesHavePassedNotification);
 	}
 
 	private void linkDirectories()
@@ -51,7 +57,7 @@ public class UIVariables
 		{
 			case linux:
 			{
-				if(!new File(System.getProperty("user.home") + "/" + "ABC/").exists())
+				if (!new File(System.getProperty("user.home") + "/" + "ABC/").exists())
 				{
 					if (!new File(System.getProperty("user.home") + "/" + "ABC/Library/").mkdirs())
 					{
@@ -67,7 +73,7 @@ public class UIVariables
 
 			case macOS:
 			{
-				if(!new File(System.getProperty("user.home") + "/Library/" + "ABC/").exists())
+				if (!new File(System.getProperty("user.home") + "/Library/" + "ABC/").exists())
 				{
 					if (!new File(System.getProperty("user.home") + "/Library/" + "ABC/").mkdirs())
 					{
@@ -91,7 +97,7 @@ public class UIVariables
 
 			case windows:
 			{
-				if(!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC/").exists())
+				if (!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC/").exists())
 				{
 					if (!new File(System.getenv("LocalAppData") + File.pathSeparator + "ABC/").mkdirs())
 					{
@@ -114,7 +120,7 @@ public class UIVariables
 		catch (Exception ignored) { }
 	}
 
-	public void writeFrame()
+	private void loadPrefs()
 	{
 		NSDictionary dictionary = null;
 		try
@@ -123,26 +129,30 @@ public class UIVariables
 		}
 		catch (Exception ignored) { }
 
-		Map<String, NSObject> map;
-
 		if (dictionary != null)
 		{
 			map = dictionary.toMap();
-			map.put("X", new NSString(String.valueOf(Window.current.mainScreen.getX())));
-			map.put("Y", new NSString(String.valueOf(Window.current.mainScreen.getY())));
-			map.put("W", new NSString(String.valueOf(Window.current.mainScreen.getWidth())));
-			map.put("H", new NSString(String.valueOf(Window.current.mainScreen.getHeight())));
 		}
-		else
-		{
-			map = new HashMap<>();
-			map.put("X", new NSString(String.valueOf(Window.current.mainScreen.getX())));
-			map.put("Y", new NSString(String.valueOf(Window.current.mainScreen.getY())));
-			map.put("W", new NSString(String.valueOf(Window.current.mainScreen.getWidth())));
-			map.put("H", new NSString(String.valueOf(Window.current.mainScreen.getHeight())));
-		}
+	}
 
-		dictionary = new NSDictionary(map);
+	public NSObject valueFor(String key)
+	{
+		if (map.isEmpty())
+		{
+			loadPrefs();
+		}
+		return map.get(key);
+	}
+
+	public void writeValue(String key, NSObject object)
+	{
+		System.out.print(object);
+		map.put(key, object);
+	}
+
+	public void synchronize()
+	{
+		NSDictionary dictionary = new NSDictionary(map);
 
 		try
 		{
@@ -151,6 +161,15 @@ public class UIVariables
 		catch (PropertyListException | IOException e1)
 		{
 			e1.printStackTrace();
+		}
+	}
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+		if (Objects.equals(notificationName, UIStrings.fiveMinutesHavePassedNotification))
+		{
+			synchronize();
 		}
 	}
 }

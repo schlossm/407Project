@@ -52,7 +52,16 @@ public class ManageGroup extends ALJTablePanel
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
 			//TODO: Upload this user
-			groupData.get(groupToManage + "s").add(alert.textFieldForIdentifier(groupToManage + ".firstName").getText() + " " + alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
+			switch (groupToManage)
+			{
+				case teachers:
+				{
+					groupData.get(groupToManage + "s").add(alert.textFieldForIdentifier(groupToManage + ".firstName").getText() + " " + alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
+					break;
+				}
+				default:
+					return;
+			}
 			table.reloadData();
 			layoutSubviews();
 			alert.dispose();
