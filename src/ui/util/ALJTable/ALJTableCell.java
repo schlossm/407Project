@@ -26,7 +26,7 @@ interface ALJTableCellDelegate
 public class ALJTableCell extends ALJPanel implements MLMDelegate
 {
 	public final JLabel titleLabel;
-	private JLabel accessoryView;
+	protected JLabel accessoryView;
 	private ALJTableCellAccessoryViewType _accessoryViewType = ALJTableCellAccessoryViewType.none;
 	ALJTableIndex currentIndex;
 
@@ -34,7 +34,7 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 
 	public ALJTableCell(ALJTableCellAccessoryViewType accessoryViewType)
 	{
-		setBackground(Color.WHITE);
+		setBackground(Color.white);
 		titleLabel = new JLabel();
 		titleLabel.setFont(UIFont.textSemibold.deriveFont(14f));
 		titleLabel.setFocusable(false);
@@ -63,12 +63,6 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 				accessoryView = new JLabel(new ImageIcon(new ALJTableCellAccessoryViewImage("delete").image));
 				accessoryView.addMouseListener(new MouseListenerManager(this));
 				add(accessoryView);
-
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.trailing, LayoutRelation.equal, this,    LayoutAttribute.trailing, 1.0, -8));
-				addConstraint(new LayoutConstraint(titleLabel,      LayoutAttribute.trailing, LayoutRelation.equal, accessoryView,  LayoutAttribute.leading,  1.0, -8));
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.top,      LayoutRelation.equal, this,    LayoutAttribute.top,      1.0, 8));
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.bottom,   LayoutRelation.equal, this,    LayoutAttribute.bottom,   1.0, -8));
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.width,    LayoutRelation.equal, accessoryView,  LayoutAttribute.height,    1.0, 0));
 				break;
 			}
 
@@ -82,11 +76,6 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 				accessoryView = new JLabel(new ImageIcon(new ALJTableCellAccessoryViewImage("detail").image));
 				accessoryView.addMouseListener(new MouseListenerManager(this));
 				add(accessoryView);
-
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.trailing,   LayoutRelation.equal,   this, LayoutAttribute.trailing, 1.0, -8));
-				addConstraint(new LayoutConstraint(titleLabel,      LayoutAttribute.trailing,   LayoutRelation.equal,   accessoryView, LayoutAttribute.leading,1.0,-8));
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.top,        LayoutRelation.equal,   this, LayoutAttribute.top,      1.0, 8));
-				addConstraint(new LayoutConstraint(accessoryView,    LayoutAttribute.bottom,    LayoutRelation.equal,   this, LayoutAttribute.bottom,   1.0, 8));
 				break;
 			}
 
@@ -100,11 +89,6 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 				accessoryView = new JLabel(new ImageIcon(new ALJTableCellAccessoryViewImage("info").image));
 				accessoryView.addMouseListener(new MouseListenerManager(this));
 				add(accessoryView);
-
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.trailing,   LayoutRelation.equal,   this, LayoutAttribute.trailing, 1.0, -8));
-				addConstraint(new LayoutConstraint(titleLabel,      LayoutAttribute.trailing,   LayoutRelation.equal,   accessoryView, LayoutAttribute.leading,1.0,-8));
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.top,        LayoutRelation.equal,   this, LayoutAttribute.top,      1.0, 8));
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.bottom,    LayoutRelation.equal,   this, LayoutAttribute.bottom,   1.0, 8));
 				break;
 			}
 
@@ -118,11 +102,6 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 				accessoryView = new JLabel(new ImageIcon(new ALJTableCellAccessoryViewImage("move").image));
 				accessoryView.addMouseListener(new MouseListenerManager(this));
 				add(accessoryView);
-
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.trailing,   LayoutRelation.equal,   this, LayoutAttribute.trailing, 1.0, -8));
-				addConstraint(new LayoutConstraint(titleLabel,      LayoutAttribute.trailing,   LayoutRelation.equal,   accessoryView, LayoutAttribute.leading,1.0,-8));
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.top,        LayoutRelation.equal,   this, LayoutAttribute.top,      1.0, 8));
-				addConstraint(new LayoutConstraint(accessoryView,   LayoutAttribute.bottom,    LayoutRelation.equal,   this, LayoutAttribute.bottom,   1.0, 8));
 				break;
 			}
 
@@ -136,6 +115,15 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 				addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
 				break;
 			}
+		}
+
+		if (accessoryView != null)
+		{
+			addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
+			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
+			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
+			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
+			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1.0, 44));
 		}
 	}
 

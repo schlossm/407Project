@@ -48,6 +48,27 @@ public class ALJPanel extends JLayeredPane implements Constrainable
 		return constraintsToReturn;
 	}
 
+	public void removeAllConstraints()
+	{
+		_constraints.removeIf(layoutConstraint -> true);
+	}
+
+	public void removeConstraintsFor(JComponent component)
+	{
+		for (LayoutConstraint constraint : (ArrayList<LayoutConstraint>)_constraints.clone())
+		{
+			if (constraint.viewOne == component)
+			{
+				_constraints.remove(constraint);
+			}
+		}
+	}
+
+	public void removeConstraint(LayoutConstraint constraint)
+	{
+		_constraints.remove(constraint);
+	}
+
 	@Override
 	public void remove(Component comp)
 	{
