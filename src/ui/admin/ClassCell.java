@@ -70,7 +70,7 @@ public class ClassCell extends ALJTableCell
 		detailLabelOne.setText("Hours: " + course.getMeetingTime());
 		detailLabelTwo.setText("Room: " + course.getRoomNo());
 		detailLabelThree.setText("Name: " + course.getCourseName());
-		detailLabelFour.setText("Quota: " + course.getMaxStorage());
+		detailLabelFour.setText("Quota: " + course.getMaxStorage()/1024/1024 + "MB");
 		this.course = course;
 	}
 
@@ -80,13 +80,14 @@ public class ClassCell extends ALJTableCell
 		super.mousePoint(action, eventType);
 		if (action.getSource() == detailLabelFour && eventType == MLMEventType.released)
 		{
-			Alert changeQuota = new Alert("Change Quota", "Please input the new quota for\n" + course.getCourseName());
+			Alert changeQuota = new Alert("Change Quota", "Please input the new quota in megabytes for\n" + course.getCourseName());
 			changeQuota.addTextField("Quota size", "ClassCell.quota", false);
 			changeQuota.addButton("OK", ButtonType.plain, e ->
 			{
 				try
 				{
 					int newQuota = Integer.valueOf(changeQuota.textFieldForIdentifier("ClassCell.quota").getText());
+					course.setMaxStorage(newQuota * 1024 * 1024);
 					changeQuota.dispose();
 				}
 				catch (Exception ignored)

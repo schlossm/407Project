@@ -147,7 +147,6 @@ public class ManageGroup extends ALJTablePanel
 	{
 		if (groupToManage == Group.courses && index.section > 0)
 		{
-			System.out.println("Hello");
 			ClassCell newCell = new ClassCell(ALJTableCellAccessoryViewType.delete);
 			Course course = new Course();
 			course.setCourseID(0);
@@ -155,7 +154,7 @@ public class ManageGroup extends ALJTablePanel
 			course.setCourseName("Mathematics1-2017-001");
 			course.setRoomNo("LWSN B148");
 			course.setMeetingTime("10:30 AM - 9:20 AM");
-			course.setMaxStorage(100);
+			course.setMaxStorage(104857600);
 			newCell.setCourse(course);
 			return newCell;
 		}
