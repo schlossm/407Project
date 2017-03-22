@@ -1,8 +1,5 @@
-package ui;
+package ui.util;
 
-import ui.util.MLMDelegate;
-import ui.util.MLMEventType;
-import ui.util.MouseListenerManager;
 import uikit.UIFont;
 
 import javax.swing.*;
