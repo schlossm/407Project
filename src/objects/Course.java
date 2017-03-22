@@ -21,6 +21,7 @@ public class Course implements Serializable {
     private ArrayList<Message> messages;
     private String attendanceString;
     private int maxStorage;
+    public static Course testCourse;
 
     public Course() {
         // empty constructor
