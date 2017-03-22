@@ -1,5 +1,6 @@
 package ui;
 
+import objects.Course;
 import objects.Grade;
 import ui.util.Alert;
 import ui.util.ButtonType;
@@ -13,6 +14,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 import static database.DFDatabase.queue;
 
@@ -86,6 +88,26 @@ class Main
 
 		//Start the background Time Manager
 		new Thread(new TimeManager()).start();
+
+		// Set up (and print) test static Course object
+		ArrayList<objects.User> students = new ArrayList<objects.User>();
+		ArrayList<objects.User> teachers = new ArrayList<objects.User>();
+
+		Course.testCourse.setCourseID(384053);
+		Course.testCourse.setTitle("Software Engineering Project");
+		Course.testCourse.setCourseName("CS 407");
+		Course.testCourse.setDescription("The course we are writing this code for. How meta of me.");
+		Course.testCourse.setMeetingTime("[Time format TBD]");
+		Course.testCourse.setAttendanceString("I_AM_HERE!");
+		Course.testCourse.setStartDate("[Start Date in TBD format]");
+		Course.testCourse.setEndDate("[End Date in TBD format]");
+		Course.testCourse.setMeetingTime("[Meeting Time in TBD format]");
+		Course.testCourse.setRoomNo("LWSN 1168");
+		Course.testCourse.setMaxStorage(1000000);
+		Course.testCourse.setStudents(students);
+		Course.testCourse.setTeachers(teachers);
+
+		System.out.println(Course.testCourse.toString());
 
 		//MARK: - Test Data
 
