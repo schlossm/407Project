@@ -4,33 +4,10 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/.idea" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/src/database/bcprov-ext-jdk15on-155.jar!/" />
-          <root url="jar://$MODULE_DIR$/src/database/commons-crypto-1.0.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/src/database/gson-2.2.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/src/database/commons-crypto-1.0.0-sources.jar!/" />
-          <root url="jar://$MODULE_DIR$/src/database/gson-2.2.4-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="JUnit4">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/junit-4.12.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/hamcrest-core-1.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="database" level="project" />
   </component>
 </module>
