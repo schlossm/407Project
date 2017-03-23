@@ -18,12 +18,11 @@ import java.awt.event.MouseListener;
 
 class Home extends ALJPanel
 {
-	private ALJPanel currentPanel = null;
-
 	Home()
 	{
 		setBackground(Color.white);
 
+		ALJPanel currentPanel = null;
 		switch (UIVariables.current.currentUser.getUserType())
 		{
 			case ADMIN:

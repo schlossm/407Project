@@ -7,6 +7,7 @@ import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
 import ui.util.ABCTabBar;
+import ui.util.Bounds;
 import ui.util.UIStrings;
 import ui.util.UIVariables;
 import uikit.DFNotificationCenter;
@@ -29,7 +30,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	public static Window current;
 
 	JFrame loginFrame;
-	private ALJPanel activePanel;
+	public ALJPanel activePanel;
 	private ALJPanel container;
 	private ABCTabBar tabBar;
 	private Login loginPanel;
@@ -104,7 +105,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 			{
 				try
 				{
-					if (((NSBoolean)UIVariables.current.valueFor("savesState")).bool())
+					if (((NSBoolean) UIVariables.current.valueFor("savesState")).bool())
 					{
 						UIVariables.current.writeValue("X", new NSString(String.valueOf(mainScreen.getX())));
 						UIVariables.current.writeValue("Y", new NSString(String.valueOf(mainScreen.getY())));
@@ -159,7 +160,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 			{
 				try
 				{
-					if (((NSBoolean)UIVariables.current.valueFor("savesState")).bool())
+					if (((NSBoolean) UIVariables.current.valueFor("savesState")).bool())
 					{
 						UIVariables.current.writeValue("X", new NSString(String.valueOf(Window.current.mainScreen.getX())));
 						UIVariables.current.writeValue("Y", new NSString(String.valueOf(Window.current.mainScreen.getY())));
@@ -349,7 +350,11 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 				break;
 			}
 
-			default: return;
+			default:
+			{
+				System.out.println(buttonClicked + " is an unsupported view at this time.  Please wait for its implementation.");
+				return;
+			}
 		}
 
 		container.add(activePanel);
