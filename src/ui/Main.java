@@ -20,15 +20,6 @@ import java.util.Date;
 
 import static database.DFDatabase.queue;
 
-//Bounds class for frame saving
-class Bounds
-{
-	int x;
-	int y;
-	int width;
-	int height;
-}
-
 //Loader
 class Main
 {
@@ -112,8 +103,6 @@ class Main
 		Course.testCourse.setMaxStorage(1000000);
 		Course.testCourse.setStudents(students);
 		Course.testCourse.setTeachers(teachers);
-
-		System.out.println(Course.testCourse.toString());
 
 		//MARK: - Test Data
 

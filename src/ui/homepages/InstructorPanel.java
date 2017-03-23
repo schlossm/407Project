@@ -3,6 +3,11 @@ package ui.homepages;
 import objects.Course;
 import ui.admin.ClassCell;
 import ui.util.ALJTable.*;
+import ui.util.MLMDelegate;
+import ui.util.MLMEventType;
+import ui.util.MouseListenerManager;
+import ui.util.UIStrings;
+import uikit.DFNotificationCenter;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -10,15 +15,19 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJPanel;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class InstructorPanel extends ALJPanel implements ALJTableDataSource
+public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLMDelegate
 {
 	private ALJTable nextDueTable;
 	private ALJTable courseList;
 
 	private ArrayList<TestAssignment> assignments = new ArrayList<>();
 	private ArrayList<Course> courses = new ArrayList<>();
+
+	private JLabel coursesLabel;
 
 	public InstructorPanel()
 	{
@@ -36,11 +45,12 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource
 		addConstraint(new LayoutConstraint(nextDueTable, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 		addConstraint(new LayoutConstraint(nextDueTable, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 0));
 
-		JLabel secondLabel = new JLabel("Courses");
-		secondLabel.setFont(UIFont.displayHeavy.deriveFont(24f));
-		add(secondLabel);
-		addConstraint(new LayoutConstraint(secondLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
-		addConstraint(new LayoutConstraint(secondLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 8));
+		coursesLabel = new JLabel("Courses");
+		coursesLabel.setFont(UIFont.displayHeavy.deriveFont(24f));
+		coursesLabel.addMouseListener(new MouseListenerManager(this));
+		add(coursesLabel);
+		addConstraint(new LayoutConstraint(coursesLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
+		addConstraint(new LayoutConstraint(coursesLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 8));
 
 		courseList = new ALJTable();
 		courseList.dataSource = this;
@@ -122,9 +132,15 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource
 	}
 
 	@Override
-	public void tableView(ALJTable table, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt)
-	{
+	public void tableView(ALJTable table, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt) { }
 
+	@Override
+	public void mousePoint(MouseEvent action, MLMEventType eventType)
+	{
+		if (eventType == MLMEventType.released && new Rectangle(0,0, coursesLabel.getWidth(), coursesLabel.getHeight()).getBounds().contains(action.getPoint()))
+		{
+			DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, "My Courses");
+		}
 	}
 }
 
@@ -143,7 +159,7 @@ class NextDueCell extends ALJTableCell
 		removeConstraintsFor(titleLabel);
 
 		titleLabel.setText(assignment.title);
-		titleLabel.setFont(UIFont.textBold.deriveFont(9f));
+		titleLabel.setFont(UIFont.textBold.deriveFont(11f));
 
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 24));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
