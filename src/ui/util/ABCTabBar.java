@@ -5,6 +5,7 @@ import uikit.UIFont;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -78,12 +79,14 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 			buttonToAdd.addMouseListener(new MouseListenerManager(this));
 			buttonToAdd.setHorizontalTextPosition(JLabel.CENTER);
 			buttonToAdd.setAlignmentY(CENTER_ALIGNMENT);
+			buttonToAdd.setBorder(new LineBorder(Color.white, 1, true));
 			buttons.add(buttonToAdd);
 		}
 		layoutButtons();
+
+		buttons.get(0).setBorder(new LineBorder(Color.black, 1, true));
+		activeLabel = buttons.get(0);
 	}
-
-
 
 	private void layoutButtons()
 	{
@@ -116,35 +119,43 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 	}
 
 	private JLabel activeLabel;
+	private JLabel selectedLabel;
+	private boolean isPressingDown = false;
 
 	@Override
 	public void mousePoint(MouseEvent action, MLMEventType eventType)
 	{
 		if (eventType == MLMEventType.pressed)
 		{
-			activeLabel = (JLabel)action.getSource();
-			activeLabel.setOpaque(true);
-			activeLabel.setBackground(Color.lightGray);
+			if (activeLabel != null)
+			{
+				activeLabel.setBorder(new LineBorder(Color.white, 1, true));
+			}
+			isPressingDown = true;
+			selectedLabel = (JLabel)action.getSource();
+			selectedLabel.setBorder(new LineBorder(Color.black, 1, true));
 		}
-		else if (eventType == MLMEventType.draggedIn)
+		else if (eventType == MLMEventType.draggedIn && isPressingDown)
 		{
-			if (action.getSource() != activeLabel) return;
-			activeLabel.setOpaque(true);
-			activeLabel.setBackground(Color.lightGray);
+			if (action.getSource() != selectedLabel) return;
+			selectedLabel.setBorder(new LineBorder(Color.black, 1, true));
 		}
-		else if (eventType == MLMEventType.released)
+		else if (eventType == MLMEventType.released && isPressingDown)
 		{
-			if (action.getSource() != activeLabel || !activeLabel.isOpaque() || activeLabel == null) return;
-			activeLabel.setOpaque(false);
-			activeLabel.setBackground(new Color(0,0,0,0));
-			DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, activeLabel.getText());
-			activeLabel = null;
+			isPressingDown = false;
+			if (!(new Rectangle(0,0, selectedLabel.getWidth(), selectedLabel.getHeight()).contains(action.getPoint())))
+			{
+				activeLabel.setBorder(new LineBorder(Color.black, 1, true));
+				return;
+			}
+			activeLabel = selectedLabel;
+			DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, selectedLabel.getText());
+			selectedLabel = null;
 		}
-		else if (eventType == MLMEventType.draggedOut)
+		else if (eventType == MLMEventType.draggedOut && isPressingDown)
 		{
-			if (action.getSource() != activeLabel) return;
-			activeLabel.setOpaque(false);
-			activeLabel.setBackground(new Color(0,0,0,0));
+			if (action.getSource() != selectedLabel) return;
+			selectedLabel.setBorder(new LineBorder(Color.white, 1, true));
 		}
 	}
 
@@ -152,9 +163,6 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 	public void componentResized(ComponentEvent e)
 	{
 		removeAll();
-
-		revalidate();
-		repaint();
 
 		buttons = new ArrayList<>();
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));

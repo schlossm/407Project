@@ -96,7 +96,7 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 
 		for (int section = 0; section < totalNumSections; section++)
 		{
-			if (!Objects.equals(dataSource.titleForHeaderInSectionInTable(this, section), ""))
+			if (!Objects.equals(dataSource.titleForHeaderInSectionInTable(this, section), "") && dataSource.titleForHeaderInSectionInTable(this, section) != null)
 			{
 				JLabel sectionTitle = new JLabel(dataSource.titleForHeaderInSectionInTable(this, section).toUpperCase());
 				sectionTitle.setForeground(Color.lightGray);
@@ -143,7 +143,7 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 					@Override
 					public void mouseReleased(MouseEvent e)
 					{
-						delegate.didSelectItemAtIndexInTable(table, new ALJTableIndex(finalSection, finalItem));
+						if (delegate != null) delegate.didSelectItemAtIndexInTable(table, new ALJTableIndex(finalSection, finalItem));
 					}
 
 					@Override
