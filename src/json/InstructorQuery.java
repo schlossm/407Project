@@ -19,10 +19,11 @@ public class InstructorQuery implements DFDatabaseCallbackDelegate {
     }
 
     /**
-     * return the a list of courseids of the course given the userid
+     * return the a list of courseids, title, name of the course given the userid
+     *  title, name as well todo
      * @param userid
      */
-    public void getCourses(int userid) {
+    public void getCourses(String userid) {
 
     }
 
