@@ -157,7 +157,10 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         String tables[] = {"courseinstructormembership", "instructor"};
         getAllStudentsInCourseReturn = true;
         try {
-            dfsql.select(selectedRows, false, null, null).from(tables).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
+            dfsql.select(selectedRows, false, null, null)
+                    .from(tables[0])
+                    .join(DFSQLJoin.left, tables[1], tables[0] + ".instructorid", tables[1] + ".instructorid")
+                    .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
