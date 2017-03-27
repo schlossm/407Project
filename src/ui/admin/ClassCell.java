@@ -22,7 +22,7 @@ public class ClassCell extends ALJTableCell
 	private Course course;
 	private JLabel detailLabelOne, detailLabelTwo, detailLabelThree, detailLabelFour;
 
-	ClassCell(ALJTableCellAccessoryViewType accessoryViewType)
+	public ClassCell(ALJTableCellAccessoryViewType accessoryViewType)
 	{
 		super(accessoryViewType);
 
@@ -64,13 +64,13 @@ public class ClassCell extends ALJTableCell
 		addConstraint(new LayoutConstraint(detailLabelFour, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
 	}
 
-	void setCourse(Course course)
+	public void setCourse(Course course)
 	{
 		titleLabel.setText(course.getTitle());
 		detailLabelOne.setText("Hours: " + course.getMeetingTime());
 		detailLabelTwo.setText("Room: " + course.getRoomNo());
 		detailLabelThree.setText("Name: " + course.getCourseName());
-		detailLabelFour.setText("Quota: " + course.getMaxStorage()/1024/1024 + "MB");
+		detailLabelFour.setText("Quota: " + course.getMaxStorage()/1024/1024 + " MB");
 		this.course = course;
 	}
 
@@ -88,6 +88,7 @@ public class ClassCell extends ALJTableCell
 				{
 					int newQuota = Integer.valueOf(changeQuota.textFieldForIdentifier("ClassCell.quota").getText());
 					course.setMaxStorage(newQuota * 1024 * 1024);
+					detailLabelFour.setText("Quota: " + course.getMaxStorage()/1024/1024 + " MB");
 					changeQuota.dispose();
 				}
 				catch (Exception ignored)

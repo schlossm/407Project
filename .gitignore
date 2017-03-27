@@ -7,3 +7,4 @@ out
 gen
 *.ser
 407Project.iml
+/src/ui/javafxtesting/
