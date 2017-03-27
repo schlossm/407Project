@@ -135,8 +135,11 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     private void removeInstructorFromCourseGiven(int courseid, int instructorid) {
         DFSQL dfsql = new DFSQL();
         String table = "courseintructormembership";
+        Where[] where = new Where[2];
+        where[0] = new Where(DFSQLConjunction.and, DFSQLEquivalence.equals, new DFSQLClause("instructorid", "" + instructorid));
+        where[1] = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("courseid", "" + courseid));
         try {
-            dfsql.delete(table, new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("instructorid", "" + instructorid)));
+            dfsql.delete(table, where);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -154,7 +157,10 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         String tables[] = {"courseinstructormembership", "instructor"};
         getAllStudentsInCourseReturn = true;
         try {
-            dfsql.select(selectedRows, false, null, null).from(tables).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
+            dfsql.select(selectedRows, false, null, null)
+                    .from(tables[0])
+                    .join(DFSQLJoin.left, tables[1], tables[0] + ".instructorid", tables[1] + ".instructorid")
+                    .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -212,8 +218,11 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     private void removeStudentFromCourseGiven(int courseid, int studentid) {
         DFSQL dfsql = new DFSQL();
         String table = "courseinstructormembership";
+        Where[] where = new Where[2];
+        where[0] = new Where(DFSQLConjunction.and, DFSQLEquivalence.equals, new DFSQLClause("studentid", "" + studentid));
+        where[1] = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("courseid", "" + courseid));
         try {
-            dfsql.delete(table, new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("studentid", "" + studentid)));
+            dfsql.delete(table, where);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
