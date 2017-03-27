@@ -24,6 +24,7 @@ public class DFSQL
     private InternalJoin[] joinStatements = new InternalJoin[] {};
     private Where[] whereStatements = new Where[] {};
     private OrderBy[] orderByStatements = new OrderBy[] {};
+	private String[] groupByStatements = new String[] {};
 
     private int limitNum = -1;
 
@@ -89,6 +90,34 @@ public class DFSQL
 			}
 		}
 		returnString = returnStringBuilder.toString();
+
+		if (groupByStatements.length != 0)
+		{
+			returnString += " GROUP BY";
+			if (groupByStatements.length == 1)
+			{
+				returnStringBuilder = new StringBuilder(returnString);
+				for (String groupByStatement : groupByStatements)
+				{
+					returnStringBuilder.append(" ").append(groupByStatement);
+				}
+				returnString = returnStringBuilder.toString();
+			}
+			else
+			{
+				returnStringBuilder = new StringBuilder(returnString);
+				for (int i = 0; i < groupByStatements.length - 1; i++)
+				{
+					String groupByStatement = groupByStatements[i];
+
+					returnStringBuilder.append(" ").append(groupByStatement).append(",");
+				}
+				returnString = returnStringBuilder.toString();
+				String groupByStatement = groupByStatements[groupByStatements.length - 1];
+
+				returnString += " " + groupByStatement;
+			}
+		}
 
 		if (orderByStatements.length == 0) { return returnString; }
 		returnString += " ORDERED BY";
@@ -913,6 +942,23 @@ public class DFSQL
 		}
 
 		orderByStatements = attributes;
+		return this;
+	}
+
+	//MARK: - GROUP BY Constructor
+
+	public DFSQL groupBy(String[] attributes) throws DFSQLError
+	{
+		if (groupByStatements.length != 0)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+		for (String att : attributes)
+		{
+			check(att);
+		}
+
+		groupByStatements = attributes;
 		return this;
 	}
 
