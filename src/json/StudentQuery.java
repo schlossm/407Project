@@ -14,10 +14,10 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
     
     /**
      * given a userid returns a list of courses the student is enrolled in
-     * returns a list of courseids of the course
+     * returns a list of courseids, title, meetingtime of the course
      * @param userid
      */
-    public void getCourses(int userid) {
+    public void getCourses(String userid) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"courseid"};
         String table1 = "coursestudentmembership";
@@ -65,7 +65,7 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
      */
     public void getCourseGrade(int userid, int courseid) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"gradetotal, gradeavg"};
+        String selectedRows[] = {"Avg(Grade)", "Sum(Grade)"};
         String table1 = "grades";
         String table2 = "assignment";
         String table3 = "students";

@@ -220,7 +220,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         String table = "courseinstructormembership";
         Where[] where = new Where[2];
         where[0] = new Where(DFSQLConjunction.and, DFSQLEquivalence.equals, new DFSQLClause("studentid", "" + studentid));
-        where[1] = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("courseid", "" + courseid))
+        where[1] = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("courseid", "" + courseid));
         try {
             dfsql.delete(table, where);
             DFDatabase.defaultDatabase.execute(dfsql, this);
