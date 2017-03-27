@@ -1,13 +1,12 @@
 package ui.homepages;
 
+import json.InstructorQuery;
 import objects.Course;
 import ui.admin.ClassCell;
+import ui.util.*;
 import ui.util.ALJTable.*;
-import ui.util.MLMDelegate;
-import ui.util.MLMEventType;
-import ui.util.MouseListenerManager;
-import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -19,7 +18,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLMDelegate
+public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLMDelegate, DFNotificationCenterDelegate
 {
 	private ALJTable nextDueTable;
 	private ALJTable courseList;
@@ -28,6 +27,8 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 	private ArrayList<Course> courses = new ArrayList<>();
 
 	private JLabel coursesLabel;
+
+	private InstructorQuery instructorQuery = new InstructorQuery();
 
 	public InstructorPanel()
 	{
@@ -65,6 +66,9 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 		assignment.title = "Homework 1";
 		assignments.add(assignment);
 		//courses.add(Course.testCourse);
+
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
+		instructorQuery.getCourses(UIVariables.current.currentUser.getUserID());
 	}
 
 	@Override
@@ -141,6 +145,12 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 		{
 			DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, "My Courses");
 		}
+	}
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+
 	}
 }
 
