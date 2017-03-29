@@ -28,7 +28,10 @@ public class Course extends Object implements Serializable {
     }
 
     public Course(int courseID, String title, String startDate, String endDate) {
-        // TODO: Get this course from the DB
+        this.courseID = courseID;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public int getCourseID() {
