@@ -58,7 +58,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param startdate start date of the course in the format of YYYY/MM/DD
      * @param enddate end date of the course in the format of YYYY/MM/DD
      */
-    public void addCourse(int id, String courseID, String courseName, String description, String roomno, String meetingtime, String startdate, String enddate) {
+    public boolean addCourse(int id, String courseID, String courseName, String description, String roomno, String meetingtime, String startdate, String enddate) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"id", "courseID", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate"};
         String[] values = {"" + id, courseID, courseName, courseName, description, roomno, meetingtime, startdate, enddate};
@@ -68,6 +68,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
+        return uploadSuccess == DFDataUploaderReturnStatus.success;
     }
 
     /**
@@ -89,8 +90,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param courseid courseid of the course such as 11111
      * @param userid userid of the instructor given that the user is already an instructor
      */
-    public void addInstructorToCourse(int courseid, String userid) {
-
+    public boolean addInstructorToCourse(int courseid, String userid) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"id"};
         courseidForInsertionInstrutor = courseid;
@@ -100,9 +100,11 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
+        return uploadSuccess == DFDataUploaderReturnStatus.success;
+
     }
 
-    private void addInstructorToCourseGiven(int courseid, int instructorid) {
+    private boolean addInstructorToCourseGiven(int courseid, int instructorid) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"courseid", "instructorid"};
         String[] values = {"" + courseid, "" + instructorid};
@@ -113,6 +115,8 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
+        return uploadSuccess == DFDataUploaderReturnStatus.success;
+
     }
 
     /**
@@ -172,7 +176,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param courseid courseid of the course such as 11111
      * @param userid userid of the student to add to the course
      */
-    public void addStudentToCourse(int courseid, String userid) {
+    public boolean addStudentToCourse(int courseid, String userid) {
 
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"id"};
@@ -183,9 +187,11 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
+        return uploadSuccess == DFDataUploaderReturnStatus.success;
+
     }
 
-    private void addStudentToCourseGiven(int courseid, int studentid) {
+    private boolean addStudentToCourseGiven(int courseid, int studentid) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"courseid", "studentid"};
         String[] values = {"" + courseid, "" + studentid};
@@ -196,6 +202,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
+        return uploadSuccess == DFDataUploaderReturnStatus.success;
     }
 
     /**
@@ -264,7 +271,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         }
     }
 
-    public void addAssignment(int courseid, String name, String deadline, double maxPoints, String type) {
+    public boolean addAssignment(int courseid, String name, String deadline, double maxPoints, String type) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"name", "courseid", "maxpoints", "type", "deadline"};
         String[] values = {name, courseid + "","" + maxPoints, type, deadline};
@@ -275,6 +282,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
+        return uploadSuccess == DFDataUploaderReturnStatus.success;
     }
 
     /**
@@ -427,6 +435,18 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     @Override
     public void uploadStatus(DFDataUploaderReturnStatus success, DFError error) {
-
+        this.uploadSuccess = null;
+        if(success == DFDataUploaderReturnStatus.success){
+            debugLog("success uploading this");
+        } else if (success == DFDataUploaderReturnStatus.failure) {
+            debugLog("Failure uploading this");
+        }
+        else if(success == DFDataUploaderReturnStatus.error){
+            debugLog("Error uploading this");
+            DFDatabase.print(error.toString());
+        } else {
+            debugLog("I have no clue!");
+        }
+        this.uploadSuccess = success;
     }
 }

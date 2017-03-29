@@ -6,6 +6,7 @@ import database.DFDatabaseCallbackDelegate;
 import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
+import objects.Course;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
@@ -118,10 +119,43 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
             }
             DFNotificationCenter.defaultCenter.post(UIStrings.returned, allCoursesForInstructor);
             getCoursesReturn = false;
+        } else if(getCourseGradeReturn){
+
+            int courseId = 0;
+            int userTypeInt = 0;
+            try {
+                courseId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
+                courseTitle = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("courseID").getAsString();
+                courseName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("coursename").getAsString();
+                description = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
+                roomNo = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("roomno").getAsString();
+                meetingTime = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("meetingtime").getAsString();
+                startDate = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("startdate").getAsString();
+                endDate = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("enddate").getAsString();
+
+            }catch (NullPointerException e2){
+                DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
+            }
+            Course course = new Course();
+            course.setCourseID(courseId);
+            course.setTitle(courseTitle);
+            course.setCourseName(courseName);
+            course.setDescription(description);
+            course.setRoomNo(roomNo);
+            course.setMeetingTime(meetingTime);
+            course.setStartDate(startDate);
+            course.setEndDate(endDate);
+
+            /* Wait for Alex to implement the rest of the fields */
+            DFNotificationCenter.defaultCenter.post(UIStrings.returned, course);
+            System.out.println("getUser posting user to returned");
+            getCourseGradeReturn = false;
         }
     }
         @Override
     public void uploadStatus(DFDataUploaderReturnStatus success, DFError error) {
 
     }
+
+
 }
