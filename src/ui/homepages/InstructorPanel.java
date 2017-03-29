@@ -157,6 +157,8 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 				String[][] courseInfo = (String[][])userData;
 			}
 			catch (Exception ignored) { }
+
+			//TODO: Get Assignments
 		}
 	}
 }

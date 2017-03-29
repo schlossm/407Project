@@ -29,6 +29,8 @@ public class UIVariables implements DFNotificationCenterDelegate
 
 	private Map<String, NSObject> map = new HashMap<>();
 
+	public Map<String, Object> globalUserData = new HashMap<>();
+
 	private UIVariables()
 	{
 		if (System.getProperty("os.name").contains("Mac") || System.getProperty("os.name").contains("mac"))

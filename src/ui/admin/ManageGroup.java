@@ -113,16 +113,14 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 					String roomNum = alert.textFieldForIdentifier(groupToManage + ".roomNumber").getText();
 
 					currentProcess = Process.addCourse;
-					courseQuery.addCourse(Integer.getInteger(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate);
+
+					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate);
+					workToDoOnSuccess = alert::dispose;
 					break;
 				}
 
-				default:
-					return;
+				default: break;
 			}
-			table.reloadData();
-			layoutSubviews();
-			alert.dispose();
 		}, true);
 		alert.addButton("Cancel", ButtonType.cancel, null, false);
 
@@ -144,12 +142,14 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 			case courses:
 			{
 				alert.addTextField("Course Title (Friendly Name)", "course.courseTitle", false);
-				alert.addTextField("Course Name", "course.courseName", true);
-				alert.addTextField("Course Registration Number", "course.courseIdentifier", true);
+				alert.addTextField("Course Name", "course.courseName", false);
+				alert.addTextField("Course Registration Number", "course.courseIdentifier", false);
 				alert.addTextField("Meeting Time(s)", "course.meetingTimes", false);
 				alert.addTextField("Description", "course.description", false);
 				alert.addTextField("Capacity", "course.capacity", false);
 				alert.addTextField("Room Number", "course.roomNumber", false);
+				alert.addTextField("Start Date (mm/dd/yyyy)", "course.startDate", false);
+				alert.addTextField("End Date (mm/dd/yyyy)", "course.endDate", false);
 				break;
 			}
 
@@ -334,6 +334,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 			{
 				if (workToDoOnSuccess != null)
 				{
+					System.out.println("Hello");
 					workToDoOnSuccess.run();
 				}
 			}

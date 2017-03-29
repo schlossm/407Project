@@ -43,6 +43,7 @@ public class Alert implements KeyListener, MLMDelegate
 	private int numButtons;
 	private final Map<String, JTextField> textFields = new HashMap<>();
 	private final Map<String, JCheckBox> checkBoxes = new HashMap<>();
+	private final Map<String, JComboBox> dropDowns = new HashMap<>();
 	private final ArrayList<JButton> buttons = new ArrayList<>();
 	private boolean hasCancelAction = false;
 	private boolean hasDefaultAction = false;
@@ -110,6 +111,15 @@ public class Alert implements KeyListener, MLMDelegate
 		checkBoxes.put(identifier, checkBox);
 		alert.add(checkBox);
 		alert.add(Box.createRigidArea(new Dimension(0, 8)));
+	}
+
+	public void addDropDown(String[] options, int defaultOption, String identifier)
+	{
+		JComboBox<String> dropDown = new JComboBox<>(options);
+		dropDown.setSelectedIndex(defaultOption);
+		alert.add(dropDown);
+		alert.add(Box.createRigidArea(new Dimension(0, 8)));
+		dropDowns.put(identifier, dropDown);
 	}
 
 	public void addButton(String text, ButtonType type, ActionListener handler, boolean customEnterAction)
@@ -420,6 +430,16 @@ public class Alert implements KeyListener, MLMDelegate
 				break;
 			}
 		}
+	}
+
+	public Map<String, JComboBox> getDropDowns()
+	{
+		return dropDowns;
+	}
+
+	public JComboBox dropDownForIdentifier(String identifier)
+	{
+		return dropDowns.get(identifier.toLowerCase());
 	}
 
 	public Map<String, JTextField> getTextFields()
