@@ -31,6 +31,27 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     private boolean verifyUserLoginReturn;
 
 
+    public void getAllStudents(int offset) {
+        DFSQL dfsql = new DFSQL();
+        getCourseReturn = true;
+        String[] selectedRows = {};
+        try {
+            dfsql.select(selectedRows, false, null, null)
+                    .from("courses")
+                    .limit(100);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public void getAllInstructors(int offset) {
+
+    }
+
+    public void getAllCourses(int offset) {
+
+    }
     /**
      * Method to get info of a course given courseID
      *@param  courseID courseID to get info of
@@ -38,7 +59,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     public void getCourse(String courseID) {
         DFSQL dfsql = new DFSQL();
         getCourseReturn = true;
-        String[] selectedRows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate"};
+        String[] selectedRows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate", "capacity"};
         try {
             dfsql.select(selectedRows, false, null, null).from("courses").where(DFSQLEquivalence.equals, "courseID", courseID);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -58,12 +79,12 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param startdate start date of the course in the format of YYYY/MM/DD
      * @param enddate end date of the course in the format of YYYY/MM/DD
      */
-    public void addCourse(int id, String courseID, String courseName, String description, String roomno, String meetingtime, String startdate, String enddate) {
+    public void addCourse(int id, String courseID, String courseName, String description, String roomno, String meetingtime, String startdate, String enddate, int capacity) {
         DFSQL dfsql = new DFSQL();
-        String[] rows = {"id", "courseID", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate"};
-        String[] values = {"" + id, courseID, courseName, courseName, description, roomno, meetingtime, startdate, enddate};
+        String[] rows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate", "capacity"};
+        String[] values = {"" + id, courseID, courseName, courseName, description, roomno, meetingtime, startdate, enddate, "" + capacity};
         try {
-            dfsql.insert("courses", rows, values);
+            dfsql.insert("courses", values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -108,7 +129,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         String[] values = {"" + courseid, "" + instructorid};
         String table = "courseintructormembership";
         try {
-            dfsql.insert(table, rows, values);
+            dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -191,7 +212,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         String[] values = {"" + courseid, "" + studentid};
         String table = "coursestudentmembership";
         try {
-            dfsql.insert(table, rows, values);
+            dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -270,7 +291,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         String[] values = {name, courseid + "","" + maxPoints, type, deadline};
         String table = "assignment";
         try {
-            dfsql.insert(table, rows, values);
+            dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();

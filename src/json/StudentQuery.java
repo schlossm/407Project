@@ -11,7 +11,7 @@ import database.WebServer.DFDataUploaderReturnStatus;
  * Created by gauravsrivastava on 3/13/17.
  */
 public class StudentQuery implements DFDatabaseCallbackDelegate {
-    
+
     /**
      * given a userid returns a list of courses the student is enrolled in
      * returns a list of courseids, title, meetingtime of the course
@@ -22,6 +22,7 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
         String selectedRows[] = {"courseid"};
         String table1 = "coursestudentmembership";
         String table2 = "students";
+        String table3 = "";
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table1)
@@ -39,7 +40,7 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
      * @param assignmentid
      * @param userid
      */
-    public void getGrade(int assignmentid, int userid) {
+    public void getGrade(int assignmentid, String userid) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"userid"}; //username
         String table1 = "grades";
@@ -63,9 +64,9 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
      * @param userid
      * @param courseid
      */
-    public void getCourseGrade(int userid, int courseid) {
+    public void getCourseGrade(String userid, int courseid) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"Avg(Grade)", "Sum(Grade)"};
+        String selectedRows[] = {"Avg(grade)", "Sum(grade)"};
         String table1 = "grades";
         String table2 = "assignment";
         String table3 = "students";

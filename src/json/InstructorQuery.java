@@ -1,14 +1,20 @@
 package json;
 
 import com.google.gson.JsonObject;
+import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
+import database.DFSQL.DFSQL;
+import database.DFSQL.DFSQLEquivalence;
+import database.DFSQL.DFSQLError;
+import database.DFSQL.DFSQLJoin;
 import database.WebServer.DFDataUploaderReturnStatus;
 
 /**
  * Created by gauravsrivastava on 3/13/17.
  */
 public class InstructorQuery implements DFDatabaseCallbackDelegate {
+
 
     /**
      * given a userid it returns the instructorid
@@ -24,7 +30,19 @@ public class InstructorQuery implements DFDatabaseCallbackDelegate {
      * @param userid
      */
     public void getCourses(String userid) {
-
+        DFSQL dfsql = new DFSQL();
+        String selectedRows[] = {"courseid"};
+        String table1 = "courseinstructormembership";
+        String table2 = "students";
+        try {
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, table2, table1 + ".studentid", table2 + ".id")
+                    .where(DFSQLEquivalence.equals, table2 + ".userid",  userid);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError dfsqlError) {
+            dfsqlError.printStackTrace();
+        }
     }
 
     /**
@@ -34,6 +52,7 @@ public class InstructorQuery implements DFDatabaseCallbackDelegate {
      * @param points
      */
     public void enterGrade(int assignmentid, String userid, double points) {
+        DFSQL dfsql = new DFSQL();
 
     }
 
