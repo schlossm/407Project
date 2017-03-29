@@ -83,8 +83,8 @@ class Main
 		new Thread(new TimeManager()).start();
 
 		// Set up (and print) test static Course object
-		ArrayList<objects.User> students = new ArrayList<objects.User>();
-		ArrayList<objects.User> teachers = new ArrayList<objects.User>();
+		ArrayList<objects.User> students = new ArrayList<>();
+		ArrayList<objects.User> teachers = new ArrayList<>();
 
 		Course.testCourse = new Course();
 		Course.testCourse.setCourseID(384053);
@@ -98,6 +98,7 @@ class Main
 		Course.testCourse.setMeetingTime("[Meeting Time in TBD format]");
 		Message message = new Message("Hello", "Test Message", new Date().toString());
 		ArrayList<Message> messages = new ArrayList<>();
+		messages.add(message);
 		Course.testCourse.setMessages(messages);
 		Course.testCourse.setRoomNo("LWSN 1168");
 		Course.testCourse.setMaxStorage(1000000);

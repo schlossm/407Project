@@ -20,13 +20,13 @@ public class InstructorAnnouncements extends ALJTablePanel
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
 
-	Course courseForAnnouncements;
+	private Course courseForAnnouncements;
 
 	private JLabel loadingLabel;
 
 	public InstructorAnnouncements(Course course)
 	{
-		super();
+		courseForAnnouncements = course;
 
 		ArrayList<Object> starter = new ArrayList<>();
 		starter.add("New Announcement");

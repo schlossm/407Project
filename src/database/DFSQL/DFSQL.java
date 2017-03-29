@@ -12,54 +12,57 @@ import static java.lang.Integer.parseInt;
 @SuppressWarnings({"unused", "WeakerAccess", "ResultOfMethodCallIgnored"})
 public class DFSQL
 {
-    private static String WhereStatementComparesNullString = "Where Statement is comparing a null statement.";
+	private static String WhereStatementComparesNullString = "Where Statement is comparing a null statement.";
 
-    private String[] selectRows = new String[] {};
-    private boolean distinctSelect = false;
-    private String intoTable = "";
-    private String inDB = "";
+	private String[] selectRows = new String[]{};
+	private boolean distinctSelect = false;
+	private String intoTable = "";
+	private String inDB = "";
 
-    String deleteFromTable = "";
-    String[] fromTables = new String[] {};
-    private InternalJoin[] joinStatements = new InternalJoin[] {};
-    private Where[] whereStatements = new Where[] {};
-    private OrderBy[] orderByStatements = new OrderBy[] {};
-	private String[] groupByStatements = new String[] {};
+	String deleteFromTable = "";
+	String[] fromTables = new String[]{};
+	private InternalJoin[] joinStatements = new InternalJoin[]{};
+	private Where[] whereStatements = new Where[]{};
+	private OrderBy[] orderByStatements = new OrderBy[]{};
+	private String[] groupByStatements = new String[]{};
 
-    private int limitNum = -1;
+	private int limitNum = -1;
+	private int offsetNum = -1;
 
-    private String[] insertRows = new String[] {};
-    private String[] insertValues = new String[] {};
-    private String[] duplicateKeys = new String[] {};
-    private String[] duplicateValues = new String[] {};
+	private String[] insertRows = new String[]{};
+	private String[] insertValues = new String[]{};
+	private String[] duplicateKeys = new String[]{};
+	private String[] duplicateValues = new String[]{};
 
-    private DFSQLClause[] updateStatements = new DFSQLClause[] {};
+	private DFSQLClause[] updateStatements = new DFSQLClause[]{};
 
-    private final ArrayList<DFSQL> appendedSQL = new ArrayList<>();
+	private final ArrayList<DFSQL> appendedSQL = new ArrayList<>();
 
-    public String formattedStatement()
-    {
-        return formatted();
-    }
+	public String formattedStatement()
+	{
+		return formatted();
+	}
 
-    public DFSQL() { }
+	public DFSQL() { }
 
-    /**
-     * Appends an already built DFSQL object to the callee
-     * @param object a DFSQL object.  This object is immutable after this function is called
-     * @return self
-     */
-    public DFSQL append(DFSQL object)
-    {
-        if (!appendedSQL.contains(object))
-            appendedSQL.add(object);
+	/**
+	 * Appends an already built DFSQL object to the callee
+	 *
+	 * @param object a DFSQL object.  This object is immutable after this function is called
+	 *
+	 * @return self
+	 */
+	public DFSQL append(DFSQL object)
+	{
+		if (!appendedSQL.contains(object))
+		{ appendedSQL.add(object); }
 
-        return this;
-    }
+		return this;
+	}
 
 	private String insertWhereAndOrderByStatements(String returnString)
 	{
-		if (whereStatements.length == 0) return returnString;
+		if (whereStatements.length == 0) { return returnString; }
 
 		returnString += " WHERE";
 		StringBuilder returnStringBuilder = new StringBuilder(returnString);
@@ -176,279 +179,278 @@ public class DFSQL
 
 	private String insertLimit(String returnString)
 	{
-		if (limitNum <= 0) { return returnString; }
-
-		returnString += " LIMIT " + limitNum;
+		if (limitNum > 0) { returnString += " LIMIT " + limitNum; }
+		if (offsetNum > 0) { returnString += " OFFSET " + offsetNum; }
 
 		return returnString;
 	}
 
-    /**
-     * @return A human readable formatted SQL statement
-     */
-    private String formatted()
-    {
-    	String returnString = "";
+	/**
+	 * @return A human readable formatted SQL statement
+	 */
+	private String formatted()
+	{
+		String returnString = "";
 
-    	//DELETE FROM Statements
-    	if (!deleteFromTable.isEmpty())
-	    {
-	    	if (whereStatements.length != 1) { return returnString; }
+		//DELETE FROM Statements
+		if (!deleteFromTable.isEmpty())
+		{
+			if (whereStatements.length != 1) { return returnString; }
 
-	    	returnString += "DELETE FROM " + deleteFromTable;
-	    	returnString = insertWhereAndOrderByStatements(returnString);
-	    	returnString += ";";
-	    	returnString = insertAppendedStatements(returnString);
-	    	return returnString;
-	    }
+			returnString += "DELETE FROM " + deleteFromTable;
+			returnString = insertWhereAndOrderByStatements(returnString);
+			returnString += ";";
+			returnString = insertAppendedStatements(returnString);
+			return returnString;
+		}
 
-	    //UPDATE Statements
-	    if (updateStatements.length != 0)
-	    {
-	    	if (fromTables.length == 0 || fromTables.length != 1)
-		    {
-		    	return returnString;
-		    }
+		//UPDATE Statements
+		if (updateStatements.length != 0)
+		{
+			if (fromTables.length == 0 || fromTables.length != 1)
+			{
+				return returnString;
+			}
 
-		    StringBuilder returnStringBuilder = new StringBuilder("UPDATE `" + fromTables[0] + "` SET ");
-		    for (DFSQLClause clause : updateStatements)
-		    {
-		    	final String left = clause.attribute;
-		    	String right = clause.value;
+			StringBuilder returnStringBuilder = new StringBuilder("UPDATE `" + fromTables[0] + "` SET ");
+			for (DFSQLClause clause : updateStatements)
+			{
+				final String left = clause.attribute;
+				String right = clause.value;
 
-			    boolean isNum = false;
-			    try
-			    {
-				    parseInt(right);
-				    isNum = true;
-			    }
-			    catch (Exception ignored) { }
-			    if (right.contains(" ") || !isNum)
-			    {
-				    right = "'" + right + "'";
-			    }
-			    returnStringBuilder.append(left).append("=").append(right).append(", ");
-		    }
-		    returnString = returnStringBuilder.toString();
+				boolean isNum = false;
+				try
+				{
+					parseInt(right);
+					isNum = true;
+				}
+				catch (Exception ignored) { }
+				if (right.contains(" ") || !isNum)
+				{
+					right = "'" + right + "'";
+				}
+				returnStringBuilder.append(left).append("=").append(right).append(", ");
+			}
+			returnString = returnStringBuilder.toString();
 
-		    returnString = returnString.substring(0, returnString.length() - 2);
+			returnString = returnString.substring(0, returnString.length() - 2);
 
-		    returnString = insertWhereAndOrderByStatements(returnString);
-	    	returnString += ";";
-		    returnString = insertAppendedStatements(returnString);
+			returnString = insertWhereAndOrderByStatements(returnString);
+			returnString += ";";
+			returnString = insertAppendedStatements(returnString);
 
-	    	return returnString;
-	    }
+			return returnString;
+		}
 
-	    //INSERT Statements
-	    if (insertRows.length != 0)
-	    {
-	    	if (fromTables.length == 0 || fromTables.length != 1) { return returnString; }
+		//INSERT Statements
+		if (insertRows.length != 0)
+		{
+			if (fromTables.length == 0 || fromTables.length != 1) { return returnString; }
 
-		    StringBuilder returnStringBuilder = new StringBuilder("INSERT INTO `" + fromTables[0] + "`(");
-		    for (String row : insertRows)
-		    {
-		    	returnStringBuilder.append("`").append(row).append("`,");
-		    }
-		    returnString = returnStringBuilder.toString();
+			StringBuilder returnStringBuilder = new StringBuilder("INSERT INTO `" + fromTables[0] + "`(");
+			for (String row : insertRows)
+			{
+				returnStringBuilder.append("`").append(row).append("`,");
+			}
+			returnString = returnStringBuilder.toString();
 
-		    returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + ") VALUES (");
-		    for (String value : insertValues)
-		    {
-			    boolean isNum = false;
-			    try
-			    {
-				    parseInt(value);
-				    isNum = true;
-			    }
-			    catch (Exception ignored) { }
-			    if (value.contains(" ") || !isNum)
-			    {
-				    returnStringBuilder.append("'").append(value).append("',");
-			    }
-			    else
-			    {
-			    	returnStringBuilder.append(value).append(",");
-			    }
-		    }
-		    returnString = returnStringBuilder.toString();
+			returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + ") VALUES (");
+			for (String value : insertValues)
+			{
+				boolean isNum = false;
+				try
+				{
+					parseInt(value);
+					isNum = true;
+				}
+				catch (Exception ignored) { }
+				if (value.contains(" ") || !isNum)
+				{
+					returnStringBuilder.append("'").append(value).append("',");
+				}
+				else
+				{
+					returnStringBuilder.append(value).append(",");
+				}
+			}
+			returnString = returnStringBuilder.toString();
 
-		    returnString = returnString.substring(0, returnString.length() - 1) + ")";
+			returnString = returnString.substring(0, returnString.length() - 1) + ")";
 
-	    	if (duplicateKeys.length != 0)
-		    {
-		    	returnString += " ON DUPLICATE KEY UPDATE ";
-		    	int count = 0;
-			    returnStringBuilder = new StringBuilder(returnString);
-			    for (String row : duplicateKeys)
-			    {
-			    	returnStringBuilder.append("`").append(row).append("`='").append(duplicateValues[count]).append("',");
-			    	count++;
-			    }
-			    returnString = returnStringBuilder.toString();
+			if (duplicateKeys.length != 0)
+			{
+				returnString += " ON DUPLICATE KEY UPDATE ";
+				int count = 0;
+				returnStringBuilder = new StringBuilder(returnString);
+				for (String row : duplicateKeys)
+				{
+					returnStringBuilder.append("`").append(row).append("`='").append(duplicateValues[count]).append("',");
+					count++;
+				}
+				returnString = returnStringBuilder.toString();
 
-			    returnString = returnString.substring(0, returnString.length() - 1);
-		    }
+				returnString = returnString.substring(0, returnString.length() - 1);
+			}
 
-		    returnString += ";";
+			returnString += ";";
 
-		    returnString = insertAppendedStatements(returnString);
+			returnString = insertAppendedStatements(returnString);
 
-	    	return returnString;
-	    }
+			return returnString;
+		}
 
-	    //REST OF THE STUFF
+		//REST OF THE STUFF
 
-	    if (selectRows.length == 0) return returnString;
+		if (selectRows.length == 0) { return returnString; }
 
-    	returnString = "SELECT ";
-    	if (distinctSelect)
-	    {
-	    	returnString += "DISTINCT ";
-	    }
-	    StringBuilder returnStringBuilder = new StringBuilder(returnString);
-	    for (String row : selectRows)
-	    {
-	    	if (!row.contains("(") && !row.contains(")"))
-		    {
-		    	returnStringBuilder.append("`").append(row).append("`,");
-		    }
-		    else
-		    {
-		    	returnStringBuilder.append(row).append(",");
-		    }
-	    }
-	    returnString = returnStringBuilder.toString();
+		returnString = "SELECT ";
+		if (distinctSelect)
+		{
+			returnString += "DISTINCT ";
+		}
+		StringBuilder returnStringBuilder = new StringBuilder(returnString);
+		for (String row : selectRows)
+		{
+			if (!row.contains("(") && !row.contains(")"))
+			{
+				returnStringBuilder.append("`").append(row).append("`,");
+			}
+			else
+			{
+				returnStringBuilder.append(row).append(",");
+			}
+		}
+		returnString = returnStringBuilder.toString();
 
-	    returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + " FROM ");
-	    for (String table : fromTables)
-	    {
-	    	returnStringBuilder.append("`").append(table).append("`,");
-	    }
-	    returnString = returnStringBuilder.toString();
+		returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + " FROM ");
+		for (String table : fromTables)
+		{
+			returnStringBuilder.append("`").append(table).append("`,");
+		}
+		returnString = returnStringBuilder.toString();
 
-	    returnString = returnString.substring(0, returnString.length() - 1);
+		returnString = returnString.substring(0, returnString.length() - 1);
 
-    	if (joinStatements.length != 0)
-	    {
-		    returnStringBuilder = new StringBuilder(returnString);
-		    for (InternalJoin join : joinStatements)
-		    {
-		    	final String left = join.clause.attribute;
-		    	String right = join.clause.value;
+		if (joinStatements.length != 0)
+		{
+			returnStringBuilder = new StringBuilder(returnString);
+			for (InternalJoin join : joinStatements)
+			{
+				final String left = join.clause.attribute;
+				String right = join.clause.value;
 
-			    boolean isNum = false;
-			    try
-			    {
-				    parseInt(right);
-				    isNum = true;
-			    }
-			    catch (Exception ignored) { }
-			    if (right.contains(" ") || !isNum)
-			    {
-				    right = "'" + right + "',";
-			    }
+				boolean isNum = false;
+				try
+				{
+					parseInt(right);
+					isNum = true;
+				}
+				catch (Exception ignored) { }
+				if (right.contains(" ") || !isNum)
+				{
+					right = "'" + right + "',";
+				}
 
-			    returnStringBuilder.append(join.joinType).append(" JOIN `").append(join.table).append(join.joinType != DFSQLJoin.natural ? ("` ON `" + left + "=" + right) : "`");
-		    }
-		    returnString = returnStringBuilder.toString();
-	    }
+				returnStringBuilder.append(join.joinType).append(" JOIN `").append(join.table).append(join.joinType != DFSQLJoin.natural ? ("` ON `" + left + "=" + right) : "`");
+			}
+			returnString = returnStringBuilder.toString();
+		}
 
-	    returnString = insertWhereAndOrderByStatements(returnString);
-	    returnString = insertLimit(returnString);
-    	returnString += ";";
-	    returnString = insertAppendedStatements(returnString);
+		returnString = insertWhereAndOrderByStatements(returnString);
+		returnString = insertLimit(returnString);
+		returnString += ";";
+		returnString = insertAppendedStatements(returnString);
 
 		return returnString;
-    }
+	}
 
-    private void check(String attribute) throws DFSQLError
-    {
-        if (attribute.contains("*")) throw DFSQLError.cannotUseWildcardSpecifier;
-        if (Objects.equals(attribute, "")) throw DFSQLError.cannotUseEmptyValue;
+	private void check(String attribute) throws DFSQLError
+	{
+		if (attribute.contains("*")) { throw DFSQLError.cannotUseWildcardSpecifier; }
+		if (Objects.equals(attribute, "")) { throw DFSQLError.cannotUseEmptyValue; }
 
-        String[] specifiers = new String[] {"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " AND", " OR"};
+		String[] specifiers = new String[]{"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " AND", " OR"};
 
-        for (String specifier : specifiers)
-        {
-            if (attribute.toUpperCase().contains(specifier)) throw DFSQLError.unexpectedValueFound;
-        }
+		for (String specifier : specifiers)
+		{
+			if (attribute.toUpperCase().contains(specifier)) { throw DFSQLError.unexpectedValueFound; }
+		}
 
-        if (!attribute.contains("."))
-        {
-            if (attribute.length() > 64)
-            {
-                throw DFSQLError.attributeLengthTooLong;
-            }
-        }
-        else
-        {
-            String[] components = attribute.split(Pattern.quote("."));
-	        String table = components[0];
-	        String row = components[1];
+		if (!attribute.contains("."))
+		{
+			if (attribute.length() > 64)
+			{
+				throw DFSQLError.attributeLengthTooLong;
+			}
+		}
+		else
+		{
+			String[] components = attribute.split(Pattern.quote("."));
+			String table = components[0];
+			String row = components[1];
 
-	        if (table.contains("`"))
-	        {
-	        	if (table.length() > 66)
-		        {
-		        	throw DFSQLError.attributeLengthTooLong;
-		        }
-	        }
-	        else
-	        {
-		        if (table.length() > 64)
-		        {
-			        throw DFSQLError.attributeLengthTooLong;
-		        }
-	        }
-        }
-    }
+			if (table.contains("`"))
+			{
+				if (table.length() > 66)
+				{
+					throw DFSQLError.attributeLengthTooLong;
+				}
+			}
+			else
+			{
+				if (table.length() > 64)
+				{
+					throw DFSQLError.attributeLengthTooLong;
+				}
+			}
+		}
+	}
 
-    private void check(String value, DFSQLEquivalence equivalence) throws DFSQLError
-    {
-        if (Objects.equals(value, "")) { throw DFSQLError.cannotUseEmptyValue; }
+	private void check(String value, DFSQLEquivalence equivalence) throws DFSQLError
+	{
+		if (Objects.equals(value, "")) { throw DFSQLError.cannotUseEmptyValue; }
 
-        String[] specifiers;
-        if (equivalence != DFSQLEquivalence.between && equivalence != DFSQLEquivalence.notBetween)
-        {
-        	specifiers = new String[] {"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " AND", " OR"};
-        }
-        else
-        {
-        	specifiers = new String[] {"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " OR"};
-        }
+		String[] specifiers;
+		if (equivalence != DFSQLEquivalence.between && equivalence != DFSQLEquivalence.notBetween)
+		{
+			specifiers = new String[]{"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " AND", " OR"};
+		}
+		else
+		{
+			specifiers = new String[]{"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " OR"};
+		}
 
-	    for (String specifier : specifiers)
-	    {
-		    if (value.toUpperCase().contains(specifier)) throw DFSQLError.unexpectedValueFound;
-	    }
-    }
+		for (String specifier : specifiers)
+		{
+			if (value.toUpperCase().contains(specifier)) { throw DFSQLError.unexpectedValueFound; }
+		}
+	}
 
-    private boolean hasCharacter(String string)
-    {
-    	String  lowered = string.toLowerCase();
-        return  lowered.contains("a") || lowered.contains("b") || lowered.contains("c") ||
-                lowered.contains("d") || lowered.contains("e") || lowered.contains("f") ||
-                lowered.contains("g") || lowered.contains("h") || lowered.contains("i") ||
-                lowered.contains("j") || lowered.contains("k") || lowered.contains("l") ||
-                lowered.contains("m") || lowered.contains("n") || lowered.contains("o") ||
-                lowered.contains("p") || lowered.contains("q") || lowered.contains("r") ||
-                lowered.contains("s") || lowered.contains("t") || lowered.contains("u") ||
-                lowered.contains("v") || lowered.contains("w") || lowered.contains("x") ||
-                lowered.contains("y") || lowered.contains("z");
-    }
+	private boolean hasCharacter(String string)
+	{
+		String lowered = string.toLowerCase();
+		return lowered.contains("a") || lowered.contains("b") || lowered.contains("c") ||
+			       lowered.contains("d") || lowered.contains("e") || lowered.contains("f") ||
+			       lowered.contains("g") || lowered.contains("h") || lowered.contains("i") ||
+			       lowered.contains("j") || lowered.contains("k") || lowered.contains("l") ||
+			       lowered.contains("m") || lowered.contains("n") || lowered.contains("o") ||
+			       lowered.contains("p") || lowered.contains("q") || lowered.contains("r") ||
+			       lowered.contains("s") || lowered.contains("t") || lowered.contains("u") ||
+			       lowered.contains("v") || lowered.contains("w") || lowered.contains("x") ||
+			       lowered.contains("y") || lowered.contains("z");
+	}
 
-    //MARK: - SELECT Constructors
+	//MARK: - SELECT Constructors
 
 	/**
-    * SELECT statement with 1 row
-    * - Parameter attribute: the attribute to request
-    * - Parameter distinct: if the query should return only distinct rows or not.  Defaults to `false`
-    * - Parameter into: A table, if any, to copy(insert) this data into.  Defaults to `nil`
-    * - Parameter in: An exterior database, if any, the `into` table resides.  A value of `nil` assumes the current working database.  Defaults to `nil`
-    * - Returns: An instance of `MSSQL`
-    * - Throws: `MSSQLError`: If no attribute specified, `*` is used, is empty, or is greater than 64 characters in length
-    */
+	 * SELECT statement with 1 row
+	 * - Parameter attribute: the attribute to request
+	 * - Parameter distinct: if the query should return only distinct rows or not.  Defaults to `false`
+	 * - Parameter into: A table, if any, to copy(insert) this data into.  Defaults to `nil`
+	 * - Parameter in: An exterior database, if any, the `into` table resides.  A value of `nil` assumes the current working database.  Defaults to `nil`
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError`: If no attribute specified, `*` is used, is empty, or is greater than 64 characters in length
+	 */
 	public DFSQL select(String attribute, boolean distinct, String into, String in) throws DFSQLError
 	{
 		if (selectRows.length != 0)
@@ -458,7 +460,7 @@ public class DFSQL
 		check(attribute);
 
 		distinctSelect = distinct;
-		selectRows = new String[] { attribute };
+		selectRows = new String[]{attribute};
 
 		in(into, in);
 
@@ -466,13 +468,13 @@ public class DFSQL
 	}
 
 	/**
-	 SELECT statement with multiple rows
-	 - Parameter attributes: the attributes to request
-	 - Parameter distinct: if the query should return only distinct rows or not.  Defaults to `false`
-	 - Parameter into: A table, if any, to copy(insert) this data into.  Defaults to `nil`
-	 - Parameter in: An exterior database, if any, the `into` table resides.  A value of `nil` assumes the current working database.  Defaults to `nil`
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError`: If no attributes specified, `*` is used, is empty, or any attribute is greater than 64 characters in length
+	 * SELECT statement with multiple rows
+	 * - Parameter attributes: the attributes to request
+	 * - Parameter distinct: if the query should return only distinct rows or not.  Defaults to `false`
+	 * - Parameter into: A table, if any, to copy(insert) this data into.  Defaults to `nil`
+	 * - Parameter in: An exterior database, if any, the `into` table resides.  A value of `nil` assumes the current working database.  Defaults to `nil`
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError`: If no attributes specified, `*` is used, is empty, or any attribute is greater than 64 characters in length
 	 */
 	public DFSQL select(String[] attributes, boolean distinct, String into, String in) throws DFSQLError
 	{
@@ -520,34 +522,34 @@ public class DFSQL
 	//MARK: - FROM Constructors
 
 	/**
-	 FROM statement with one table
-	 - Parameter table: the table to request
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If no table specified, `*` is used, is empty, or table is greater than 64 characters in length
+	 * FROM statement with one table
+	 * - Parameter table: the table to request
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If no table specified, `*` is used, is empty, or table is greater than 64 characters in length
 	 */
 	public DFSQL from(String table) throws DFSQLError
 	{
 		if (fromTables.length != 0)
 		{
-			throw  DFSQLError.conditionAlreadyExists;
+			throw DFSQLError.conditionAlreadyExists;
 		}
 		check(table);
 
-		fromTables = new String[] { table };
+		fromTables = new String[]{table};
 		return this;
 	}
 
 	/**
-	 FROM statement with multiple tables
-	 - Parameter tables: the tables to request
-	 - Returns: An instance of `DFSQL`
-	 - Throws: `DFSQLError` If no tables specified, `*` is used, is empty, or if any table is greater than 64 characters in length
+	 * FROM statement with multiple tables
+	 * - Parameter tables: the tables to request
+	 * - Returns: An instance of `DFSQL`
+	 * - Throws: `DFSQLError` If no tables specified, `*` is used, is empty, or if any table is greater than 64 characters in length
 	 */
 	public DFSQL from(String[] tables) throws DFSQLError
 	{
 		if (fromTables.length != 0)
 		{
-			throw  DFSQLError.conditionAlreadyExists;
+			throw DFSQLError.conditionAlreadyExists;
 		}
 		for (String table : tables)
 		{
@@ -561,12 +563,12 @@ public class DFSQL
 	//MARK: - UPDATE SET Constructors
 
 	/**
-	 UPDATE statement with one clause
-	 - Parameter table: The table to request
-	 - Parameter attribute: The left hand side of the clause
-	 - Parameter value: The right hand side of the clause
-	 - Returns: An instance of `DFSQL`
-	 - Throws: `DFSQLError` If a parameter is nil, already exists, `*` is used, is empty, or the `table` | `attribute` is greater than 64 characters in length
+	 * UPDATE statement with one clause
+	 * - Parameter table: The table to request
+	 * - Parameter attribute: The left hand side of the clause
+	 * - Parameter value: The right hand side of the clause
+	 * - Returns: An instance of `DFSQL`
+	 * - Throws: `DFSQLError` If a parameter is nil, already exists, `*` is used, is empty, or the `table` | `attribute` is greater than 64 characters in length
 	 */
 	public DFSQL update(String table, String attribute, String value) throws DFSQLError
 	{
@@ -579,18 +581,18 @@ public class DFSQL
 		check(attribute);
 		check(value, DFSQLEquivalence.lessThan);
 
-		fromTables = new String[] { table };
-		updateStatements = new DFSQLClause[] {new DFSQLClause(attribute, value)};
+		fromTables = new String[]{table};
+		updateStatements = new DFSQLClause[]{new DFSQLClause(attribute, value)};
 
 		return this;
 	}
 
 	/**
-	 UPDATE statements with multiple clauses
-	 - Parameter table: The table to request
-	 - Parameter clauses: The clauses
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If a parameter is nil, already exists, `*` is used, is empty, or the `table` | `attribute` of any clause is greater than 64 characters in length
+	 * UPDATE statements with multiple clauses
+	 * - Parameter table: The table to request
+	 * - Parameter clauses: The clauses
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If a parameter is nil, already exists, `*` is used, is empty, or the `table` | `attribute` of any clause is greater than 64 characters in length
 	 */
 	public DFSQL update(String table, DFSQLClause[] set) throws DFSQLError
 	{
@@ -606,7 +608,7 @@ public class DFSQL
 			check(clause.value, DFSQLEquivalence.lessThan);
 		}
 
-		fromTables = new String[] { table };
+		fromTables = new String[]{table};
 		updateStatements = set;
 
 		return this;
@@ -615,12 +617,12 @@ public class DFSQL
 	//MARK: - INSERT INTO Constructor
 
 	/**
-	 INSERT INTO statement
-	 - Parameter table: the table to insert the new row into
-	 - Parameter values: the values for entry
-	 - Parameter attributes: the attributes to set
-	 - Returns: An instance of `MSSQL`
-	 - Throws `MSSQLError` If a parameter is null, already exists, values and attributes do not match in size, `*` is used, is empty, or any attribute | table is greater than 64 characters in length
+	 * INSERT INTO statement
+	 * - Parameter table: the table to insert the new row into
+	 * - Parameter values: the values for entry
+	 * - Parameter attributes: the attributes to set
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws `MSSQLError` If a parameter is null, already exists, values and attributes do not match in size, `*` is used, is empty, or any attribute | table is greater than 64 characters in length
 	 */
 	public DFSQL insert(String table, String[] values, String[] attributes) throws DFSQLError
 	{
@@ -640,7 +642,7 @@ public class DFSQL
 			check(value, DFSQLEquivalence.lessThan);
 		}
 
-		fromTables = new String[] { table };
+		fromTables = new String[]{table};
 		insertRows = attributes;
 		insertValues = values;
 
@@ -648,14 +650,14 @@ public class DFSQL
 	}
 
 	/**
-	 INSERT ... ON DUPLICATE KEY UPDATE Constructor
-
-	 Use this statement in conjuction with WHERE and/or LIMIT to specify which row to update if not 100% unique.
-
-	 - Parameter attributes: The attributes to update
-	 - Parameter values: The values to update to
-	 - Returns: An instance of `MSSQL`
-	 - Throws `MSSQLError` If a parameter is null, already exists, values and attributes do not match in size, `*` is used, is empty, or any attribute is greater than 64 characters in length
+	 * INSERT ... ON DUPLICATE KEY UPDATE Constructor
+	 * <p>
+	 * Use this statement in conjuction with WHERE and/or LIMIT to specify which row to update if not 100% unique.
+	 * <p>
+	 * - Parameter attributes: The attributes to update
+	 * - Parameter values: The values to update to
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws `MSSQLError` If a parameter is null, already exists, values and attributes do not match in size, `*` is used, is empty, or any attribute is greater than 64 characters in length
 	 */
 	public DFSQL onDuplicateKey(String[] attributes, String[] values) throws DFSQLError
 	{
@@ -692,7 +694,7 @@ public class DFSQL
 		check(where.clause.value, DFSQLEquivalence.lessThan);
 
 		deleteFromTable = from;
-		whereStatements = new Where[] { where };
+		whereStatements = new Where[]{where};
 
 		return this;
 	}
@@ -704,7 +706,7 @@ public class DFSQL
 			throw DFSQLError.conditionAlreadyExists;
 		}
 
-		for (Where where1: where)
+		for (Where where1 : where)
 		{
 			check(where1.clause.attribute);
 			check(where1.clause.value, DFSQLEquivalence.lessThan);
@@ -719,12 +721,12 @@ public class DFSQL
 	//MARK: - JOIN Constructors
 
 	/**
-	 JOIN statement convenience method
-	 - Parameter table: the table to join on
-	 - Parameter attribute: the left hand side of the clause
-	 - Parameter value: the right hand side of the clause
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used, is empty, or if the `table` | `attribute` is greater than 64 characters in length
+	 * JOIN statement convenience method
+	 * - Parameter table: the table to join on
+	 * - Parameter attribute: the left hand side of the clause
+	 * - Parameter value: the right hand side of the clause
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used, is empty, or if the `table` | `attribute` is greater than 64 characters in length
 	 */
 	public DFSQL join(DFSQLJoin join, String table, String attribute, String value) throws DFSQLError
 	{
@@ -737,16 +739,16 @@ public class DFSQL
 		check(attribute);
 		check(value, DFSQLEquivalence.lessThan);
 
-		joinStatements = new InternalJoin[] { new InternalJoin(join, table, new DFSQLClause(attribute, value)) };
+		joinStatements = new InternalJoin[]{new InternalJoin(join, table, new DFSQLClause(attribute, value))};
 
 		return this;
 	}
 
 	/**
-	 JOIN statement convenience method
-	 - Parameter joins: The joins to make
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used, is empty, or if the `table` | `attribute` of any `Join` is greater than 64 characters in length
+	 * JOIN statement convenience method
+	 * - Parameter joins: The joins to make
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used, is empty, or if the `table` | `attribute` of any `Join` is greater than 64 characters in length
 	 */
 	public DFSQL join(DFSQLJoin join, Join[] joins) throws DFSQLError
 	{
@@ -769,7 +771,7 @@ public class DFSQL
 			joins1.add(new InternalJoin(join, joinnn.table, new DFSQLClause(joinnn.tableOneAttribute, joinnn.tableTwoAttribute)));
 		}
 
-		joinStatements = (InternalJoin[])joins1.toArray();
+		joinStatements = (InternalJoin[]) joins1.toArray();
 
 		return this;
 	}
@@ -777,13 +779,13 @@ public class DFSQL
 	//MARK: - WHERE Constructors
 
 	/**
-	 WHERE ...X... statement
-	 - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
-	 - Parameter equivalence: The equivalence of the statement
-	 - Parameter attribute: The left hand side of the clause
-	 - Parameter value: The right hand side of the clause
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used in an attribute, is empty, or the `attribute` is greater than 64 characters in length
+	 * WHERE ...X... statement
+	 * - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
+	 * - Parameter equivalence: The equivalence of the statement
+	 * - Parameter attribute: The left hand side of the clause
+	 * - Parameter value: The right hand side of the clause
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used in an attribute, is empty, or the `attribute` is greater than 64 characters in length
 	 */
 	public DFSQL where(DFSQLEquivalence equivalence, String attribute, String value) throws DFSQLError
 	{
@@ -803,19 +805,19 @@ public class DFSQL
 			check(value, equivalence);
 		}
 
-		whereStatements = new Where[] { new Where(DFSQLConjunction.none, equivalence, new DFSQLClause(attribute, value)) };
+		whereStatements = new Where[]{new Where(DFSQLConjunction.none, equivalence, new DFSQLClause(attribute, value))};
 
 		return this;
 	}
 
 	/**
-	 WHERE ...X...[, ...X...] statement
-	 - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
-	 - Parameter equivalence: The equivalence of each statement
-	 - Parameter attribute: The left hand side of the clause
-	 - Parameter value: The right hand side of the clause
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used in an attribute, is empty, or any `attribute` is greater than 64 characters in length
+	 * WHERE ...X...[, ...X...] statement
+	 * - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
+	 * - Parameter equivalence: The equivalence of each statement
+	 * - Parameter attribute: The left hand side of the clause
+	 * - Parameter value: The right hand side of the clause
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used in an attribute, is empty, or any `attribute` is greater than 64 characters in length
 	 */
 	public DFSQL where(DFSQLConjunction where, DFSQLEquivalence equivalence, String[] attributes, String[] values) throws DFSQLError
 	{
@@ -856,17 +858,17 @@ public class DFSQL
 
 		wheres.add(new Where(DFSQLConjunction.none, equivalence, new DFSQLClause(attributes[attributes.length - 1], values[attributes.length - 1])));
 
-		whereStatements = (Where[])wheres.toArray();
+		whereStatements = (Where[]) wheres.toArray();
 
 		return this;
 	}
 
 	/**
-	 WHERE ...X...[, ...Y...] statement
-	 - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
-	 - Parameter custom: A collection of `Where` structs.  The last `Where` struct **MUST** have `.none` as the conjunction
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `table` or `attribute` parameter of any `Where`, is empty, any `attribute` is greater than 64 characters in length, or if the last `Where` struct does not have `.none` as its conjunction
+	 * WHERE ...X...[, ...Y...] statement
+	 * - Note: Please use `WhereStatementComparesNullString` as the value if you plan to use `.isNull` or `isNotNull` for the equivalence
+	 * - Parameter custom: A collection of `Where` structs.  The last `Where` struct **MUST** have `.none` as the conjunction
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `table` or `attribute` parameter of any `Where`, is empty, any `attribute` is greater than 64 characters in length, or if the last `Where` struct does not have `.none` as its conjunction
 	 */
 	public DFSQL where(Where[] custom) throws DFSQLError
 	{
@@ -905,11 +907,11 @@ public class DFSQL
 	//MARK: - ORDER BY Constructors
 
 	/**
-	 ORDER BY ... ASC|DESC statement
-	 - Parameter attribute: The attribute to order by
-	 - Parameter direction: Order ascending or descending
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `attribute` parameter, is empty, the `attribute` is greater than 64 characters in length
+	 * ORDER BY ... ASC|DESC statement
+	 * - Parameter attribute: The attribute to order by
+	 * - Parameter direction: Order ascending or descending
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `attribute` parameter, is empty, the `attribute` is greater than 64 characters in length
 	 */
 	public DFSQL orderBy(String attribute, DFSQLOrderBy direction) throws DFSQLError
 	{
@@ -919,16 +921,16 @@ public class DFSQL
 		}
 		check(attribute);
 
-		orderByStatements = new OrderBy[] { new OrderBy(attribute, direction) };
+		orderByStatements = new OrderBy[]{new OrderBy(attribute, direction)};
 
 		return this;
 	}
 
 	/**
-	 ORDER BY ... ASC|DESC[, ... ASC|DESC] statement
-	 - Parameter attributes: The attributes and directions to order by
-	 - Returns: An instance of `MSSQL`
-	 - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `attribute` parameter of any `OrderBy`, is empty, the `attribute` of any `OrderBy` is greater than 64 characters in length
+	 * ORDER BY ... ASC|DESC[, ... ASC|DESC] statement
+	 * - Parameter attributes: The attributes and directions to order by
+	 * - Returns: An instance of `MSSQL`
+	 * - Throws: `MSSQLError` If a parameter is null, already exists, `*` is used as the `attribute` parameter of any `OrderBy`, is empty, the `attribute` of any `OrderBy` is greater than 64 characters in length
 	 */
 	public DFSQL orderBy(OrderBy[] attributes) throws DFSQLError
 	{
@@ -965,12 +967,12 @@ public class DFSQL
 	//MARK: - LIMIT Constructor
 
 	/**
-	 LIMIT X statement
-
-	 Can only be used with SELECT statements
-	 - Parameter num: the limit of rows to return for display.  Must be greater than 0
-	 - Throws: `MSSQLError` if `num` is less than 1
-	 - Returns: An instance of `MSSQL`
+	 * LIMIT X statement
+	 * <p>
+	 * Can only be used with SELECT statements
+	 * - Parameter num: the limit of rows to return for display.  Must be greater than 0
+	 * - Throws: `MSSQLError` if `num` is less than 1
+	 * - Returns: An instance of `MSSQL`
 	 */
 	public DFSQL limit(int num) throws DFSQLError
 	{
@@ -984,6 +986,31 @@ public class DFSQL
 		}
 
 		limitNum = num;
+		return this;
+	}
+
+	//MARK: - OFFSET Constructor
+
+	/**
+	 * OFFSET X statement
+	 * <p>
+	 * Can only be used with SELECT statements
+	 * - Parameter num: the offset of rows to return for display.  Must be greater than 0
+	 * - Throws: `MSSQLError` if `num` is less than 1
+	 * - Returns: An instance of `MSSQL`
+	 */
+	public DFSQL offset(int num) throws DFSQLError
+	{
+		if (offsetNum != -1)
+		{
+			throw DFSQLError.conditionAlreadyExists;
+		}
+		if (num <= 0)
+		{
+			throw DFSQLError.unexpectedValueFound;
+		}
+
+		offsetNum = num;
 		return this;
 	}
 }
