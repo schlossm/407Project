@@ -31,7 +31,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	public static Window current;
 
 	JFrame loginFrame;
-	public ALJPanel activePanel;
+	private ALJPanel activePanel;
 	private ALJPanel container;
 	private ABCTabBar tabBar;
 	private Login loginPanel;

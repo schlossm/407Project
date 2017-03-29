@@ -14,13 +14,13 @@ import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
 
-public class CourseView extends ALJPanel
+class CourseView extends ALJPanel
 {
-	private CourseViewTabBar tabBar;
+	private final CourseViewTabBar tabBar;
 
 	public Course courseToView;
 
-	private JLabel title;
+	private final JLabel title;
 	private ALJPanel activePanel;
 
 	CourseView(Course course)
@@ -90,12 +90,12 @@ class CourseViewTabBar extends ALJTablePanel
 {
 	CourseView parent;
 
-	private String[] options = new String[] { "Announcements", "Files", "Assignments", "Grades" };
+	private final String[] options = new String[] { "Announcements", "Files", "Assignments", "Grades" };
 
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-
+		parent.changeTab(options[index.item]);
 	}
 
 	@Override
