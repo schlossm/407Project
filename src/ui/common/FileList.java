@@ -1,11 +1,15 @@
 package ui.common;
 
 import objects.userType;
+import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
+import ui.util.ButtonType;
 import ui.util.UIVariables;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
+import javax.swing.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -30,7 +34,24 @@ class FileList extends ALJTablePanel
 	private void add()
 	{
 		Alert alert = new Alert("New File", "Choose file to upload");
+		alert.addTextField("File Name", "fileName", false);
+		alert.addButton("Choose File", ButtonType.plain, e ->
+		{
+			final JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showOpenDialog(Window.current.mainScreen);
 
+			if (returnVal == JFileChooser.APPROVE_OPTION)
+			{
+				File file = fc.getSelectedFile();
+				//This is where a real application would open the file.
+				System.out.println("Opening: " + file.getName() + ".");
+			} else {
+				System.out.println("Open command cancelled by user.");
+			}
+		}, true);
+		alert.addButton("Cancel", ButtonType.cancel, null, false);
+		alert.addButton("Upload", ButtonType.defaultType, null, false);
+		alert.show(Window.current.mainScreen);
 	}
 
 	@Override
