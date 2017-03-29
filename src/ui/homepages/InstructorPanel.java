@@ -21,15 +21,15 @@ import java.util.Objects;
 
 public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLMDelegate, DFNotificationCenterDelegate
 {
-	private ALJTable nextDueTable;
-	private ALJTable courseList;
+	private final ALJTable nextDueTable;
+	private final ALJTable courseList;
 
-	private ArrayList<TestAssignment> assignments = new ArrayList<>();
-	private ArrayList<Course> courses = new ArrayList<>();
+	private final ArrayList<TestAssignment> assignments = new ArrayList<>();
+	private final ArrayList<Course> courses = new ArrayList<>();
 
-	private JLabel coursesLabel;
+	private final JLabel coursesLabel;
 
-	private InstructorQuery instructorQuery = new InstructorQuery();
+	private final InstructorQuery instructorQuery = new InstructorQuery();
 
 	public InstructorPanel()
 	{
@@ -115,7 +115,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 		}
 		else if (table == courseList)
 		{
-			ClassCell cell = new ClassCell(ALJTableCellAccessoryViewType.delete);
+			ClassCell cell = new ClassCell();
 			cell.setCourse(courses.get(index.item));
 			return cell;
 		}

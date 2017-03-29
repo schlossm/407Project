@@ -20,11 +20,14 @@ import java.awt.event.MouseEvent;
 public class ClassCell extends ALJTableCell
 {
 	private Course course;
-	private JLabel detailLabelOne, detailLabelTwo, detailLabelThree, detailLabelFour;
+	private final JLabel detailLabelOne;
+	private final JLabel detailLabelTwo;
+	private final JLabel detailLabelThree;
+	private final JLabel detailLabelFour;
 
-	public ClassCell(ALJTableCellAccessoryViewType accessoryViewType)
+	public ClassCell()
 	{
-		super(accessoryViewType);
+		super(ALJTableCellAccessoryViewType.delete);
 
 		removeConstraintsFor(titleLabel);
 

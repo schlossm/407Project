@@ -16,8 +16,11 @@ public class FileUpload implements Serializable {
         // empty constructor
     }
 
-    public FileUpload(String location) {
-        // TODO: Load file from DB
+    public FileUpload(String name, String location, int courseID, boolean isPrivate) {
+        this.name = name;
+        this.location = location;
+        this.courseID = courseID;
+        this.isPrivate = isPrivate;
     }
 
     public String getName() {

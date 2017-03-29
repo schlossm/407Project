@@ -22,7 +22,7 @@ enum Process
 {
 	none, loadingCourse, loadingTeacher, loadingStudent,
 	deleteTeacher, deleteCourse, deleteStudent,
-	addTeacher, addCourse, addStudent;
+	addTeacher, addCourse, addStudent
 }
 
 public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDelegate
@@ -31,9 +31,9 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 
 	private final Map<String, ArrayList<Object>> tableData = new HashMap<>();
 
-	private CourseQuery courseQuery = new CourseQuery();
+	private final CourseQuery courseQuery = new CourseQuery();
 	private StudentQuery studentQuery = new StudentQuery();
-	private UserQuery userQuery = new UserQuery();
+	private final UserQuery userQuery = new UserQuery();
 	private InstructorQuery instructorQuery = new InstructorQuery();
 
 	private Process currentProcess = Process.none;
@@ -205,7 +205,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	{
 		if (groupToManage == Group.courses && index.section > 0)
 		{
-			ClassCell newCell = new ClassCell(ALJTableCellAccessoryViewType.delete);
+			ClassCell newCell = new ClassCell();
 			Course course = (Course) (tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
 			newCell.setCourse(course);
 			return newCell;

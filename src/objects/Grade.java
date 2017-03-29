@@ -17,18 +17,18 @@ public class Grade implements Serializable {
         this.score = score;
     }
 
-    public Grade prevGrade(String userID, int assignmentID) {
-        // TODO: get previously-created grade with these attributes from the DB
+    /*public Grade prevGrade(String userID, int assignmentID) {
+        // constructor canceled: get previously-created grade with these attributes from the DB
         return null;
-    }
+    }*/
 
     public String getScore() {
         return this.score;
     }
 
+    // NOTE: does not change value in DB
     public void setScore(String newScore) {
         this.score = newScore;
-        // TODO: set score in DB
     }
 
     public String getUserID() {
