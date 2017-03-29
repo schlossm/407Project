@@ -2,6 +2,7 @@ package ui;
 
 import net.sf.plist.NSBoolean;
 import net.sf.plist.NSString;
+import objects.Course;
 import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
@@ -237,31 +238,9 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		{
 			case "Announcements":
 			{
-				switch (UIVariables.current.currentUser.getUserType())
-				{
-					case TA:
-					{
-						break;
-					}
-
-					case ADMIN:
-					{
-						if (activePanel instanceof AdminAnnouncements)
-						{
-							return;
-						}
-						container.remove(activePanel);
-						activePanel = new AdminAnnouncements();
-						break;
-					}
-
-					case TEACHER:
-					{
-						break;
-					}
-
-					default: return;
-				}
+				if (activePanel instanceof AdminAnnouncements) { return; }
+				container.remove(activePanel);
+				activePanel = new AdminAnnouncements();
 				break;
 			}
 			case "Manage Teachers":
@@ -347,6 +326,17 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 				}
 				container.remove(activePanel);
 				activePanel = new Settings();
+				break;
+			}
+
+			case "My Courses":
+			{
+				if (activePanel instanceof CourseView)
+				{
+					return;
+				}
+				container.remove(activePanel);
+				activePanel = new CourseView(Course.testCourse);
 				break;
 			}
 
