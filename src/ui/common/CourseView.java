@@ -1,4 +1,4 @@
-package ui;
+package ui.common;
 
 import objects.Course;
 import objects.userType;
@@ -14,7 +14,7 @@ import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
 
-class CourseView extends ALJPanel
+public class CourseView extends ALJPanel
 {
 	private final CourseViewTabBar tabBar;
 
@@ -23,7 +23,7 @@ class CourseView extends ALJPanel
 	private final JLabel title;
 	private ALJPanel activePanel;
 
-	CourseView(Course course)
+	public CourseView(Course course)
 	{
 		courseToView = course;
 
@@ -50,7 +50,7 @@ class CourseView extends ALJPanel
 		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, tabBar, LayoutAttribute.trailing, 1, 8));
 		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1, 20));
 		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1, 0));
-		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1, 0));
+		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1, 0));
 	}
 
 	void changeTab(String newTab)
@@ -70,19 +70,34 @@ class CourseView extends ALJPanel
 				break;
 			}
 
+			case "Files":
+			{
+				if (!(activePanel instanceof FileList))
+				{
+					newPanel = new FileList();
+				}
+				break;
+			}
+
 			default:
 			{
-				System.err.println(newTab + "has not been implemented yet.  I feel like this is dêjá vu.");
+				System.err.println(newTab + " has not been implemented yet.  I feel like this is dêjá vu.");
 				return;
 			}
 		}
 
+		remove(activePanel);
 		add(newPanel);
 		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.leading, LayoutRelation.equal, tabBar, LayoutAttribute.trailing, 1, 8));
 		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1, 20));
 		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1, 0));
-		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.bottom, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1, 0));
+		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1, 0));
 		activePanel = newPanel;
+
+		layoutSubviews();
+		activePanel.layoutSubviews();
+		activePanel.repaint();
+		activePanel.layoutSubviews();
 	}
 }
 

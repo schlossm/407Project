@@ -7,6 +7,7 @@ import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
+import ui.common.CourseView;
 import ui.util.ABCTabBar;
 import ui.util.Bounds;
 import ui.util.UIStrings;
