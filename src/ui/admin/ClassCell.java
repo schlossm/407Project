@@ -1,11 +1,11 @@
 package ui.admin;
 
 import objects.Course;
-import ui.util.Alert;
-import ui.util.ButtonType;
 import ui.Window;
 import ui.util.ALJTable.ALJTableCell;
 import ui.util.ALJTable.ALJTableCellAccessoryViewType;
+import ui.util.Alert;
+import ui.util.ButtonType;
 import ui.util.MLMEventType;
 import ui.util.MouseListenerManager;
 import uikit.UIFont;
