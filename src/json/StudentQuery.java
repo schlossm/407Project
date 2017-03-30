@@ -26,15 +26,16 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
      */
     public void getCourses(String userid) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"courseid"};
+        String selectedRows[] = {"courses.id", "courses.courseid", "courses.coursename"};
         String table1 = "coursestudentmembership";
         String table2 = "students";
-        String table3 = "";
+        String table3 = "courses";
         getCoursesReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table1)
                     .join(DFSQLJoin.left, table2, table1 + ".studentid", table2 + ".id")
+                    .join(DFSQLJoin.left, table3, table3 + ".id", table1 + ".courseid")
                     .where(DFSQLEquivalence.equals, table2 + ".userid", "" + userid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError dfsqlError) {
@@ -50,11 +51,11 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
      */
     public void getGrade(int assignmentid, String userid) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid"}; //username
+        String selectedRows[] = {"assignmentid", "grade"};
         String table1 = "grades";
         String table2 = "students";
         String[] attributes = {"userid", "assignmentid"};
-        String[] values = {"" + userid, "" + assignmentid};
+        String[] values = {userid, "" + assignmentid};
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table1)
@@ -63,6 +64,31 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
+        }
+    }
+
+    /**
+     * get all grades in a course for a user given their userid and courseid(1111)
+     * @param userid
+     * @param courseid
+     */
+    public void getAllGradesInCourse(String userid, int courseid) {
+        DFSQL dfsql = new DFSQL();
+        String selectedRows[] = {"assignmentid", "name", "courseid", "maxpoint", "grade"};
+        String table1 = "grades";
+        String table2 = "assignment";
+        String table3 = "students";
+        String[] attributes = {"students.userid", "grade.courseid"};
+        String[] values = {userid, "" + courseid};
+        try {
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, table2, "assignment.assignmentid", "grades.assignmentid")
+                    .join(DFSQLJoin.left, table3, "coursestudentmembership.studentid", "grade.studentid")
+                    .where(DFSQLConjunction.and, DFSQLEquivalence.equals, attributes, values);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
         }
     }
 
@@ -78,7 +104,7 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
         String table1 = "grades";
         String table2 = "assignment";
         String table3 = "students";
-        String[] attributes = {"userid", "courseid"};
+        String[] attributes = {"userid", "grades.courseid"};
         String[] values = {"" + userid, "" + courseid};
         try {
             dfsql.select(selectedRows, false, null, null).from(table1)
@@ -123,7 +149,8 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
             getCoursesReturn = false;
         } else if(getCourseGradeReturn){
 
-            int courseId = 0;
+            int courseId = -1;
+            String courseTitle = "", courseName = "", description = "", roomNo = "", meetingTime = "", startDate = "", endDate = "";
             int userTypeInt = 0;
             try {
                 courseId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();

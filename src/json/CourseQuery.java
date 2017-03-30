@@ -30,27 +30,68 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     private String bufferString;
     private boolean verifyUserLoginReturn;
 
-
-    public void getAllStudents(int offset) {
+    /**
+     * get all students
+     * @param limit
+     * @param offset
+     */
+    public void getAllStudents(int limit, int offset) {
         DFSQL dfsql = new DFSQL();
-        getCourseReturn = true;
-        String[] selectedRows = {};
+        String[] selectedRows = {"student.userid", "email", "firstname", "lastname", "password", "birthday"};
+        String table1 = "students";
+        String table2 = "users";
         try {
             dfsql.select(selectedRows, false, null, null)
-                    .from("courses")
-                    .limit(100);
+                    .from(table1)
+                    .join(DFSQLJoin.left, table2, "students.userid", "users.userid")
+                    .limit(limit)
+                    .offset(offset);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
     }
 
-    public void getAllInstructors(int offset) {
-
+    /**
+     * get all instructors
+     * @param limit
+     * @param offset
+     */
+    public void getAllInstructors(int limit, int offset) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectedRows = {"instructor.userid", "email", "firstname", "lastname", "password", "birthday", "officehours", "roomno"};
+        String table1 = "instructor";
+        String table2 = "users";
+        try {
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, table2, "instructor.userid", "users.userid")
+                    .limit(limit)
+                    .offset(offset);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
     }
 
-    public void getAllCourses(int offset) {
-
+    /**
+     * get all courses
+     * @param limit
+     * @param offset
+     */
+    public void getAllCourses(int limit, int offset) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectRows = {"id", "courseid", "capacity", "description", "roomno", "meetingtime", "startdate", "enddate"};
+        String table = "courses";
+        try {
+            dfsql.select(selectRows, false, null, null)
+                    .from(table)
+                    .limit(limit)
+                    .offset(offset);
+            DFDatabase.defaultDatabase.execute(dfsql, this);
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
     }
     /**
      * Method to get info of a course given courseID
@@ -327,7 +368,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * Return a list of all ids of an assignment
      * @param courseid courseid such as 1111 of the course
      */
-    public void getAllAssignments(int courseid) {
+    public void getAllAssignmentsInCourse(int courseid) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"assignmentid"};
         String table = "assignment";
