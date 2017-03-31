@@ -72,7 +72,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
             debugLog(dfsql.formattedStatement());
             DFDatabase.defaultDatabase.execute(dfsql, this);
-            dfsql.insert("students", rows, values);
+            dfsql.insert("students", values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
@@ -115,7 +115,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
             debugLog(dfsql.formattedStatement());
             DFDatabase.defaultDatabase.execute(dfsql, this);
-            dfsql.insert("instructor", rows, values);
+            dfsql.insert("instructor", values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError e1) {
             e1.printStackTrace();
