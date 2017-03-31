@@ -1,12 +1,15 @@
 package ui.instructor;
 
-import json.CourseQuery;
+import json.AnnouncementQuery;
 import objects.Course;
 import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
 import ui.util.ButtonType;
+import ui.util.UIStrings;
 import ui.util.UIVariables;
+import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -17,15 +20,16 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings("unchecked")
-public class InstructorAnnouncements extends ALJTablePanel
+public class InstructorAnnouncements extends ALJTablePanel implements DFNotificationCenterDelegate
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
 
 	private Course courseForAnnouncements;
 
-	private CourseQuery query = new CourseQuery();
+	private AnnouncementQuery query = new AnnouncementQuery();
 
 	private JLabel loadingLabel;
 
@@ -50,7 +54,8 @@ public class InstructorAnnouncements extends ALJTablePanel
 			announcementData.put("Announcements", savedAnnouncements);
 		}
 
-		//TODO: Load proper data from database and save it
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
+		query.getAllAnnouncementInCourse(course.getCourseID());
 	}
 
 	private void updateSavedInfo()
@@ -158,6 +163,18 @@ public class InstructorAnnouncements extends ALJTablePanel
 
 	@Override
 	public void tableView(ALJTable tableView, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt) { }
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+		if (Objects.equals(notificationName, UIStrings.returned))
+		{
+			if (userData != null)
+			{
+				remove(loadingLabel);
+			}
+		}
+	}
 }
 
 class TestAnnouncement

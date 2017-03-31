@@ -1,18 +1,25 @@
 package ui.admin;
 
-import ui.util.Alert;
-import ui.util.ButtonType;
+import json.AnnouncementQuery;
 import ui.Window;
 import ui.util.ALJTable.*;
+import ui.util.Alert;
+import ui.util.ButtonType;
+import ui.util.UIStrings;
+import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public class AdminAnnouncements extends ALJTablePanel
+public class AdminAnnouncements extends ALJTablePanel implements DFNotificationCenterDelegate
 {
 	private final Map<String, ArrayList<String>> announcementData = new HashMap<>();
+
+	private AnnouncementQuery announcementQuery = new AnnouncementQuery();
 
 	public AdminAnnouncements()
 	{
@@ -22,7 +29,8 @@ public class AdminAnnouncements extends ALJTablePanel
 		starter.add("New Announcement");
 		announcementData.put("", starter);
 
-		//TODO: Load proper data from database and save it
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
+		announcementQuery.getAllAnnouncementInCourse(-1);
 	}
 
 	private void add()
@@ -102,4 +110,16 @@ public class AdminAnnouncements extends ALJTablePanel
 
 	@Override
 	public void tableView(ALJTable tableView, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt) { }
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+		if (Objects.equals(notificationName, UIStrings.returned))
+		{
+			if (userData != null)
+			{
+
+			}
+		}
+	}
 }

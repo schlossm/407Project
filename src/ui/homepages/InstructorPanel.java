@@ -3,8 +3,8 @@ package ui.homepages;
 import json.InstructorQuery;
 import objects.Course;
 import ui.admin.ClassCell;
-import ui.util.*;
 import ui.util.ALJTable.*;
+import ui.util.*;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
@@ -17,8 +17,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("unchecked")
 public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLMDelegate, DFNotificationCenterDelegate
 {
 	private final ALJTable nextDueTable;
@@ -66,6 +68,11 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 		assignment.numberOfPeopleCompleted = 24;
 		assignment.title = "Homework 1";
 		assignments.add(assignment);
+
+		if (UIVariables.current.globalUserData.get("allCourses") != null)
+		{
+			courses.addAll((ArrayList<Course>)UIVariables.current.globalUserData.get("allCourses"));
+		}
 
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
 		instructorQuery.getCourses(UIVariables.current.currentUser.getUserID());
@@ -154,7 +161,10 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 		{
 			try
 			{
-				String[][] courseInfo = (String[][])userData;
+				Course[] courseInfo = (Course[])userData;
+				courses.addAll(List.of(courseInfo));
+				UIVariables.current.globalUserData.put("allCourses", courses);
+				courseList.reloadData();
 			}
 			catch (Exception ignored) { }
 
