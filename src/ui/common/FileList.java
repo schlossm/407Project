@@ -1,11 +1,16 @@
 package ui.common;
 
+import json.DocumentsQuery;
+import objects.Course;
 import objects.userType;
 import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
 import ui.util.ButtonType;
+import ui.util.UIStrings;
 import ui.util.UIVariables;
+import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
 import uikit.autolayout.LayoutRelation;
@@ -18,18 +23,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
-class FileList extends ALJTablePanel
+class FileList extends ALJTablePanel implements DFNotificationCenterDelegate
 {
 	private Map<String, ArrayList<Object>> fileListData = new HashMap<>();
 
-	FileList()
+	private DocumentsQuery query = new DocumentsQuery();
+
+	private Runnable workToDoOnSuccess = null;
+	private Runnable workToDoOnFailure = null;
+
+	Course course;
+
+	FileList(Course course)
 	{
+		this.course = course;
 		if (isInstructor())
 		{
 			ArrayList<Object> beginner = new ArrayList<>();
@@ -42,7 +52,15 @@ class FileList extends ALJTablePanel
 			fileListData.put("Files", (ArrayList<Object>)UIVariables.current.globalUserData.get("files"));
 		}
 
-		//TODO: Actually load files
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
+		query.getAllDocumentsIdsInCourse(course.getCourseID());
+	}
+
+	@Override
+	public void removeNotify()
+	{
+		super.removeNotify();
+		DFNotificationCenter.defaultCenter.remove(this);
 	}
 
 	private void updateSavedInfo()
@@ -72,32 +90,44 @@ class FileList extends ALJTablePanel
 		alert.addButton("Cancel", ButtonType.cancel, null, false);
 		alert.addButton("Upload", ButtonType.defaultType, e ->
 		{
-			//TODO: Upload File
-			if (fileListData.get("Files") != null)
+			//FIXME: implement method after it's updated
+			query.addDocument();
+			workToDoOnSuccess = () ->
 			{
-				FileListFileInfo fileInfo = new FileListFileInfo();
-				fileInfo.file = tempFile.toPath();
-				fileInfo.name = alert.textFieldForIdentifier("fileName").getText();
-				fileInfo.isPrivate = alert.getCheckBoxForIdentifier("private").isSelected();
-				fileListData.get("Files").add(fileInfo);
-				updateSavedInfo();
-			}
-			else
+				if (fileListData.get("Files") != null)
+				{
+					FileListFileInfo fileInfo = new FileListFileInfo();
+					fileInfo.file = tempFile.toPath();
+					fileInfo.name = alert.textFieldForIdentifier("fileName").getText();
+					fileInfo.isPrivate = alert.getCheckBoxForIdentifier("private").isSelected();
+					fileListData.get("Files").add(fileInfo);
+					updateSavedInfo();
+				}
+				else
+				{
+					ArrayList<Object> arrayList = new ArrayList<>();
+					FileListFileInfo fileInfo = new FileListFileInfo();
+					fileInfo.file = tempFile.toPath();
+					fileInfo.name = alert.textFieldForIdentifier("fileName").getText();
+					fileInfo.isPrivate = alert.getCheckBoxForIdentifier("private").isSelected();
+					arrayList.add(fileInfo);
+					fileListData.put("Files", arrayList);
+					updateSavedInfo();
+				}
+
+				tempFile = null;
+				table.reloadData();
+				alert.dispose();
+			};
+
+			workToDoOnFailure = () ->
 			{
-				ArrayList<Object> arrayList = new ArrayList<>();
-				FileListFileInfo fileInfo = new FileListFileInfo();
-				fileInfo.file = tempFile.toPath();
-				fileInfo.name = alert.textFieldForIdentifier("fileName").getText();
-				fileInfo.isPrivate = alert.getCheckBoxForIdentifier("private").isSelected();
-				arrayList.add(fileInfo);
-				fileListData.put("Files", arrayList);
-				updateSavedInfo();
-			}
-
-			tempFile = null;
-
-			table.reloadData();
-		}, false);
+				Alert errorAlert = new Alert("Error", "ABC could not add the file.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+			};
+			workToDoOnSuccess.run();
+		}, true);
 		alert.show(Window.current.mainScreen);
 	}
 
@@ -110,6 +140,7 @@ class FileList extends ALJTablePanel
 		}
 		else
 		{
+			//TODO: Fix this.  Will need to download the file instead of just copying.
 			Path file = ((FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).file;
 
 			File destinationCopy = new File(UIVariables.current.applicationDirectories.library + file.toFile().getName());
@@ -185,6 +216,23 @@ class FileList extends ALJTablePanel
 	private boolean isInstructor()
 	{
 		return EnumSet.of(userType.TA, userType.TEACHER).contains(UIVariables.current.currentUser.getUserType());
+	}
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+		if (Objects.equals(notificationName, UIStrings.returned))
+		{
+			//TODO: Implement loading of files
+		}
+		else if (Objects.equals(notificationName, UIStrings.success))
+		{
+			workToDoOnSuccess.run();
+		}
+		else if (Objects.equals(notificationName, UIStrings.failure))
+		{
+			workToDoOnFailure.run();
+		}
 	}
 }
 
