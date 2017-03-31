@@ -1,10 +1,12 @@
 package ui.instructor;
 
+import json.CourseQuery;
 import objects.Course;
 import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
 import ui.util.ButtonType;
+import ui.util.UIVariables;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -16,11 +18,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("unchecked")
 public class InstructorAnnouncements extends ALJTablePanel
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
 
 	private Course courseForAnnouncements;
+
+	private CourseQuery query = new CourseQuery();
 
 	private JLabel loadingLabel;
 
@@ -38,7 +43,19 @@ public class InstructorAnnouncements extends ALJTablePanel
 		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.centerX, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 0));
 		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.centerY, LayoutRelation.equal, this, LayoutAttribute.centerY, 1.0, 0));
 
+		if (UIVariables.current.globalUserData.get("announcements" + course.getCourseID()) != null)
+		{
+			remove(loadingLabel);
+			ArrayList<Object> savedAnnouncements = (ArrayList<Object>)UIVariables.current.globalUserData.get("announcements" + course.getCourseID());
+			announcementData.put("Announcements", savedAnnouncements);
+		}
+
 		//TODO: Load proper data from database and save it
+	}
+
+	private void updateSavedInfo()
+	{
+		UIVariables.current.globalUserData.put("announcements" + courseForAnnouncements.getCourseID(), announcementData.get("Announcements"));
 	}
 
 	private void add()
@@ -68,6 +85,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 					announcements.add(announcement);
 					announcementData.put("Announcements", announcements);
 				}
+				updateSavedInfo();
 				table.reloadData();
 			}
 			table.reloadData();
@@ -108,7 +126,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 	@Override
 	public int heightForRow(ALJTable table, int inSection)
 	{
-		return inSection == 1 ? 90 : 44;
+		return inSection == 1 ? 106 : 44;
 	}
 
 	@Override
