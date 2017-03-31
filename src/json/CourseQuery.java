@@ -7,7 +7,6 @@ import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.Course;
-import objects.userType;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
@@ -124,7 +123,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     public boolean addCourse(int id, String courseID, String courseName, String description, String roomno, String meetingtime, String startdate, String enddate, int capacity) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate", "capacity"};
-        String[] values = {"" + id, courseID, courseName, courseName, description, roomno, meetingtime, startdate, enddate, "" + capacity};
+        String[] values = {"" + id, courseID, courseName, description, roomno, meetingtime, startdate, enddate, "" + capacity};
         try {
             dfsql.insert("courses", values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -501,11 +500,14 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         this.uploadSuccess = null;
         if(success == DFDataUploaderReturnStatus.success){
             debugLog("success uploading this");
+            DFNotificationCenter.defaultCenter.post(UIStrings.success, null);
         } else if (success == DFDataUploaderReturnStatus.failure) {
             debugLog("Failure uploading this");
+            DFNotificationCenter.defaultCenter.post(UIStrings.failure, null);
         }
         else if(success == DFDataUploaderReturnStatus.error){
             debugLog("Error uploading this");
+            DFNotificationCenter.defaultCenter.post(UIStrings.failure, null);
             DFDatabase.print(error.toString());
         } else {
             debugLog("I have no clue!");

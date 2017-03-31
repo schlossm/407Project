@@ -269,13 +269,21 @@ public class Alert implements KeyListener, MLMDelegate
 			@Override
 			public Component getComponentAfter(Container aContainer, Component aComponent)
 			{
-				return buttons.get((buttons.indexOf((JButton) aComponent) + 1) % buttons.size());
+				try
+				{
+					return buttons.get((buttons.indexOf((JButton) aComponent) + 1) % buttons.size());
+				}
+				catch (Exception ignored) { return null; }
 			}
 
 			@Override
 			public Component getComponentBefore(Container aContainer, Component aComponent)
 			{
+				try
+				{
 				return buttons.get((buttons.indexOf((JButton) aComponent) - 1) % buttons.size());
+				}
+				catch (Exception ignored) { return null; }
 			}
 
 			@Override

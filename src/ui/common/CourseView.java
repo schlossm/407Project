@@ -75,7 +75,7 @@ public class CourseView extends ALJPanel
 			{
 				if (!(activePanel instanceof FileList))
 				{
-					newPanel = new FileList();
+					newPanel = new FileList(courseToView);
 				}
 				else return;
 				break;

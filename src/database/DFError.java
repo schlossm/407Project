@@ -24,7 +24,7 @@ public class DFError
 	 * Optional user information.  Strings only
 	 */
 	private final Map<String, String> userInfo;
-	
+
 	public DFError(int code, String description, Map<String, String> userInfo)
 	{
 		this.code = code;
@@ -35,6 +35,6 @@ public class DFError
 	@Override
 	public String toString()
 	{
-		return "Error: " + String.valueOf(code) + ".\nDescription: " + description + "\nUser Info: " + userInfo.toString();
+		return "Error Code: " + String.valueOf(code) + ".\nError Description: " + description + "\nError Info: " + userInfo.toString();
 	}
 }
