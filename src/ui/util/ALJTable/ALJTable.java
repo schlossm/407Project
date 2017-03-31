@@ -1,5 +1,7 @@
 package ui.util.ALJTable;
 
+import ui.util.UIStrings;
+import uikit.DFNotificationCenter;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -9,10 +11,7 @@ import uikit.autolayout.uiobjects.ALJPanel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.Objects;
 
 import static uikit.autolayout.LayoutEngine.getClassAndHashCode;
@@ -31,26 +30,33 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 	public ALJTable()
 	{
 		setBackground(Color.white);
-		setBorder(new EmptyBorder(0,0,0,0));
+		setBorder(new EmptyBorder(0, 0, 0, 0));
 		tableView = new ALJPanel();
 		tableView.setBackground(Color.white);
 
 		scrollPane = new JScrollPane();
-		scrollPane.setBorder(new EmptyBorder(0,0,0,0));
-		ScrollPaneLayout layout = (ScrollPaneLayout)(scrollPane.getLayout());
+		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		ScrollPaneLayout layout = (ScrollPaneLayout) (scrollPane.getLayout());
 		layout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		layout.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 		scrollPane.getVerticalScrollBar().setVisible(false);
 		scrollPane.setWheelScrollingEnabled(true);
 		add(scrollPane);
+		scrollPane.getVerticalScrollBar().addAdjustmentListener(e ->
+		                                                        {
+			                                                        if (e.getValue() == scrollPane.getVerticalScrollBar().getMaximum() - 100)
+			                                                        {
+				                                                        DFNotificationCenter.defaultCenter.post(UIStrings.aLJTablePaneNearEndNotification, null);
+			                                                        }
+		                                                        });
 
 		scrollPane.getViewport().add(tableView);
 
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading,     LayoutRelation.equal, this, LayoutAttribute.leading,    1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top,         LayoutRelation.equal, this, LayoutAttribute.top,        1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing,    LayoutRelation.equal, this, LayoutAttribute.trailing,   1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom,      LayoutRelation.equal, this, LayoutAttribute.bottom,     1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 	}
 
 	public boolean isLoaded()
@@ -64,11 +70,11 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 
 		tableView.setPreferredSize(new Dimension(scrollPane.getBounds().width, tableView.calculatedHeight()));
 		tableView.layoutSubviews();
-		tableView.setBounds(0,0,getBounds().width, 1000000);
+		tableView.setBounds(0, 0, getBounds().width, 1000000);
 		tableView.layoutSubviews();
-		tableView.setBounds(0,0,getBounds().width, tableView.calculatedHeight());
+		tableView.setBounds(0, 0, getBounds().width, tableView.calculatedHeight());
 		tableView.layoutSubviews();
-		tableView.setBounds(0,0,getBounds().width, tableView.calculatedHeight());
+		tableView.setBounds(0, 0, getBounds().width, tableView.calculatedHeight());
 	}
 
 	private void clearAndReload()
@@ -127,7 +133,8 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 				int finalSection = section;
 				int finalItem = item;
 				ALJTable table = this;
-				cell.addMouseListener(new MouseListener() {
+				cell.addMouseListener(new MouseListener()
+				{
 					@Override
 					public void mouseClicked(MouseEvent e)
 					{
@@ -143,7 +150,8 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 					@Override
 					public void mouseReleased(MouseEvent e)
 					{
-						if (delegate != null) delegate.didSelectItemAtIndexInTable(table, new ALJTableIndex(finalSection, finalItem));
+						if (delegate != null)
+						{ delegate.didSelectItemAtIndexInTable(table, new ALJTableIndex(finalSection, finalItem)); }
 					}
 
 					@Override
@@ -159,12 +167,12 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 					}
 				});
 
-				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.leading,  LayoutRelation.equal, tableView,   LayoutAttribute.leading,  1.0, 0));
-				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.trailing, LayoutRelation.equal, tableView,   LayoutAttribute.trailing, 1.0, 0));
+				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.leading, LayoutRelation.equal, tableView, LayoutAttribute.leading, 1.0, 0));
+				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.trailing, LayoutRelation.equal, tableView, LayoutAttribute.trailing, 1.0, 0));
 
 				if (dataSource.heightForRow(this, section) != -1)
 				{
-					tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.height, LayoutRelation.equal, null,   LayoutAttribute.height, 1.0, dataSource.heightForRow(this, section)));
+					tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.height, LayoutRelation.equal, null, LayoutAttribute.height, 1.0, dataSource.heightForRow(this, section)));
 				}
 				else
 				{
@@ -190,7 +198,8 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 			}
 		}
 
-		if (previous != null) setPreferredSize(new Dimension(tableView.getPreferredSize().width, previous.getBounds().y + previous.getPreferredSize().height));
+		if (previous != null)
+		{ setPreferredSize(new Dimension(tableView.getPreferredSize().width, previous.getBounds().y + previous.getPreferredSize().height)); }
 		_isLoaded = true;
 		layoutSubviews();
 	}
@@ -220,7 +229,7 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 		{
 			case none:
 			{
-				if (delegate != null) delegate.didSelectItemAtIndexInTable(this, atIndex);
+				if (delegate != null) { delegate.didSelectItemAtIndexInTable(this, atIndex); }
 				break;
 			}
 
@@ -233,13 +242,13 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 
 			case detail:
 			{
-				if (delegate != null) delegate.didSelectItemAtIndexInTable(this, atIndex);
+				if (delegate != null) { delegate.didSelectItemAtIndexInTable(this, atIndex); }
 				break;
 			}
 
 			case info:
 			{
-				if (delegate != null) delegate.didSelectItemAtIndexInTable(this, atIndex);
+				if (delegate != null) { delegate.didSelectItemAtIndexInTable(this, atIndex); }
 				break;
 			}
 

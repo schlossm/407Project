@@ -313,7 +313,7 @@ public class DFSQL
 		{
 			if (!row.contains("(") && !row.contains(")"))
 			{
-				returnStringBuilder.append("`").append(row).append("`,");
+				returnStringBuilder.append(row).append(",");
 			}
 			else
 			{
@@ -339,19 +339,7 @@ public class DFSQL
 				final String left = join.clause.attribute;
 				String right = join.clause.value;
 
-				boolean isNum = false;
-				try
-				{
-					parseInt(right);
-					isNum = true;
-				}
-				catch (Exception ignored) { }
-				if (right.contains(" ") || !isNum)
-				{
-					right = "'" + right + "',";
-				}
-
-				returnStringBuilder.append(join.joinType).append(" JOIN `").append(join.table).append(join.joinType != DFSQLJoin.natural ? ("` ON `" + left + "=" + right) : "`");
+				returnStringBuilder.append(join.joinType).append(" JOIN `").append(join.table).append(join.joinType != DFSQLJoin.natural ? ("` ON " + left + "=" + right) : "`");
 			}
 			returnString = returnStringBuilder.toString();
 		}
@@ -771,7 +759,7 @@ public class DFSQL
 			joins1.add(new InternalJoin(join, joinnn.table, new DFSQLClause(joinnn.tableOneAttribute, joinnn.tableTwoAttribute)));
 		}
 
-		joinStatements = (InternalJoin[]) joins1.toArray();
+		joinStatements = joins1.toArray(new InternalJoin[joins1.size()]);
 
 		return this;
 	}

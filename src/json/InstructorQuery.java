@@ -4,12 +4,8 @@ import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFError;
-import database.DFSQL.DFSQL;
-import database.DFSQL.DFSQLEquivalence;
-import database.DFSQL.DFSQLError;
-import database.DFSQL.DFSQLJoin;
+import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
-import objects.Grade;
 
 /**
  * Created by gauravsrivastava on 3/13/17.
@@ -54,11 +50,15 @@ public class InstructorQuery implements DFDatabaseCallbackDelegate {
         String table1 = "courseinstructormembership";
         String table2 = "students";
         String table3 = "courses";
+
+        Join[] joins = new Join[] {
+        new Join(table2, table1 + ".studentid", table2 + ".id"),
+        new Join(table3, table3 + ".id", table1 + ".courseid") };
+
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table1)
-                    .join(DFSQLJoin.left, table2, table1 + ".studentid", table2 + ".id")
-                    .join(DFSQLJoin.left, table3, table3 + ".id", table1 + ".courseid")
+                    .join(DFSQLJoin.left, joins)
                     .where(DFSQLEquivalence.equals, table2 + ".userid",  userid);
             DFDatabase.defaultDatabase.execute(dfsql, this);
         } catch (DFSQLError dfsqlError) {
