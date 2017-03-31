@@ -18,7 +18,7 @@ public class CourseView extends ALJPanel
 {
 	private final CourseViewTabBar tabBar;
 
-	public Course courseToView;
+	private Course courseToView;
 
 	private final JLabel title;
 	private ALJPanel activePanel;
@@ -67,6 +67,7 @@ public class CourseView extends ALJPanel
 						newPanel = new InstructorAnnouncements(courseToView);
 					}
 				}
+				else return;
 				break;
 			}
 
@@ -76,6 +77,7 @@ public class CourseView extends ALJPanel
 				{
 					newPanel = new FileList();
 				}
+				else return;
 				break;
 			}
 

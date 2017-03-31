@@ -1,10 +1,15 @@
 package ui.instructor;
 
+import json.AnnouncementQuery;
 import objects.Course;
 import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
 import ui.util.ButtonType;
+import ui.util.UIStrings;
+import ui.util.UIVariables;
+import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -12,15 +17,19 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class InstructorAnnouncements extends ALJTablePanel
+@SuppressWarnings("unchecked")
+public class InstructorAnnouncements extends ALJTablePanel implements DFNotificationCenterDelegate
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
 
 	private Course courseForAnnouncements;
+
+	private AnnouncementQuery query = new AnnouncementQuery();
+
+	private Runnable workToDoOnSuccess = null;
+	private Runnable workToDoOnFailure = null;
 
 	private JLabel loadingLabel;
 
@@ -38,7 +47,22 @@ public class InstructorAnnouncements extends ALJTablePanel
 		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.centerX, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 0));
 		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.centerY, LayoutRelation.equal, this, LayoutAttribute.centerY, 1.0, 0));
 
-		//TODO: Load proper data from database and save it
+		if (UIVariables.current.globalUserData.get("announcements" + course.getCourseID()) != null)
+		{
+			remove(loadingLabel);
+			ArrayList<Object> savedAnnouncements = (ArrayList<Object>) UIVariables.current.globalUserData.get("announcements" + course.getCourseID());
+			announcementData.put("Announcements", savedAnnouncements);
+		}
+
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.success);
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.failure);
+		query.getAllAnnouncementInCourse(course.getCourseID());
+	}
+
+	private void updateSavedInfo()
+	{
+		UIVariables.current.globalUserData.put("announcements" + courseForAnnouncements.getCourseID(), announcementData.get("Announcements"));
 	}
 
 	private void add()
@@ -46,10 +70,9 @@ public class InstructorAnnouncements extends ALJTablePanel
 		Alert alert = new Alert("New Announcement", "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
-			//TODO: Upload this announcement
-			if (announcementData.get("Announcements") != null)
-				announcementData.get("Announcements").add(alert.textFieldForIdentifier("title").getText() + ": " + alert.textFieldForIdentifier("body").getText());
-			else
+			query.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), new Date().toString(), UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());
+
+			workToDoOnSuccess = () ->
 			{
 				TestAnnouncement announcement = new TestAnnouncement();
 				announcement.title = alert.textFieldForIdentifier("title").getText();
@@ -68,11 +91,17 @@ public class InstructorAnnouncements extends ALJTablePanel
 					announcements.add(announcement);
 					announcementData.put("Announcements", announcements);
 				}
+				updateSavedInfo();
 				table.reloadData();
-			}
-			table.reloadData();
-			layoutSubviews();
-			alert.dispose();
+				layoutSubviews();
+				alert.dispose();
+			};
+			workToDoOnFailure = () ->
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+			};
 		}, true);
 		alert.addButton("Cancel", ButtonType.cancel, null, false);
 
@@ -108,7 +137,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 	@Override
 	public int heightForRow(ALJTable table, int inSection)
 	{
-		return inSection == 1 ? 90 : 44;
+		return inSection == 1 ? 106 : 44;
 	}
 
 	@Override
@@ -129,7 +158,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 	@Override
 	public String titleForHeaderInSectionInTable(ALJTable table, int section)
 	{
-		return (String)announcementData.keySet().toArray()[section];
+		return (String) announcementData.keySet().toArray()[section];
 	}
 
 	@Override
@@ -140,6 +169,26 @@ public class InstructorAnnouncements extends ALJTablePanel
 
 	@Override
 	public void tableView(ALJTable tableView, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt) { }
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+		if (Objects.equals(notificationName, UIStrings.returned))
+		{
+			if (userData != null)
+			{
+				remove(loadingLabel);
+			}
+		}
+		else if (Objects.equals(notificationName, UIStrings.success))
+		{
+			workToDoOnSuccess.run();
+		}
+		else if (Objects.equals(notificationName, UIStrings.failure))
+		{
+			workToDoOnFailure.run();
+		}
+	}
 }
 
 class TestAnnouncement
