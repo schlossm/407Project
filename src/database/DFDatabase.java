@@ -219,21 +219,14 @@ public class DFDatabase
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
 
-		return "`" +
-			       ste[Integer.min(ste.length - 1, Integer.max(2, 0))].getMethodName() +
-			       "(_:" +
-			       ", _:" +
-			       ")`";
+		return "`" + ste[Integer.min(ste.length - 1, Integer.max(2, 0))].getMethodName() + "`";
 	}
 
 	public  static String getMethodNameOfSuperMethod()
 	{
 		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
 
-		return "`" +
-			       ste[Integer.min(ste.length - 1, Integer.max(0, 0))].getMethodName() +
-			       "(_:" +
-			       ")`";
+		return ste[Integer.min(ste.length - 1, Integer.max(6, 0))].getClassName().split("\\.")[1] + "." + ste[Integer.min(ste.length - 1, Integer.max(6, 0))].getMethodName() + "";
 	}
 
 	public static void print(Object object)
