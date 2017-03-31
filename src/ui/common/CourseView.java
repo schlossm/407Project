@@ -67,6 +67,7 @@ public class CourseView extends ALJPanel
 						newPanel = new InstructorAnnouncements(courseToView);
 					}
 				}
+				else return;
 				break;
 			}
 
@@ -76,6 +77,7 @@ public class CourseView extends ALJPanel
 				{
 					newPanel = new FileList();
 				}
+				else return;
 				break;
 			}
 
