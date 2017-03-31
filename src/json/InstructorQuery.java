@@ -52,7 +52,7 @@ public class InstructorQuery implements DFDatabaseCallbackDelegate {
         String table3 = "courses";
 
         Join[] joins = new Join[] {
-        new Join(table2, table1 + ".studentid", table2 + ".id"),
+        new Join(table2, table1 + ".instructorid", table2 + ".id"),
         new Join(table3, table3 + ".id", table1 + ".courseid") };
 
         try {
