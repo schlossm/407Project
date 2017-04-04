@@ -1,28 +1,38 @@
 package ui.admin;
 
-import ui.util.Alert;
-import ui.util.ButtonType;
+import json.AnnouncementQuery;
+import objects.Message;
 import ui.Window;
 import ui.util.ALJTable.*;
+import ui.util.Alert;
+import ui.util.ButtonType;
+import ui.util.UIStrings;
+import ui.util.UIVariables;
+import uikit.DFNotificationCenter;
+import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class AdminAnnouncements extends ALJTablePanel
+public class AdminAnnouncements extends ALJTablePanel implements DFNotificationCenterDelegate
 {
-	private final Map<String, ArrayList<String>> announcementData = new HashMap<>();
+	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
+
+	private AnnouncementQuery announcementQuery = new AnnouncementQuery();
+
+	private Runnable workToDoOnSuccess = null;
+	private Runnable workToDoOnFailure = null;
 
 	public AdminAnnouncements()
 	{
 		super();
 
-		ArrayList<String> starter = new ArrayList<>();
+		ArrayList<Object> starter = new ArrayList<>();
 		starter.add("New Announcement");
 		announcementData.put("", starter);
 
-		//TODO: Load proper data from database and save it
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
+		announcementQuery.getAllAnnouncementInCourse(-1);
 	}
 
 	private void add()
@@ -30,18 +40,32 @@ public class AdminAnnouncements extends ALJTablePanel
 		Alert alert = new Alert("New Announcement", "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
-			//TODO: Upload this announcement
-			if (announcementData.get("Announcements") != null)
-				announcementData.get("Announcements").add(alert.textFieldForIdentifier("title").getText() + ": " + alert.textFieldForIdentifier("body").getText());
-			else
+			String timestamp = new Date().toString();
+			workToDoOnSuccess = () ->
 			{
-				ArrayList<String> data = new ArrayList<>();
-				data.add(alert.textFieldForIdentifier("title").getText() + ": " + alert.textFieldForIdentifier("body").getText());
-				announcementData.put("Announcements", data);
-			}
-			table.reloadData();
-			layoutSubviews();
-			alert.dispose();
+				if (announcementData.get("Announcements") != null)
+					announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp));
+				else
+				{
+					ArrayList<Object> data = new ArrayList<>();
+					Message message = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp);
+					data.add(message);
+					announcementData.put("Announcements", data);
+				}
+				table.reloadData();
+				alert.dispose();
+			};
+
+			workToDoOnFailure = () ->
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+			};
+
+			announcementQuery.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1);
+			workToDoOnSuccess.run();
+
 		}, true);
 		alert.addButton("Cancel", ButtonType.cancel, null, false);
 
@@ -75,6 +99,11 @@ public class AdminAnnouncements extends ALJTablePanel
 	@Override
 	public int heightForRow(ALJTable table, int inSection)
 	{
+		if (inSection == 1)
+		{
+			return 106;
+		}
+
 		return 44;
 	}
 
@@ -83,7 +112,7 @@ public class AdminAnnouncements extends ALJTablePanel
 	{
 		ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
 
-		newCell.titleLabel.setText(announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+		newCell.titleLabel.setText(((Message)announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).getTitle());
 
 		return newCell;
 	}
@@ -102,4 +131,16 @@ public class AdminAnnouncements extends ALJTablePanel
 
 	@Override
 	public void tableView(ALJTable tableView, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt) { }
+
+	@Override
+	public void performActionFor(String notificationName, Object userData)
+	{
+		if (Objects.equals(notificationName, UIStrings.returned))
+		{
+			if (userData != null)
+			{
+
+			}
+		}
+	}
 }

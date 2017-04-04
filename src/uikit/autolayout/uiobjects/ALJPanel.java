@@ -20,6 +20,7 @@ public class ALJPanel extends JLayeredPane implements Constrainable
 		setPreferredSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 		setBackground(Color.white);
 		setOpaque(true);
+
 	}
 
 	private int panelCompressionWidth = 750;
