@@ -7,6 +7,7 @@ import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.Course;
+import objects.Grade;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
@@ -46,9 +47,9 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
      * @param assignmentid
      * @param userid
      */
-    public void getGrade(int assignmentid, int userid) {
+    public void getGrade(int assignmentid, String userid) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid"}; //username
+        String selectedRows[] = {"grade", "assignmentid", "userid"}; //username
         String table1 = "grades";
         String table2 = "students";
         String[] attributes = {"userid", "assignmentid"};
@@ -70,7 +71,7 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
      * @param userid
      * @param courseid
      */
-    public void getCourseGrade(int userid, int courseid) {
+    public void getCourseGrade(String userid, int courseid) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"Avg(Grade)", "Sum(Grade)"};
         String table1 = "grades";
@@ -87,9 +88,7 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
-
     }
-
 
 
     @Override
@@ -119,43 +118,43 @@ public class StudentQuery implements DFDatabaseCallbackDelegate {
             }
             DFNotificationCenter.defaultCenter.post(UIStrings.returned, allCoursesForInstructor);
             getCoursesReturn = false;
-        } else if(getCourseGradeReturn){
-
-            int courseId = 0;
-            int userTypeInt = 0;
+        } else if(getGradeReturn){
+            int points = 0;
+            int assignmentId = 0;
+            String userId = "";
             try {
-                courseId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
-                courseTitle = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("courseID").getAsString();
-                courseName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("coursename").getAsString();
-                description = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("description").getAsString();
-                roomNo = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("roomno").getAsString();
-                meetingTime = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("meetingtime").getAsString();
-                startDate = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("startdate").getAsString();
-                endDate = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("enddate").getAsString();
-
+                points = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("grade").getAsInt();
+                assignmentId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("assignmentid").getAsInt();
+                userId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
             }catch (NullPointerException e2){
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
             }
-            Course course = new Course();
-            course.setCourseID(courseId);
-            course.setTitle(courseTitle);
-            course.setCourseName(courseName);
-            course.setDescription(description);
-            course.setRoomNo(roomNo);
-            course.setMeetingTime(meetingTime);
-            course.setStartDate(startDate);
-            course.setEndDate(endDate);
-
+            Grade grade = new Grade(userId, assignmentId, String.valueOf(points));
             /* Wait for Alex to implement the rest of the fields */
-            DFNotificationCenter.defaultCenter.post(UIStrings.returned, course);
+            DFNotificationCenter.defaultCenter.post(UIStrings.returned, grade);
             System.out.println("getUser posting user to returned");
-            getCourseGradeReturn = false;
+            getGradeReturn = false;
+        } else if(getCourseGradeReturn){
+            int points = 0;
+            int assignmentId = 0;
+            String userId = "";
+            try {
+                points = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("grade").getAsInt();
+                assignmentId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("assignmentid").getAsInt();
+                userId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
+            }catch (NullPointerException e2){
+                DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
+            }
+            Grade grade = new Grade(userId, assignmentId, String.valueOf(points));
+            /* Wait for Alex to implement the rest of the fields */
+            DFNotificationCenter.defaultCenter.post(UIStrings.returned, grade);
+            System.out.println("getUser posting user to returned");
+            getGradeReturn = false;
         }
     }
         @Override
     public void uploadStatus(DFDataUploaderReturnStatus success, DFError error) {
 
     }
-
 
 }
