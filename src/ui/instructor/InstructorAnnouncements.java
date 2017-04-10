@@ -2,12 +2,10 @@ package ui.instructor;
 
 import json.AnnouncementQuery;
 import objects.Course;
+import objects.Message;
 import ui.Window;
+import ui.util.*;
 import ui.util.ALJTable.*;
-import ui.util.Alert;
-import ui.util.ButtonType;
-import ui.util.UIStrings;
-import ui.util.UIVariables;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
@@ -60,6 +58,13 @@ public class InstructorAnnouncements extends ALJTablePanel implements DFNotifica
 		query.getAllAnnouncementInCourse(course.getCourseID());
 	}
 
+	@Override
+	public void removeNotify()
+	{
+		super.removeNotify();
+		DFNotificationCenter.defaultCenter.remove(this);
+	}
+
 	private void updateSavedInfo()
 	{
 		UIVariables.current.globalUserData.put("announcements" + courseForAnnouncements.getCourseID(), announcementData.get("Announcements"));
@@ -70,14 +75,12 @@ public class InstructorAnnouncements extends ALJTablePanel implements DFNotifica
 		Alert alert = new Alert("New Announcement", "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
-			query.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), new Date().toString(), UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());
+			String timestamp = new Date().toString();
+			query.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());
 
 			workToDoOnSuccess = () ->
 			{
-				TestAnnouncement announcement = new TestAnnouncement();
-				announcement.title = alert.textFieldForIdentifier("title").getText();
-				announcement.body = alert.textFieldForIdentifier("body").getText();
-				announcement.courseName = courseForAnnouncements.getCourseName();
+				Message announcement = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp);
 
 				if (announcementData.get("Announcements") == null)
 				{
@@ -145,7 +148,7 @@ public class InstructorAnnouncements extends ALJTablePanel implements DFNotifica
 	{
 		if (index.section == 1)
 		{
-			return new AnnouncementCell((TestAnnouncement) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+			return new AnnouncementCell((Message) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
 		}
 		else
 		{
@@ -191,41 +194,3 @@ public class InstructorAnnouncements extends ALJTablePanel implements DFNotifica
 	}
 }
 
-class TestAnnouncement
-{
-	String title;
-	String body;
-	String courseName;
-}
-
-class AnnouncementCell extends ALJTableCell
-{
-	AnnouncementCell(TestAnnouncement assignment)
-	{
-		super(ALJTableCellAccessoryViewType.delete);
-
-		removeConstraintsFor(titleLabel);
-
-		titleLabel.setText(assignment.title);
-		titleLabel.setFont(UIFont.textBold.deriveFont(11f));
-
-		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 24));
-		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
-		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
-
-		JLabel detailLabelOne = new JLabel(assignment.body);
-		detailLabelOne.setFont(UIFont.textLight.deriveFont(9f));
-		add(detailLabelOne);
-		addConstraint(new LayoutConstraint(detailLabelOne, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 24));
-		addConstraint(new LayoutConstraint(detailLabelOne, LayoutAttribute.top, LayoutRelation.equal, titleLabel, LayoutAttribute.bottom, 1.0, 8));
-		addConstraint(new LayoutConstraint(detailLabelOne, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
-
-		JLabel detailLabelTwo = new JLabel(assignment.courseName);
-		detailLabelTwo.setFont(UIFont.textLight.deriveFont(9f));
-		add(detailLabelTwo);
-		addConstraint(new LayoutConstraint(detailLabelTwo, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 24));
-		addConstraint(new LayoutConstraint(detailLabelTwo, LayoutAttribute.top, LayoutRelation.equal, detailLabelOne, LayoutAttribute.bottom, 1.0, 8));
-		addConstraint(new LayoutConstraint(detailLabelTwo, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, -8));
-		addConstraint(new LayoutConstraint(detailLabelTwo, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
-	}
-}

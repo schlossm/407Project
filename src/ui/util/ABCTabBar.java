@@ -84,8 +84,17 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 		}
 		layoutButtons();
 
-		buttons.get(0).setBorder(new LineBorder(Color.black, 1, true));
-		activeLabel = buttons.get(0);
+		if (activeLabel == null || activePos == -1)
+		{
+			buttons.get(0).setBorder(new LineBorder(Color.black, 1, true));
+			activeLabel = buttons.get(0);
+			activePos = 0;
+		}
+		else
+		{
+			activeLabel = buttons.get(activePos);
+			activeLabel.setBorder(new LineBorder(Color.black, 1, true));
+		}
 	}
 
 	private void layoutButtons()
@@ -119,6 +128,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 	}
 
 	private JLabel activeLabel;
+	private int activePos = -1;
 	private JLabel selectedLabel;
 	private boolean isPressingDown = false;
 
@@ -149,6 +159,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 				return;
 			}
 			activeLabel = selectedLabel;
+			activePos = buttons.indexOf(selectedLabel);
 			DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, selectedLabel.getText());
 			selectedLabel = null;
 		}

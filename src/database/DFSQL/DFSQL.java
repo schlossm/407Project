@@ -993,7 +993,7 @@ public class DFSQL
 		{
 			throw DFSQLError.conditionAlreadyExists;
 		}
-		if (num <= 0)
+		if (num < 0)
 		{
 			throw DFSQLError.unexpectedValueFound;
 		}
