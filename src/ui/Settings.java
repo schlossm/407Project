@@ -12,7 +12,7 @@ import javax.swing.*;
 
 class Settings extends ALJPanel
 {
-	private JLabel title;
+	private final JLabel title;
 
 	Settings()
 	{

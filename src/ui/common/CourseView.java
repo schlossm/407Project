@@ -1,4 +1,4 @@
-package ui;
+package ui.common;
 
 import objects.Course;
 import objects.userType;
@@ -16,14 +16,14 @@ import javax.swing.*;
 
 public class CourseView extends ALJPanel
 {
-	private CourseViewTabBar tabBar;
+	private final CourseViewTabBar tabBar;
 
-	public Course courseToView;
+	private Course courseToView;
 
-	private JLabel title;
+	private final JLabel title;
 	private ALJPanel activePanel;
 
-	CourseView(Course course)
+	public CourseView(Course course)
 	{
 		courseToView = course;
 
@@ -50,7 +50,7 @@ public class CourseView extends ALJPanel
 		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, tabBar, LayoutAttribute.trailing, 1, 8));
 		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1, 20));
 		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1, 0));
-		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1, 0));
+		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1, 0));
 	}
 
 	void changeTab(String newTab)
@@ -67,22 +67,39 @@ public class CourseView extends ALJPanel
 						newPanel = new InstructorAnnouncements(courseToView);
 					}
 				}
+				else return;
+				break;
+			}
+
+			case "Files":
+			{
+				if (!(activePanel instanceof FileList))
+				{
+					newPanel = new FileList();
+				}
+				else return;
 				break;
 			}
 
 			default:
 			{
-				System.err.println(newTab + "has not been implemented yet.  I feel like this is dêjá vu.");
+				System.err.println(newTab + " has not been implemented yet.  I feel like this is dêjá vu.");
 				return;
 			}
 		}
 
+		remove(activePanel);
 		add(newPanel);
 		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.leading, LayoutRelation.equal, tabBar, LayoutAttribute.trailing, 1, 8));
 		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1, 20));
 		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1, 0));
-		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.bottom, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1, 0));
+		addConstraint(new LayoutConstraint(newPanel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1, 0));
 		activePanel = newPanel;
+
+		layoutSubviews();
+		activePanel.layoutSubviews();
+		activePanel.repaint();
+		activePanel.layoutSubviews();
 	}
 }
 
@@ -90,12 +107,12 @@ class CourseViewTabBar extends ALJTablePanel
 {
 	CourseView parent;
 
-	private String[] options = new String[] { "Announcements", "Files", "Assignments", "Grades" };
+	private final String[] options = new String[] { "Announcements", "Files", "Assignments", "Grades" };
 
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-
+		parent.changeTab(options[index.item]);
 	}
 
 	@Override

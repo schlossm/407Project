@@ -1,16 +1,16 @@
 package ui.admin;
 
 import json.CourseQuery;
-import json.InstructorQuery;
-import json.StudentQuery;
 import json.UserQuery;
 import objects.Course;
 import objects.User;
+import objects.userType;
 import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
 import ui.util.ButtonType;
 import ui.util.UIStrings;
+import ui.util.UIVariables;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.uiobjects.ALJTablePanel;
@@ -22,24 +22,26 @@ enum Process
 {
 	none, loadingCourse, loadingTeacher, loadingStudent,
 	deleteTeacher, deleteCourse, deleteStudent,
-	addTeacher, addCourse, addStudent;
+	addTeacher, addCourse, addStudent,
+	addUserAsTeacher, addUserAsStudent
 }
 
+@SuppressWarnings("unchecked")
 public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDelegate
 {
 	private Group groupToManage = Group.none;
 
 	private final Map<String, ArrayList<Object>> tableData = new HashMap<>();
 
-	private CourseQuery courseQuery = new CourseQuery();
-	private StudentQuery studentQuery = new StudentQuery();
-	private UserQuery userQuery = new UserQuery();
-	private InstructorQuery instructorQuery = new InstructorQuery();
+	private final CourseQuery courseQuery = new CourseQuery();
+	private final UserQuery userQuery = new UserQuery();
 
 	private Process currentProcess = Process.none;
 
 	private Runnable workToDoOnSuccess = null;
 	private Runnable workToDoOnFailure = null;
+
+	private int offset = 0;
 
 	public ManageGroup(Group groupToManage)
 	{
@@ -58,27 +60,34 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		starter.add("New " + groupToManage);
 		tableData.put("", starter);
 
+		if (UIVariables.current.globalUserData.get("All " + groupToManage) != null)
+		{
+			ArrayList<Object> savedData = (ArrayList<Object>) UIVariables.current.globalUserData.get("All " + groupToManage);
+			tableData.put(groupToManage + "s", savedData);
+		}
+
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.success);
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.failure);
-
+		DFNotificationCenter.defaultCenter.register(this, UIStrings.aLJTablePaneNearEndNotification);
 
 		//This view is only visible to admin so we don't have to do any checking Michael.
 		if (groupToManage == Group.courses)
 		{
 			currentProcess = Process.loadingCourse;
-			//TODO: Fill In with getAllCourses
+			courseQuery.getAllCourses(100, offset);
 		}
 		else if (groupToManage == Group.students)
 		{
 			currentProcess = Process.loadingStudent;
-			//TODO: Fill In with getAllStudents
+			courseQuery.getAllStudents(100, offset);
 		}
 		else
 		{
 			currentProcess = Process.loadingTeacher;
-			//TODO: Fill In with getAllTeachers
+			courseQuery.getAllInstructors(100, offset);
 		}
+		offset += 100;
 	}
 
 	public Group currentGroup()
@@ -86,17 +95,74 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		return groupToManage;
 	}
 
+	private void loadNextGroup()
+	{
+		if (groupToManage == Group.courses)
+		{
+			currentProcess = Process.loadingCourse;
+			courseQuery.getAllCourses(100, offset);
+		}
+		else if (groupToManage == Group.students)
+		{
+			currentProcess = Process.loadingStudent;
+			courseQuery.getAllStudents(100, offset);
+		}
+		else
+		{
+			currentProcess = Process.loadingTeacher;
+			courseQuery.getAllInstructors(100, offset);
+		}
+		offset += 100;
+	}
+
+	private void updateSavedData()
+	{
+		UIVariables.current.globalUserData.put("All " + groupToManage, tableData.get(groupToManage + "s"));
+	}
+
 	private void add()
 	{
 		Alert alert = new Alert("New " + groupToManage, "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
-			//TODO: Upload this thing
 			switch (groupToManage)
 			{
 				case teachers:  //Upload new Instructor
 				{
-					tableData.get(groupToManage + "s").add(alert.textFieldForIdentifier(groupToManage + ".firstName").getText() + " " + alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
+					currentProcess = Process.addTeacher;
+					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), alert.textFieldForIdentifier(groupToManage + ".birthday").getText(), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.TEACHER);
+
+					workToDoOnSuccess = () ->
+					{
+						currentProcess = Process.addUserAsTeacher;
+
+						userQuery.addUserAsInstructor(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".officeHours").getText(), alert.textFieldForIdentifier(groupToManage + ".roomNumber").getText());
+
+						workToDoOnSuccess = () ->
+						{
+							alert.dispose();
+							User newUser = new User();
+							newUser.setBirthday(alert.textFieldForIdentifier(groupToManage + ".birthday").getText());
+							newUser.setUserType(userType.TEACHER);
+							newUser.setUserID(alert.textFieldForIdentifier(groupToManage + ".username").getText());
+							newUser.setEmail(alert.textFieldForIdentifier(groupToManage + ".email").getText());
+							newUser.setFirstName(alert.textFieldForIdentifier(groupToManage + ".firstName").getText());
+							newUser.setLastName(alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
+
+							if (tableData.get(groupToManage + "s") != null)
+							{
+								tableData.get(groupToManage + "s").add(newUser);
+							}
+							else
+							{
+								ArrayList<Object> arrayList = new ArrayList<>();
+								arrayList.add(newUser);
+								tableData.put(groupToManage + "s", arrayList);
+							}
+							updateSavedData();
+							table.reloadData();
+						};
+					};
 					break;
 				}
 
@@ -114,10 +180,37 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 
 					currentProcess = Process.addCourse;
 
-					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate);
-					workToDoOnSuccess = alert::dispose;
+					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate, Integer.parseInt(capacity));
+					workToDoOnSuccess = () ->
+					{
+						alert.dispose();
+						Course courseToAdd = new Course();
+						courseToAdd.setCourseID(Integer.parseInt(courseID));
+						courseToAdd.setCourseName(courseName);
+						courseToAdd.setTitle(courseTitle);
+						courseToAdd.setDescription(description);
+						courseToAdd.setMeetingTime(meetingTimes);
+						courseToAdd.setMaxStorage(10000000);
+						courseToAdd.setStartDate(startDate);
+						courseToAdd.setEndDate(endDate);
+						courseToAdd.setRoomNo(roomNum);
+						if (tableData.get(groupToManage + "s") != null)
+						{
+							tableData.get(groupToManage + "s").add(courseToAdd);
+						}
+						else
+						{
+							ArrayList<Object> arrayList = new ArrayList<>();
+							arrayList.add(courseToAdd);
+							tableData.put(groupToManage + "s", arrayList);
+						}
+						updateSavedData();
+						table.reloadData();
+					};
 					break;
 				}
+
+				//TODO: Students
 
 				default: break;
 			}
@@ -136,6 +229,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				alert.addTextField("Birthday (MM/DD/YYYY)", "teacher.birthday", false);
 				alert.addTextField("Office Hours", "teacher.officeHours", false);
 				alert.addTextField("Room Number", "teacher.roomNumber", false);
+				alert.addTextField("Courses (comma separated CRN)", "teacher.courses", false);
 				break;
 			}
 
@@ -148,8 +242,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				alert.addTextField("Description", "course.description", false);
 				alert.addTextField("Capacity", "course.capacity", false);
 				alert.addTextField("Room Number", "course.roomNumber", false);
-				alert.addTextField("Start Date (mm/dd/yyyy)", "course.startDate", false);
-				alert.addTextField("End Date (mm/dd/yyyy)", "course.endDate", false);
+				alert.addTextField("Start Date (MM/DD/YYYY)", "course.startDate", false);
+				alert.addTextField("End Date (mm/DD/YYYY)", "course.endDate", false);
 				break;
 			}
 
@@ -168,6 +262,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				alert.addTextField("Last Name", "student.lastName", false);
 				alert.addTextField("Email", "student.email", false);
 				alert.addTextField("Birthday (MM/DD/YYYY)", "student.birthday", false);
+				alert.addTextField("Courses (comma separated CRN)", "teacher.courses", false);
 				break;
 			}
 		}
@@ -205,7 +300,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	{
 		if (groupToManage == Group.courses && index.section > 0)
 		{
-			ClassCell newCell = new ClassCell(ALJTableCellAccessoryViewType.delete);
+			ClassCell newCell = new ClassCell();
 			Course course = (Course) (tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
 			newCell.setCourse(course);
 			return newCell;
@@ -240,7 +335,6 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				Alert deleteConfirmation = new Alert("Confirm Delete", null);
 				deleteConfirmation.addButton("Yes", ButtonType.destructive, e ->
 				{
-					//TODO: Actually delete from database
 					if (currentProcess == Process.none)
 					{
 						workToDoOnSuccess = () ->
@@ -271,6 +365,12 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 							User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
 							userQuery.removeUserAsStudent(studentToRemove.getUserID());
 						}
+						else if (groupToManage == Group.teachers)
+						{
+							currentProcess = Process.deleteTeacher;
+							User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
+							userQuery.removeUserAsInstructor(studentToRemove.getUserID());
+						}
 					}
 
 				}, false);
@@ -295,6 +395,12 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	@Override
 	public void performActionFor(String notificationName, Object userData)
 	{
+		if (Objects.equals(notificationName, UIStrings.aLJTablePaneNearEndNotification))
+		{
+			loadNextGroup();
+			return;
+		}
+
 		if (currentProcess == Process.none)
 		{
 			return;
