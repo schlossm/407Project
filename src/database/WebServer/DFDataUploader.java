@@ -77,7 +77,30 @@ class DFDataUploader
                 }
                 else
                 {
-                    queue.add(() -> delegate.uploadStatus(DFDataUploaderReturnStatus.failure, null));
+	                Map<String, String> errorInfo = new HashMap<>();
+	                errorInfo.put(kMethodName, getMethodNameOfSuperMethod());
+	                errorInfo.put(kURL, website + "/" + writeFile);
+	                errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
+
+	                DFError error = null;
+	                if (response.contains("Duplicate"))
+	                {
+	                	if (response.contains("PRIMARY"))
+		                {
+			                errorInfo.put(kExpandedDescription, "The database reports an object with this id already exists.  Response: " + response);
+			                error = new DFError(2, "Duplicate Primary Key", errorInfo);
+		                }
+						else
+		                {
+			                errorInfo.put(kExpandedDescription, "The database reports an object with this unique key already exists.  Response: " + response);
+			                error = new DFError(2, "Duplicate Unique Key", errorInfo);
+		                }
+	                }
+
+	                if (error != null) debugLog(error);
+
+	                DFError finalError = error;
+	                queue.add(() -> delegate.uploadStatus(DFDataUploaderReturnStatus.failure, finalError));
                 }
             }
             catch(NullPointerException | IOException e)
