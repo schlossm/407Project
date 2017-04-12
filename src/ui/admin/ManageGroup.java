@@ -125,6 +125,12 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		Alert alert = new Alert("New " + groupToManage, "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
+			workToDoOnFailure = () ->
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not create the " + groupToManage + ".  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+			};
 			switch (groupToManage)
 			{
 				case teachers:  //Upload new Instructor

@@ -13,6 +13,10 @@ import uikit.autolayout.uiobjects.ALJPanel;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
+import static javax.imageio.ImageIO.read;
 
 public class CourseView extends ALJPanel
 {
@@ -44,6 +48,21 @@ public class CourseView extends ALJPanel
 		if (UIVariables.current.currentUser.getUserType() == userType.TEACHER)
 		{
 			activePanel = new InstructorAnnouncements(courseToView);
+		}
+		else
+		{
+			try
+			{
+				BufferedImage img = read(this.getClass().getResource("/uikit/images/" + "close-envelope@2x" + ".png"));
+				Image dimg = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+				JLabel email = new JLabel(new ImageIcon(dimg));
+				add(email);
+				addConstraint(new LayoutConstraint(email, LayoutAttribute.leading, LayoutRelation.equal, title, LayoutAttribute.trailing, 1.0, 20));
+				addConstraint(new LayoutConstraint(email, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
+				addConstraint(new LayoutConstraint(email, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1.0, 30));
+				addConstraint(new LayoutConstraint(email, LayoutAttribute.height, LayoutRelation.equal, null, LayoutAttribute.height, 1.0, 30));
+			}
+			catch (Exception e) { e.printStackTrace();}
 		}
 
 		add(activePanel);
