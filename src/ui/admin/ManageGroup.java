@@ -413,6 +413,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		}
 		else if (currentProcess == Process.loadingCourse)
 		{
+			System.out.println("Hello");
 			if (Objects.equals(notificationName, UIStrings.returned))
 			{
 				Course[] courses = (Course[]) userData;
