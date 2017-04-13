@@ -1,5 +1,6 @@
 package ui;
 
+import database.DFDatabase;
 import objects.Course;
 import objects.Grade;
 import objects.Message;
@@ -25,6 +26,7 @@ class Main
 {
 	public static void main(String[] args)
 	{
+		DFDatabase.defaultDatabase.enableDebug();
 		//Initialize various platform specific items
 		try
 		{
