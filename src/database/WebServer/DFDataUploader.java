@@ -93,8 +93,13 @@ class DFDataUploader
 						else
 		                {
 			                errorInfo.put(kExpandedDescription, "The database reports an object with this unique key already exists.  Response: " + response);
-			                error = new DFError(2, "Duplicate Unique Key", errorInfo);
+			                error = new DFError(3, "Duplicate Unique Key", errorInfo);
 		                }
+	                }
+	                else if (response.contains("Table") && response.contains("doesn't exist"))
+	                {
+		                errorInfo.put(kExpandedDescription, "The table attempting to upload data to does not exist.  Response: " + response);
+		                error = new DFError(4, "The specified table doesn't exist", errorInfo);
 	                }
 
 	                if (error != null) debugLog(error);
