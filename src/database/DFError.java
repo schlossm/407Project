@@ -2,6 +2,16 @@ package database;
 
 import java.util.Map;
 
+/*
+ * ERROR CODES:
+ *
+ * 0 : Unknown Java Error
+ * 1 : No data
+ * 2 : Duplicate Primary Key
+ * 3 : Duplicate Unique Key
+ * 4 : Table doesn't exist
+ * */
+
 /**
  * The error class for DFDatabase.  More powerful than implementing the Exception class
  */

@@ -73,7 +73,19 @@ class DFDataDownloader
                     errorInfo.put(kURL, website + "/" + readFile);
                     errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
                     DFError error = new DFError(1, "No data was returned", errorInfo);
+	                debugLog(error);
                     queue.add(() -> { debugLog("Queue Executed"); delegate.returnedData(null, error); });
+                }
+                else if (response.contains("Table") && response.contains("doesn't exist"))
+                {
+	                Map<String, String> errorInfo = new HashMap<>();
+	                errorInfo.put(kMethodName, calleeMethod);
+	                errorInfo.put(kExpandedDescription, "The table attempting to retrieve data from does not exist.  Response: " + response);
+	                errorInfo.put(kURL, website + "/" + readFile);
+	                errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
+	                DFError error = new DFError(4, "The specified table doesn't exist", errorInfo);
+	                debugLog(error);
+	                queue.add(() -> { debugLog("Queue Executed"); delegate.returnedData(null, error); });
                 }
                 else
                 {

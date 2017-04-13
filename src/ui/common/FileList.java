@@ -262,8 +262,5 @@ class FileListCell extends ALJTableCell
 		{
 			addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, -8));
 		}
-
-
-
 	}
 }
