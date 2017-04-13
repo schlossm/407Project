@@ -33,20 +33,33 @@ class AlertPasswordField extends JPasswordField
 	}
 }
 
-@SuppressWarnings({"unused", "RedundantCast"})
+class TextFieldArrayClass
+{
+	JTextField textField;
+	String identifier;
+
+	TextFieldArrayClass(String identifier, JTextField textField)
+	{
+		this.identifier = identifier;
+		this.textField = textField;
+	}
+}
+
+@SuppressWarnings({"unused", "RedundantCast", "unchecked"})
 public class Alert implements KeyListener, MLMDelegate
 {
 	private final JPanel alert;
 	private JPanel buttonPanel;
 	private JFrame dimView;
-	private JDialog dialog;
 	private int numButtons;
-	private final Map<String, JTextField> textFields = new HashMap<>();
+	private final ArrayList<TextFieldArrayClass> textFields = new ArrayList<>();
 	private final Map<String, JCheckBox> checkBoxes = new HashMap<>();
 	private final Map<String, JComboBox> dropDowns = new HashMap<>();
 	private final ArrayList<JButton> buttons = new ArrayList<>();
 	private boolean hasCancelAction = false;
 	private boolean hasDefaultAction = false;
+
+	private static ArrayList<JDialog> alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething = new ArrayList<>();
 
 	private JTextField activeTextField;
 
@@ -92,16 +105,50 @@ public class Alert implements KeyListener, MLMDelegate
 		}
 		textField.setFont(UIFont.textLight.deriveFont(10.0f));
 		textField.setMinimumSize(new Dimension(100, 44));
-		textField.setPreferredSize(new Dimension(360, 44));
+		textField.setPreferredSize(new Dimension(320, 44));
 		textField.setAlignmentX(Component.CENTER_ALIGNMENT);
 		textField.addMouseListener(new MouseListenerManager(this));
 		textField.setForeground(Color.lightGray);
 		textField.setBackground(Color.gray);
 		textField.setBorder(new EmptyBorder(0, 20, 0, 20));
 
-		textFields.put(identifier.toLowerCase(), textField);
+		textFields.add(new TextFieldArrayClass(identifier.toLowerCase(), textField));
 		alert.add(textField);
 		alert.add(Box.createRigidArea(new Dimension(0, 8)));
+	}
+
+	public void showError(String error, JTextField onTextField)
+	{
+		JLabel errorLabel = new JLabel(error);
+		errorLabel.setHorizontalTextPosition(JLabel.LEFT);
+		errorLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+		errorLabel.setFont(UIFont.textSemibold.deriveFont(8f));
+		errorLabel.setForeground(Color.red);
+		errorLabel.setMinimumSize(new Dimension(100, 32));
+		errorLabel.setPreferredSize(new Dimension(320, 32));
+
+		JPanel panel = (JPanel) alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.get(alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.size() - 1).getContentPane().getComponent(0);
+
+		Component[] components = panel.getComponents();
+		int count = 0;
+		for (Component component : components)
+		{
+			if (component instanceof JTextField)
+			{
+				if ((JTextField) component == onTextField)
+				{
+					((JTextField) component).setBackground(Color.red);
+					panel.add(errorLabel, count + 1);
+				}
+			}
+			count++;
+		}
+
+		JDialog dialog = alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.get(alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.size() - 1);
+		dialog.revalidate();
+		dialog.repaint();
+		dialog.pack();
+		dialog.setBounds(dimView.getBounds().x + dimView.getBounds().width / 2 - dialog.getWidth(), dimView.getBounds().y + dimView.getBounds().height / 2 - dialog.getPreferredSize().height / 2, dialog.getWidth(), dialog.getPreferredSize().height);
 	}
 
 	public void addCheckBox(String question, String identifier)
@@ -176,8 +223,7 @@ public class Alert implements KeyListener, MLMDelegate
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					dimView.dispose();
-					dialog.dispose();
+					dispose();
 				}
 			};
 
@@ -196,8 +242,7 @@ public class Alert implements KeyListener, MLMDelegate
 			                         if (handler != null) { handler.actionPerformed(e); }
 			                         if (!customEnterAction)
 			                         {
-				                         dimView.dispose();
-				                         dialog.dispose();
+				                         dispose();
 			                         }
 		                         });
 		buttonPanel.add(button);
@@ -206,19 +251,28 @@ public class Alert implements KeyListener, MLMDelegate
 
 	public void show(JFrame aboveFrame)
 	{
-		//Show a Dim View
+		if (!alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.isEmpty())
+		{
+			JDialog presentOne = alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.get(alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.size() - 1);
 
-		dimView = new JFrame("ABC");
+			presentOne.setVisible(false);
+		}
+		else
+		{
+			//Show a Dim View
 
-		dimView.setBounds(aboveFrame.getBounds());
-		dimView.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		dimView.setUndecorated(true);
-		dimView.setBackground(new Color(0f, 0f, 0f, 0.5f));
-		dimView.setVisible(true);
+			dimView = new JFrame("ABC");
+
+			dimView.setBounds(aboveFrame.getBounds());
+			dimView.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+			dimView.setUndecorated(true);
+			dimView.setBackground(new Color(0f, 0f, 0f, 0.5f));
+			dimView.setVisible(true);
+		}
 
 		//Present the dialog
 
-		dialog = new JDialog();
+		JDialog dialog = new JDialog();
 		dialog.addKeyListener(this);
 
 		dialog.add(alert);
@@ -269,34 +323,185 @@ public class Alert implements KeyListener, MLMDelegate
 			@Override
 			public Component getComponentAfter(Container aContainer, Component aComponent)
 			{
-				try
+				if (aComponent instanceof JDialog)
 				{
-					return buttons.get((buttons.indexOf((JButton) aComponent) + 1) % buttons.size());
+					if (textFields.get(0).textField.getText().contains(((AlertTextField) textFields.get(0).textField).placeholder))
+					{
+						textFields.get(0).textField.setForeground(Color.white);
+						textFields.get(0).textField.setText("");
+					}
+					return textFields.get(0).textField;
 				}
-				catch (Exception ignored) { return null; }
+				if (aComponent instanceof JTextField)
+				{
+					if (!textFields.isEmpty())
+					{
+						boolean shouldReturnNext = false;
+						for (TextFieldArrayClass textFieldArrayClass : textFields)
+						{
+							if (textFieldArrayClass.textField == (JTextField) aComponent)
+							{
+								if (Objects.equals(textFieldArrayClass.textField.getText(), ""))
+								{
+									if (textFieldArrayClass.textField instanceof JPasswordField)
+									{
+										((JPasswordField) textFieldArrayClass.textField).setEchoChar((char) 0);
+										textFieldArrayClass.textField.setText(((AlertPasswordField) textFieldArrayClass.textField).placeholder);
+									}
+									else if (textFieldArrayClass.textField instanceof JTextField)
+									{
+										textFieldArrayClass.textField.setText(((AlertTextField) textFieldArrayClass.textField).placeholder);
+									}
+
+									textFieldArrayClass.textField.setForeground(Color.lightGray);
+								}
+								shouldReturnNext = true;
+								continue;
+							}
+							if (shouldReturnNext)
+							{
+								if (textFieldArrayClass.textField.getText().contains(((AlertTextField) textFieldArrayClass.textField).placeholder))
+								{
+									textFieldArrayClass.textField.setForeground(Color.white);
+									textFieldArrayClass.textField.setText("");
+								}
+								return textFieldArrayClass.textField;
+							}
+						}
+					}
+				}
+				else if (aComponent == buttons.get(buttons.size() - 1))
+				{
+					if (textFields.get(0).textField.getText().contains(((AlertTextField) textFields.get(0).textField).placeholder))
+					{
+						textFields.get(0).textField.setForeground(Color.white);
+						textFields.get(0).textField.setText("");
+					}
+					return textFields.get(0).textField;
+				}
+				if (aComponent instanceof JTextField)
+				{
+					return buttons.get(0);
+				}
+				if (!buttons.isEmpty())
+				{
+					if ((buttons.indexOf((JButton) aComponent) + 1) == buttons.size())
+					{
+						if (textFields.get(0).textField.getText().contains(((AlertTextField) textFields.get(0).textField).placeholder))
+						{
+							textFields.get(0).textField.setForeground(Color.white);
+							textFields.get(0).textField.setText("");
+						}
+						return textFields.get(0).textField;
+					}
+					return buttons.get((buttons.indexOf((JButton) aComponent) + 1));
+				}
+				return null;
 			}
 
 			@Override
 			public Component getComponentBefore(Container aContainer, Component aComponent)
 			{
-				try
+				if (aComponent instanceof JDialog)
 				{
-				return buttons.get((buttons.indexOf((JButton) aComponent) - 1) % buttons.size());
+					return buttons.get(buttons.size() - 1);
 				}
-				catch (Exception ignored) { return null; }
+				if (aComponent instanceof JTextField)
+				{
+					boolean shouldReturnPrevious = false;
+					for (int i = 0; i < textFields.size(); i++)
+					{
+						if (textFields.get(i).textField == (JTextField) aComponent)
+						{
+							if (i == 0)
+							{
+								if (Objects.equals(textFields.get(i).textField.getText(), ""))
+								{
+									if (textFields.get(i).textField instanceof JPasswordField)
+									{
+										((JPasswordField) textFields.get(i).textField).setEchoChar((char) 0);
+										textFields.get(i).textField.setText(((AlertPasswordField) textFields.get(i).textField).placeholder);
+									}
+									else
+									{
+										textFields.get(i).textField.setText(((AlertTextField) textFields.get(i).textField).placeholder);
+									}
+
+									textFields.get(i).textField.setForeground(Color.lightGray);
+								}
+								return buttons.get(buttons.size() - 1);
+							}
+							if (Objects.equals(textFields.get(i).textField.getText(), ""))
+							{
+								if (textFields.get(i).textField instanceof JPasswordField)
+								{
+									((JPasswordField) textFields.get(i).textField).setEchoChar((char) 0);
+									textFields.get(i).textField.setText(((AlertPasswordField) textFields.get(i).textField).placeholder);
+								}
+								else
+								{
+									textFields.get(i).textField.setText(((AlertTextField) textFields.get(i).textField).placeholder);
+								}
+
+								textFields.get(i).textField.setForeground(Color.lightGray);
+							}
+							shouldReturnPrevious = true;
+							i -= 2;
+
+							continue;
+						}
+						if (shouldReturnPrevious)
+						{
+							if (textFields.get(i).textField.getText().contains(((AlertTextField) textFields.get(i).textField).placeholder))
+							{
+								textFields.get(i).textField.setForeground(Color.white);
+								textFields.get(i).textField.setText("");
+							}
+							return textFields.get(i).textField;
+						}
+					}
+				}
+				if ((buttons.indexOf((JButton) aComponent) - 1) < 0)
+				{
+					if (textFields.get(textFields.size() - 1).textField.getText().contains(((AlertTextField) textFields.get(textFields.size() - 1).textField).placeholder))
+					{
+						textFields.get(textFields.size() - 1).textField.setForeground(Color.white);
+						textFields.get(textFields.size() - 1).textField.setText("");
+					}
+					return textFields.get(textFields.size() - 1).textField;
+				}
+				return buttons.get((buttons.indexOf((JButton) aComponent) - 1));
 			}
 
 			@Override
 			public Component getFirstComponent(Container aContainer)
 			{
-				buttons.get(0);
+				if (!textFields.isEmpty())
+				{
+					if (textFields.get(0).textField.getText().contains(((AlertTextField) textFields.get(0).textField).placeholder))
+					{
+						textFields.get(0).textField.setForeground(Color.white);
+						textFields.get(0).textField.setText("");
+					}
+					return textFields.get(0).textField;
+				}
+				if (!buttons.isEmpty()) { return buttons.get(0); }
 				return null;
 			}
 
 			@Override
 			public Component getLastComponent(Container aContainer)
 			{
-				buttons.get(buttons.size() - 1);
+				if (!buttons.isEmpty()) { buttons.get(buttons.size() - 1); }
+				if (!textFields.isEmpty())
+				{
+					if (textFields.get(textFields.size() - 1).textField.getText().contains(((AlertTextField) textFields.get(textFields.size() - 1).textField).placeholder))
+					{
+						textFields.get(textFields.size() - 1).textField.setForeground(Color.white);
+						textFields.get(textFields.size() - 1).textField.setText("");
+					}
+					return textFields.get(textFields.size() - 1).textField;
+				}
 				return null;
 			}
 
@@ -329,19 +534,34 @@ public class Alert implements KeyListener, MLMDelegate
 				button.setPreferredSize(new Dimension(width, 44));
 			}
 
-			dialog.setBounds(screenSize.width / 2 - max(width + 44, 200), screenSize.height / 2 - dialog.getPreferredSize().height / 2, max(width * 2 + 88, 400), dialog.getPreferredSize().height);
+			dialog.setBounds(aboveFrame.getBounds().x + aboveFrame.getBounds().width / 2 - max(width + 44, 200), aboveFrame.getBounds().y + aboveFrame.getBounds().height / 2 - dialog.getPreferredSize().height / 2, max(width * 2 + 88, 400), dialog.getPreferredSize().height);
 		}
 		else
 		{
 			dialog.setBounds(screenSize.width / 2 - 200, screenSize.height / 2 - dialog.getPreferredSize().height / 2, 400, dialog.getPreferredSize().height);
 		}
+		alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.add(dialog);
 		dialog.setVisible(true);
 	}
 
 	public void dispose()
 	{
-		dimView.dispose();
-		dialog.dispose();
+		if (alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.isEmpty())
+		{ return; }
+
+		JDialog presentOne = alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.get(alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.size() - 1);
+		alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.remove(presentOne);
+		presentOne.dispose();
+
+		if (alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.isEmpty())
+		{
+			dimView.dispose();
+		}
+		else
+		{
+			JDialog nextOneInLine = alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.get(alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.size() - 1);
+			nextOneInLine.setVisible(true);
+		}
 	}
 
 	@Override
@@ -452,12 +672,25 @@ public class Alert implements KeyListener, MLMDelegate
 
 	public Map<String, JTextField> getTextFields()
 	{
-		return textFields;
+		Map<String, JTextField> returnInfo = new HashMap<>();
+		for (TextFieldArrayClass textFieldArrayClass : textFields)
+		{
+			returnInfo.put(textFieldArrayClass.identifier, textFieldArrayClass.textField);
+		}
+		return returnInfo;
 	}
 
 	public JTextField textFieldForIdentifier(String identifier)
 	{
-		return textFields.get(identifier.toLowerCase());
+
+		for (TextFieldArrayClass textFieldArrayClass : textFields)
+		{
+			if (Objects.equals(textFieldArrayClass.identifier, identifier.toLowerCase()))
+			{
+				return textFieldArrayClass.textField;
+			}
+		}
+		return null;
 	}
 
 	public Map<String, JCheckBox> getCheckBoxes()
@@ -465,7 +698,7 @@ public class Alert implements KeyListener, MLMDelegate
 		return checkBoxes;
 	}
 
-	public JCheckBox getCheckBoxForIdentifier(String identifier)
+	public JCheckBox checkBoxForIdentifier(String identifier)
 	{
 		return checkBoxes.get(identifier.toLowerCase());
 	}

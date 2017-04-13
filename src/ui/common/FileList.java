@@ -99,7 +99,7 @@ class FileList extends ALJTablePanel implements DFNotificationCenterDelegate
 					FileListFileInfo fileInfo = new FileListFileInfo();
 					fileInfo.file = tempFile.toPath();
 					fileInfo.name = alert.textFieldForIdentifier("fileName").getText();
-					fileInfo.isPrivate = alert.getCheckBoxForIdentifier("private").isSelected();
+					fileInfo.isPrivate = alert.checkBoxForIdentifier("private").isSelected();
 					fileListData.get("Files").add(fileInfo);
 					updateSavedInfo();
 				}
@@ -109,7 +109,7 @@ class FileList extends ALJTablePanel implements DFNotificationCenterDelegate
 					FileListFileInfo fileInfo = new FileListFileInfo();
 					fileInfo.file = tempFile.toPath();
 					fileInfo.name = alert.textFieldForIdentifier("fileName").getText();
-					fileInfo.isPrivate = alert.getCheckBoxForIdentifier("private").isSelected();
+					fileInfo.isPrivate = alert.checkBoxForIdentifier("private").isSelected();
 					arrayList.add(fileInfo);
 					fileListData.put("Files", arrayList);
 					updateSavedInfo();
@@ -262,8 +262,5 @@ class FileListCell extends ALJTableCell
 		{
 			addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, -8));
 		}
-
-
-
 	}
 }

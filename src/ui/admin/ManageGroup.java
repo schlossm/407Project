@@ -51,6 +51,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		if (groupToManage == Group.none)
 		{
 			System.err.println("You cannot manage a \"none\" group.");
+			System.exit(-1);
 			return;
 		}
 
@@ -71,23 +72,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.failure);
 		DFNotificationCenter.defaultCenter.register(this, UIStrings.aLJTablePaneNearEndNotification);
 
-		//This view is only visible to admin so we don't have to do any checking Michael.
-		if (groupToManage == Group.courses)
-		{
-			currentProcess = Process.loadingCourse;
-			courseQuery.getAllCourses(100, offset);
-		}
-		else if (groupToManage == Group.students)
-		{
-			currentProcess = Process.loadingStudent;
-			courseQuery.getAllStudents(100, offset);
-		}
-		else
-		{
-			currentProcess = Process.loadingTeacher;
-			courseQuery.getAllInstructors(100, offset);
-		}
-		offset += 100;
+		loadNextGroup();
 	}
 
 	public Group currentGroup()
@@ -125,6 +110,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		Alert alert = new Alert("New " + groupToManage, "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
+			//TODO: Error checking
 			switch (groupToManage)
 			{
 				case teachers:  //Upload new Instructor
@@ -163,6 +149,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 							table.reloadData();
 						};
 					};
+					workToDoOnFailure = () -> alert.showError("Already Taken", alert.textFieldForIdentifier("username"));
 					break;
 				}
 
@@ -207,10 +194,49 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 						updateSavedData();
 						table.reloadData();
 					};
+					workToDoOnFailure = () -> alert.showError("Already Taken", alert.textFieldForIdentifier("courseName"));
 					break;
 				}
 
-				//TODO: Students
+				case students:
+				{
+					currentProcess = Process.addStudent;
+					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), alert.textFieldForIdentifier(groupToManage + ".birthday").getText(), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.TEACHER);
+
+					workToDoOnSuccess = () ->
+					{
+						currentProcess = Process.addUserAsStudent;
+
+						userQuery.addUserAsStudent(alert.textFieldForIdentifier(groupToManage + ".username").getText());
+
+						workToDoOnSuccess = () ->
+						{
+							alert.dispose();
+							User newUser = new User();
+							newUser.setBirthday(alert.textFieldForIdentifier(groupToManage + ".birthday").getText());
+							newUser.setUserType(userType.TEACHER);
+							newUser.setUserID(alert.textFieldForIdentifier(groupToManage + ".username").getText());
+							newUser.setEmail(alert.textFieldForIdentifier(groupToManage + ".email").getText());
+							newUser.setFirstName(alert.textFieldForIdentifier(groupToManage + ".firstName").getText());
+							newUser.setLastName(alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
+
+							if (tableData.get(groupToManage + "s") != null)
+							{
+								tableData.get(groupToManage + "s").add(newUser);
+							}
+							else
+							{
+								ArrayList<Object> arrayList = new ArrayList<>();
+								arrayList.add(newUser);
+								tableData.put(groupToManage + "s", arrayList);
+							}
+							updateSavedData();
+							table.reloadData();
+						};
+					};
+					workToDoOnFailure = () -> alert.showError("Already Taken", alert.textFieldForIdentifier("username"));
+					break;
+				}
 
 				default: break;
 			}
@@ -440,7 +466,6 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 			{
 				if (workToDoOnSuccess != null)
 				{
-					System.out.println("Hello");
 					workToDoOnSuccess.run();
 				}
 			}

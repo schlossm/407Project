@@ -3,6 +3,7 @@ package ui.common;
 import objects.Course;
 import objects.userType;
 import ui.instructor.InstructorAnnouncements;
+import ui.student.StudentAnnouncements;
 import ui.util.ALJTable.*;
 import ui.util.UIVariables;
 import uikit.UIFont;
@@ -13,6 +14,15 @@ import uikit.autolayout.uiobjects.ALJPanel;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static javax.imageio.ImageIO.read;
 
 public class CourseView extends ALJPanel
 {
@@ -45,6 +55,73 @@ public class CourseView extends ALJPanel
 		{
 			activePanel = new InstructorAnnouncements(courseToView);
 		}
+		else
+		{
+			try
+			{
+				BufferedImage img = read(this.getClass().getResource("/uikit/images/" + "close-envelope@2x" + ".png"));
+				Image scaledInstance = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+				JLabel email = new JLabel(new ImageIcon(scaledInstance));
+				email.addMouseListener(new MouseListener() {
+					@Override
+					public void mouseClicked(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mousePressed(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mouseReleased(MouseEvent e)
+					{
+						if (e.getSource() == email)
+						{
+							URI mailURI;
+							try
+							{
+								mailURI = new URI("mailto:teacher@abc.com?subject=" + course.getCourseName().replace(" ", "%20") + "%20[[INSERT%20QUESTION%20HERE]]");
+							}
+							catch (URISyntaxException e1)
+							{
+								e1.printStackTrace();
+								return;
+							}
+							try
+							{
+								Desktop.getDesktop().mail(mailURI);
+							}
+							catch (IOException e1)
+							{
+								e1.printStackTrace();
+							}
+						}
+					}
+
+					@Override
+					public void mouseEntered(MouseEvent e)
+					{
+
+					}
+
+					@Override
+					public void mouseExited(MouseEvent e)
+					{
+
+					}
+				});
+				add(email);
+				addConstraint(new LayoutConstraint(email, LayoutAttribute.leading, LayoutRelation.equal, title, LayoutAttribute.trailing, 1.0, 20));
+				addConstraint(new LayoutConstraint(email, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
+				addConstraint(new LayoutConstraint(email, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1.0, 30));
+				addConstraint(new LayoutConstraint(email, LayoutAttribute.height, LayoutRelation.equal, null, LayoutAttribute.height, 1.0, 30));
+			}
+			catch (Exception e) { e.printStackTrace();}
+			activePanel = new StudentAnnouncements(courseToView);
+		}
 
 		add(activePanel);
 		addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, tabBar, LayoutAttribute.trailing, 1, 8));
@@ -60,11 +137,15 @@ public class CourseView extends ALJPanel
 		{
 			case "Announcements":
 			{
-				if (!(activePanel instanceof InstructorAnnouncements))
+				if (!(activePanel instanceof InstructorAnnouncements) && !(activePanel instanceof StudentAnnouncements))
 				{
 					if (UIVariables.current.currentUser.getUserType() == userType.TEACHER)
 					{
 						newPanel = new InstructorAnnouncements(courseToView);
+					}
+					else
+					{
+						newPanel = new StudentAnnouncements(courseToView);
 					}
 				}
 				else return;
