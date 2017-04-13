@@ -10,15 +10,21 @@ public class Message implements Serializable {
     private String title;
     private String text;
     private String timestamp;
+    private int id;
+    private int authorUserId;
+    private int courseId;
 
     public Message() {
         // empty constructor
     }
 
-    public Message(String title, String text, String timestamp) {
+    public Message(int id, String title, String text, String timestamp, int authorUserId, int courseId) {
         this.title = title;
         this.text = text;
         this.timestamp = timestamp;
+        this.id = id;
+        this.authorUserId = authorUserId;
+        this.courseId = courseId;
     }
 
     public String getTitle() {
@@ -39,6 +45,30 @@ public class Message implements Serializable {
 
     public String getTimestamp() {
         return this.timestamp;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getAuthorUserId() {
+        return authorUserId;
+    }
+
+    public int getCourseId() {
+        return courseId;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setAuthorUserId(int authorUserId) {
+        this.authorUserId = authorUserId;
+    }
+
+    public void setCourseId(int courseId) {
+        this.courseId = courseId;
     }
 
     public void setTimestamp(String newTimestamp) {
