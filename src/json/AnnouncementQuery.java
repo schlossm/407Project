@@ -32,7 +32,7 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"title", "content", "timestamp", "authoruserid", "courseid"};
         String[] values = {title, content, timestamp, authoruserid, "" + courseid};
-        String table = "announcement";
+        String table = "Announcement";
         try {
             dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -47,7 +47,7 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
      */
     public void removeAnnouncement(int announcementid) {
         DFSQL dfsql = new DFSQL();
-        String table = "announcement";
+        String table = "Announcement";
         Where where = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("id", announcementid + ""));
         try {
             dfsql.delete(table, where);
@@ -63,7 +63,7 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
     public void getAllAnnouncement() {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id", "title", "content", "timestamp", "authoruserid", "courseid"};
-        String table = "announcement";
+        String table = "Announcement";
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table);
@@ -80,7 +80,7 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
     public void getAllAnnouncementInCourse(int courseid) {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id", "title", "content", "timestamp", "authoruserid", "courseid"};
-        String table = "announcement";
+        String table = "Announcement";
         getAllAnnouncementInCourseReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null)
