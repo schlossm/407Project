@@ -30,7 +30,7 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
 
     public void deleteDocument(int documentid) {
         DFSQL dfsql = new DFSQL();
-        String table = "documents";
+        String table = "Documents";
         Where where = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("id", documentid + ""));
         try {
             dfsql.delete(table, where);
@@ -43,7 +43,7 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
     public void getDocument(int documentid) {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id", "title", "description", "path", "authoruserid", "courseid"};
-        String table = "documents";
+        String table = "Documents";
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table)
@@ -57,7 +57,7 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
     public void getAllDocumentsIdsInCourse(int courseid) {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id", "title", "description", "path", "authoruserid", "courseid"};
-        String table = "documents";
+        String table = "Documents";
         getAllDocumentsIdsInCourseReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null)
@@ -72,7 +72,7 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
     public void getAllDocumentsIds() {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id", "title", "description", "path", "authoruserid", "courseid"};
-        String table = "documents";
+        String table = "Documents";
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table);
