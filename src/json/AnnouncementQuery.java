@@ -110,7 +110,8 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
     private void returnHandler() {
         if(getAllAnnouncementInCourseReturn){
             ArrayList<Message> allCoursesForInstructor = new ArrayList<Message>();
-            int courseId, authorUserId, id;
+            int courseId, id;
+            String authorUserId = null;
 
             try {
                 for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {

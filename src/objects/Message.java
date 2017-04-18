@@ -11,14 +11,14 @@ public class Message implements Serializable {
     private String text;
     private String timestamp;
     private int id;
-    private int authorUserId;
+    private String authorUserId;
     private int courseId;
 
     public Message() {
         // empty constructor
     }
 
-    public Message(int id, String title, String text, String timestamp, int authorUserId, int courseId) {
+    public Message(int id, String title, String text, String timestamp, String authorUserId, int courseId) {
         this.title = title;
         this.text = text;
         this.timestamp = timestamp;
@@ -51,7 +51,7 @@ public class Message implements Serializable {
         return id;
     }
 
-    public int getAuthorUserId() {
+    public String getAuthorUserId() {
         return authorUserId;
     }
 
@@ -63,7 +63,7 @@ public class Message implements Serializable {
         this.id = id;
     }
 
-    public void setAuthorUserId(int authorUserId) {
+    public void setAuthorUserId(String authorUserId) {
         this.authorUserId = authorUserId;
     }
 
