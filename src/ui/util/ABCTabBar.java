@@ -59,7 +59,7 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 
 			case STUDENT:
 			{
-				buttonTitles = new String[] {"Home", "My Courses",/*............*/"Announcements", "Grades",/*...........................................*/"Help", "Settings"};
+				buttonTitles = new String[] {"Home", "My Courses",/*.............................*/ "Grades",/*...........................................*/"Help", "Settings"};
 				break;
 			}
 

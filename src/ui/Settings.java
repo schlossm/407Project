@@ -47,7 +47,7 @@ class Settings extends ALJPanel
 		}
 
 		JCheckBox saveStateBox = new JCheckBox("", savesState);
-		saveStateBox.addActionListener(e -> { System.out.println(new NSBoolean(saveStateBox.isSelected())); UIVariables.current.writeValue("savesState", new NSBoolean(saveStateBox.isSelected())); });
+		saveStateBox.addActionListener(e -> { UIVariables.current.writeValue("savesState", new NSBoolean(saveStateBox.isSelected())); });
 		add(saveStateBox);
 
 		addConstraint(new LayoutConstraint(saveState, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 32));
