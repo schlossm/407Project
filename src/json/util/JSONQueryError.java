@@ -5,6 +5,8 @@ import java.util.Map;
 /* ERROR CODES
 *
 * 0: Generic Error
+* 1: Duplicate ID
+* 2: Duplicate Unique
 *
 * */
 

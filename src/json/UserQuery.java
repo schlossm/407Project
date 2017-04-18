@@ -277,7 +277,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             {
             	if (error != null)
 	            {
-	            	if (error.)
+	            	if (error.code == 2)
 
 		            JSONQueryError error1;
 
