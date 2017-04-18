@@ -2,6 +2,12 @@ package json.util;
 
 import java.util.Map;
 
+/* ERROR CODES
+*
+* 1: Generic Error
+*
+* */
+
 /**
  * Created by michaelschloss on 4/18/17.
  */

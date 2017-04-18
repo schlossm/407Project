@@ -264,7 +264,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         bufferString = null;
     }
 
-    public boolean addNewUser(String userUserId, String userPassword,  String userEmail, String userBirthday, String userFirstName, String userLastName, userType userUserType){
+    public boolean addNewUser(String userUserId, String userPassword,  String userEmail, String userBirthday, String userFirstName, String userLastName, userType userUserType, QueryCallbackRunnable runnable){
         int convertedUserType = userTypeToIntConverter(userUserType);
         boolean isaddSuccess;
         String[] rows = {"userID", "password", "email", "birthday", "firstName", "lastName", "userType"};
@@ -273,7 +273,17 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         try {
             dfsql.insert("users", values, rows);
             debugLog(dfsql.formattedStatement());
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+            	if (error != null)
+	            {
+		            JSONQueryError error1;
+
+	            	JSONQueryError error1 = new JSONQueryError(1, "Internal Error", null);
+	            	runnable.run(null, error1);
+	            	return;
+	            }
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
