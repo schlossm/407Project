@@ -94,6 +94,14 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                     runnable.run(null, error1);
                     return;
                 }
+                DFDataUploaderReturnStatus uploadStatus;
+                if (response instanceof DFDataUploaderReturnStatus)
+                {
+                    uploadStatus = (DFDataUploaderReturnStatus)response;
+                    if(uploadStatus == DFDataUploaderReturnStatus.success){
+                        runnable.run();
+                    }
+                }
             });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
