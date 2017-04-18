@@ -80,7 +80,7 @@ public class InstructorAnnouncements extends ALJTablePanel implements DFNotifica
 
 			workToDoOnSuccess = () ->
 			{
-				Message announcement = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp);
+				Message announcement = new Message(-1, alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());
 
 				if (announcementData.get("Announcements") == null)
 				{

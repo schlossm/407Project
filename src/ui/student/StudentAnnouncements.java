@@ -35,9 +35,12 @@ public class StudentAnnouncements extends ALJTablePanel implements DFNotificatio
 	{
 		loadingLabel = new JLabel("Loading");
 		loadingLabel.setFont(UIFont.textLight.deriveFont(30f));
-		add(loadingLabel);
-		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.centerX, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 0));
-		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.centerY, LayoutRelation.equal, this, LayoutAttribute.centerY, 1.0, 0));
+		loadingLabel.setHorizontalTextPosition(JLabel.CENTER);
+		add(loadingLabel, 2);
+		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
+		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
+		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
+		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
 
 		if (UIVariables.current.globalUserData.get("announcements" + course.getCourseID()) != null)
 		{
@@ -107,7 +110,7 @@ public class StudentAnnouncements extends ALJTablePanel implements DFNotificatio
 		{
 			if (userData != null)
 			{
-				remove(loadingLabel);
+				//remove(loadingLabel);
 			}
 		}
 	}
