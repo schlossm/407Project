@@ -44,11 +44,11 @@ public class AdminAnnouncements extends ALJTablePanel implements DFNotificationC
 			workToDoOnSuccess = () ->
 			{
 				if (announcementData.get("Announcements") != null)
-					announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp));
+					announcementData.get("Announcements").add(new Message(-1, alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1));
 				else
 				{
 					ArrayList<Object> data = new ArrayList<>();
-					Message message = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp);
+					Message message = new Message(-1, alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1);
 					data.add(message);
 					announcementData.put("Announcements", data);
 				}
