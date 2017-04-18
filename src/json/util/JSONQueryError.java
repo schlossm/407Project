@@ -4,7 +4,7 @@ import java.util.Map;
 
 /* ERROR CODES
 *
-* 1: Generic Error
+* 0: Generic Error
 *
 * */
 
