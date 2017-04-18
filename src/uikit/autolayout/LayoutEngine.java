@@ -340,7 +340,7 @@ public class LayoutEngine
 				{
 					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, (centerX - constraint.viewOne.getBounds().x) * 2, constraint.viewOne.getBounds().height);
 				}
-				else if (contains(attributesSatisfied, LayoutAttribute.width))
+				else
 				{
 					constraint.viewOne.setBounds(centerX - (constraint.viewOne.getBounds().width/2), constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
 				}
@@ -392,7 +392,7 @@ public class LayoutEngine
 				{
 					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, (centerY - constraint.viewOne.getBounds().y) * 2);
 				}
-				else if (contains(attributesSatisfied, LayoutAttribute.width))
+				else
 				{
 					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, centerY - (constraint.viewOne.getBounds().height/2), constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
 				}
