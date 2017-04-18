@@ -117,7 +117,7 @@ public class DFDatabase
 			return;
 		}
 
-		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
+		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") || SQLStatement.formattedStatement().contains("DELETE") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
 	}
 
 	public  String hashString( String decryptedString)

@@ -272,9 +272,9 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         bufferString = null;
     }
 
-    public boolean addNewUser(String userUserId, String userPassword,  String userEmail, String userBirthday, String userFirstName, String userLastName, userType userUserType, QueryCallbackRunnable runnable){
+    public void addNewUser(String userUserId, String userPassword,  String userEmail, String userBirthday, String userFirstName, String userLastName, userType userUserType, QueryCallbackRunnable runnable)
+    {
         int convertedUserType = userTypeToIntConverter(userUserType);
-        boolean isaddSuccess;
         String[] rows = {"userID", "password", "email", "birthday", "firstName", "lastName", "userType"};
         String[] values = {userUserId, userPassword, userEmail, userBirthday, userFirstName, userLastName ,String.valueOf(convertedUserType)};
         DFSQL dfsql = new DFSQL();
@@ -285,26 +285,45 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             {
             	if (error != null)
 	            {
-	            	if (error.code == 2)
-
 		            JSONQueryError error1;
-
-	            	JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+	            	if (error.code == 2)
+		            {
+			            error1 = new JSONQueryError(1, "Duplicate ID", null);
+		            }
+					else if (error.code == 3)
+		            {
+			            error1 = new JSONQueryError(2, "Duplicate Unique Entry", null);
+		            }
+		            else
+		            {
+			            error1 = new JSONQueryError(0, "Internal Error", null);
+		            }
 	            	runnable.run(null, error1);
 	            	return;
 	            }
+
+	            if (response instanceof DFDataUploaderReturnStatus)
+	            {
+	            	DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
+					if (returnStatus == DFDataUploaderReturnStatus.success)
+					{
+						runnable.run(true, null);
+					}
+					else
+					{
+						runnable.run(false, null);
+					}
+	            }
+	            else
+	            {
+
+		            runnable.run(null, new JSONQueryError(0, "Internal Error", null););
+	            }
             });
-        } catch (DFSQLError e1) {
+        } catch (DFSQLError e1)
+        {
             e1.printStackTrace();
         }
-        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
-		/*
-		if(isaddSuccess){
-			return getUser(userName);
-		} else {
-			return null;
-		}*/
-        return isaddSuccess;
     }
 
     private int userTypeToIntConverter(userType userType){
