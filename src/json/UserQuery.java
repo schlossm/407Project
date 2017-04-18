@@ -82,11 +82,19 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     }
 
 
-    public void removeUser(String username) {
+    public void removeUser(String username, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         try {
             dfsql.delete("users", new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("userid", username)));
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->{
+                if(error != null)
+                {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }

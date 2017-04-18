@@ -18,7 +18,7 @@ import static database.DFDatabase.debugLog;
  * Created by Naveen Ganessin on 3/6/2017.
  */
 public class CourseQuery implements DFDatabaseCallbackDelegate{
-    private boolean getCourseReturn, getAllInstructorsInCourseReturn, getAllStudentsInCourseReturn, getAssignmentInfoReturn, getAllAssignmentsReturn;
+    private boolean getCourseReturn, getAllInstructorsInCourseReturn, getAllStudentsInCourseReturn, getAssignmentInfoReturn, getAllAssignmentsReturn, getAllCoursesReturn;
     private int courseidForInsertionInstrutor = -1;
     private int courseidForDeletionInstructor = -1;
     private int courseidForInsertionStudent = -1;
@@ -82,6 +82,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         DFSQL dfsql = new DFSQL();
         String[] selectRows = {"id", "courseid", "capacity", "description", "roomno", "meetingtime", "startdate", "enddate"};
         String table = "courses";
+        getAllCoursesReturn = true;
         try {
             dfsql.select(selectRows, false, null, null)
                     .from(table)
@@ -419,7 +420,6 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         if(getCourseReturn){
             String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
             int courseId = 0;
-            int userTypeInt = 0;
             try {
                 courseId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
                 courseTitle = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("courseID").getAsString();
@@ -490,6 +490,19 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
             }
             getAllAssignmentsReturn = false;
+        } else if (getAllCoursesReturn) {
+            ArrayList<Course> allCourses = new ArrayList<Course>();
+            String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
+            int courseId = 0;
+            try {
+                for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                    assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsString();
+                    allCourses.add(assignmentId);
+                }
+            }catch (NullPointerException e2){
+                DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
+            }
+            getAllCoursesReturn = false;
         }
 
         bufferString = null;
