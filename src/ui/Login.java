@@ -433,7 +433,12 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		if (Objects.equals(notificationName, UIStrings.success))
 		{
 			stage = Stage.loadUser;
-			query.getUser(usernameField.getText());
+			query.getUser(usernameField.getText(), (returnedData, error) ->
+			{
+				UIVariables.current.currentUser = (User)userData;
+				LocalStorage.defaultManager.saveObjectToFile(userData, UIVariables.current.applicationDirectories.library + ".user.abc");
+				Window.current.postLogin();
+			});
 		}
 		else if (Objects.equals(notificationName, UIStrings.failure))
 		{

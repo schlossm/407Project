@@ -1,7 +1,8 @@
 package objects;
 
-import java.io.Serializable;
 import json.UserQuery;
+
+import java.io.Serializable;
 
 /**
  * User.java
@@ -21,7 +22,11 @@ public class User implements Serializable {
     public User(){};
     public User(String userID) {
         // User will always exist in the database, don't worry about that case
-        userQuery.getUser(userID);
+        userQuery.getUser(userID, (returnedData, error) ->
+        {
+            User user = (User)returnedData;
+            //Something to do here
+        });
     }
 
     public String getUserID() {
