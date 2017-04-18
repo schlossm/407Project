@@ -3,9 +3,11 @@ package json;
 import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
+import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
+import json.util.JSONQueryError;
 import objects.User;
 import objects.userType;
 import ui.util.UIStrings;
@@ -25,13 +27,55 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     private boolean verifyUserLoginReturn;
 
 
-    public void getUser(String username) {
+    public void getUser(String username, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         getUserReturn = true;
         String[] selectedRows = {"userID", "firstName", "lastName", "email", "birthday", "userType"};
         try {
             dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+                if(error != null)
+                {
+                    //Process the error and return appropriate new error to UI.
+					JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+					runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject)
+                {
+                    jsonObject = (JsonObject)response;
+                }
+                else
+                {
+                    return;
+                }
+                String usernameReceived = null, userEmail = null, userBirthday = null, userFirstName = null, userLastName = null;
+                int userTypeInt;
+                userType userType = null;
+                try {
+                    usernameReceived = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userID").getAsString();
+                    userEmail = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("email").getAsString();
+                    userBirthday = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("birthday").getAsString();
+                    userFirstName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("firstName").getAsString();
+                    userLastName = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("lastName").getAsString();
+                    userTypeInt = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userType").getAsInt();
+                    userType = intToUserTypeConverter(userTypeInt);
+
+                }catch (NullPointerException e2){
+                    DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
+                }
+                User user = new User();
+                user.setUserID(usernameReceived);
+                user.setEmail(userEmail);
+                user.setFirstName(userFirstName);
+                user.setLastName(userLastName);
+                user.setBirthday(userBirthday);
+                user.setUserType(userType);
+
+                runnable.run(user, null);
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }

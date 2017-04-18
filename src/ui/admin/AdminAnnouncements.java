@@ -112,7 +112,14 @@ public class AdminAnnouncements extends ALJTablePanel implements DFNotificationC
 	{
 		ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
 
-		newCell.titleLabel.setText(((Message)announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).getTitle());
+		if (index.section == 1)
+		{
+			newCell.titleLabel.setText(((Message) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).getTitle());
+		}
+		else
+		{
+			newCell.titleLabel.setText((String) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+		}
 
 		return newCell;
 	}

@@ -2,7 +2,7 @@ package database.WebServer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import database.DFDatabaseCallbackDelegate;
+import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.DFSQL;
 
@@ -23,7 +23,7 @@ import static database.WebServer.DFWebServerDispatch.*;
 
 class DFDataDownloader
 {
-    void downloadDataWith(DFSQL SQLStatement, DFDatabaseCallbackDelegate delegate)
+    void downloadDataWith(DFSQL SQLStatement, DFDatabaseCallbackRunnable runnable)
 	{
         debugLog(SQLStatement.formattedStatement());
         String calleeMethod = getMethodNameOfSuperMethod();
@@ -74,7 +74,7 @@ class DFDataDownloader
                     errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
                     DFError error = new DFError(1, "No data was returned", errorInfo);
 	                debugLog(error);
-                    queue.add(() -> { debugLog("Queue Executed"); delegate.returnedData(null, error); });
+                    queue.add(() -> { debugLog("Queue Executed"); runnable.run(null, error); });
                 }
                 else if (response.contains("Table") && response.contains("doesn't exist"))
                 {
@@ -85,13 +85,13 @@ class DFDataDownloader
 	                errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 	                DFError error = new DFError(4, "The specified table doesn't exist", errorInfo);
 	                debugLog(error);
-	                queue.add(() -> { debugLog("Queue Executed"); delegate.returnedData(null, error); });
+	                queue.add(() -> { debugLog("Queue Executed"); runnable.run(null, error); });
                 }
                 else
                 {
                     Gson gsonConverter = new Gson();
                     JsonObject object = gsonConverter.fromJson(response, JsonObject.class);
-                    queue.add(() -> { debugLog("Queue Executed"); delegate.returnedData(object, null); });
+                    queue.add(() -> { debugLog("Queue Executed"); runnable.run(object, null); });
                 }
             }
             catch (Exception e)
@@ -107,7 +107,7 @@ class DFDataDownloader
                 errorInfo.put(kURL, website + "/" + readFile);
                 errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
                 DFError error = new DFError(0, "There was a(n) " + e.getCause() + " error", errorInfo);
-                queue.add(() -> delegate.returnedData(null, error));
+                queue.add(() -> runnable.run(null, error));
             }
 
         }).start();

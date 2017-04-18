@@ -1,6 +1,6 @@
 package database.WebServer;
 
-import database.DFDatabaseCallbackDelegate;
+import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.DFSQL;
 
@@ -18,7 +18,7 @@ import static database.WebServer.DFWebServerDispatch.*;
 
 class DFDataUploader
 {
-    void uploadDataWith(DFSQL SQLStatement, DFDatabaseCallbackDelegate delegate)
+    void uploadDataWith(DFSQL SQLStatement, DFDatabaseCallbackRunnable runnable)
 	{
         debugLog(SQLStatement.formattedStatement());
 
@@ -67,13 +67,13 @@ class DFDataUploader
                     errorInfo.put(kURL, website + "/" + writeFile);
                     errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
                     DFError error = new DFError(1, "No data was returned", errorInfo);
-                    queue.add(() -> delegate.uploadStatus(DFDataUploaderReturnStatus.error, error));
+                    queue.add(() -> runnable.run(DFDataUploaderReturnStatus.error, error));
                     return;
                 }
 
                 if (response.contains("Success"))
                 {
-                    queue.add(() -> delegate.uploadStatus(DFDataUploaderReturnStatus.success, null));
+                    queue.add(() -> runnable.run(DFDataUploaderReturnStatus.success, null));
                 }
                 else
                 {
@@ -105,7 +105,7 @@ class DFDataUploader
 	                if (error != null) debugLog(error);
 
 	                DFError finalError = error;
-	                queue.add(() -> delegate.uploadStatus(DFDataUploaderReturnStatus.failure, finalError));
+	                queue.add(() -> runnable.run(DFDataUploaderReturnStatus.failure, finalError));
                 }
             }
             catch(NullPointerException | IOException e)
@@ -121,7 +121,7 @@ class DFDataUploader
                 errorInfo.put(kURL, website + "/" + writeFile);
                 errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
                 DFError error = new DFError(0, "There was a(n) " + e.getCause() + " error", errorInfo);
-                queue.add(() -> delegate.uploadStatus(DFDataUploaderReturnStatus.error, error));
+                queue.add(() -> runnable.run(DFDataUploaderReturnStatus.error, error));
             }
         }).start();
 	}

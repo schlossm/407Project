@@ -104,23 +104,20 @@ public class DFDatabase
 
 	/**
 	 * @param SQLStatement the SQL statement to execute backend side
-	 * @param delegate the delegate object that will respond to data changes.  This object must conform to the DFDatabaseCallbackDelegate interface
+	 * @param runnable the runnable object that will respond to data changes.  This object must conform to the DFDatabaseCallbackRunnable interface
 	 */
-	public void execute( DFSQL SQLStatement,  DFDatabaseCallbackDelegate delegate)
+	public void execute( DFSQL SQLStatement,  DFDatabaseCallbackRunnable runnable)
 	{
 		if (Objects.equals(SQLStatement.formattedStatement(), ""))
 		{
 			Map<String, String> errorInfo = new HashMap<>();
 			errorInfo.put(kMethodName, getMethodName());
 			errorInfo.put(kExpandedDescription, "DFDatabase cannot work with an empty DFSQL Object.");
-			if (delegate != null)
-			{
-				delegate.returnedData(null, new DFError(-3, "Empty DFSQL object delivered", errorInfo));
-			}
+			if (runnable != null) { runnable.run(null, new DFError(-3, "Empty DFSQL object delivered", errorInfo)); }
 			return;
 		}
 
-		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, delegate);
+		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
 	}
 
 	public  String hashString( String decryptedString)

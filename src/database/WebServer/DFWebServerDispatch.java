@@ -1,9 +1,7 @@
 package database.WebServer;
 
 
-import com.google.gson.JsonObject;
-import database.DFDatabaseCallbackDelegate;
-import database.DFError;
+import database.DFDatabaseCallbackRunnable;
 import database.DFSQL.DFSQL;
 import database.Utilities.DFDataSizePrinter;
 
@@ -14,7 +12,7 @@ import static database.DFDatabase.debugLog;
 /**
  * Manages a Queue of WebServer Dispatch objects to retain atomicity of delegates and sql statements.  prevents overloading DFDataDownloader and DFDataUploader
  */
-public class DFWebServerDispatch implements DFDatabaseCallbackDelegate
+public class DFWebServerDispatch
 {
 	static final String website			    = "https://www.mascomputech.com/abc";
 	static final String readFile			= "ReadFile.php";
@@ -33,9 +31,9 @@ public class DFWebServerDispatch implements DFDatabaseCallbackDelegate
 	private PrivateDFDispatchObject nextObject;
 	private boolean isProcessing = false;
 
-	public void add(DispatchDirection direction, DFSQL statement, DFDatabaseCallbackDelegate delegate)
+	public void add(DispatchDirection direction, DFSQL statement, DFDatabaseCallbackRunnable runnable)
 	{
-		queue.add(new PrivateDFDispatchObject(direction, statement, delegate));
+		queue.add(new PrivateDFDispatchObject(direction, statement, runnable));
 		debugLog("Added new entry!");
 		debugLog("Queue size: " + queue.size());
 		if (!isProcessing)
@@ -57,26 +55,12 @@ public class DFWebServerDispatch implements DFDatabaseCallbackDelegate
 		nextObject = queue.remove(0);
 		if (nextObject.fork == DispatchDirection.download)
 		{
-			dataDownloader.downloadDataWith(nextObject.SQLStatement, this);
+			dataDownloader.downloadDataWith(nextObject.SQLStatement, nextObject.runnable);
 		}
 		else
 		{
-			dataUploader.uploadDataWith(nextObject.SQLStatement, this);
+			dataUploader.uploadDataWith(nextObject.SQLStatement, nextObject.runnable);
 		}
-	}
-
-	@Override
-	public void returnedData(JsonObject jsonObject, DFError error)
-	{
-		nextObject.delegate.returnedData(jsonObject, error);
-		processQueue();
-	}
-
-	@Override
-	public void uploadStatus(DFDataUploaderReturnStatus success, DFError error)
-	{
-		nextObject.delegate.uploadStatus(success, error);
-		processQueue();
 	}
 }
 
@@ -84,13 +68,13 @@ class PrivateDFDispatchObject
 {
 	final DispatchDirection fork;
 	final DFSQL SQLStatement;
-	final DFDatabaseCallbackDelegate delegate;
+	final DFDatabaseCallbackRunnable runnable;
 
-	PrivateDFDispatchObject(DispatchDirection fork, DFSQL SQLStatement, DFDatabaseCallbackDelegate delegate)
+	PrivateDFDispatchObject(DispatchDirection fork, DFSQL SQLStatement, DFDatabaseCallbackRunnable runnable)
 	{
 		this.fork = fork;
 		this.SQLStatement = SQLStatement;
-		this.delegate = delegate;
+		this.runnable = runnable;
 	}
 }
 

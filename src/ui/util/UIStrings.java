@@ -25,6 +25,7 @@ public class UIStrings
 	public static final String oneHourHasPassedNotification             = "One Hour Has Passed";
 	public static final String newDayNotification                       = "Midnight Has Passed";
 
+	//DATABASE RETURN ERROR CONSTANTS
 	public static final String duplicatePrimaryKeyErrorNotification     = "Duplicate Primary Key Error";
 	public static final String duplicateUniqueKeyErrorNotification      = "Duplicate Unique Key Error";
 	public static final String noDataReturnedErrorNotification          = "No Data Returned Error";

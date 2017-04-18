@@ -1,26 +1,12 @@
-package database;
+package json.util;
 
 import java.util.Map;
 
-/*
- * ERROR CODES:
- *
- * -3: Empty SQL Statement
- * 0 : Unknown Java Error
- * 1 : No data
- * 2 : Duplicate Primary Key
- * 3 : Duplicate Unique Key
- * 4 : Table doesn't exist
- * */
-
 /**
- * The error class for DFDatabase.  More powerful than implementing the Exception class
+ * Created by michaelschloss on 4/18/17.
  */
-public class DFError
+public class JSONQueryError
 {
-	public static final String kSQLStatement = "SQL Statement";
-	public static final String kURL = "URL";
-	public static final String kMethodName = "Method Name";
 	public static final String kExpandedDescription = "Expanded Description";
 
 	/**
@@ -36,7 +22,7 @@ public class DFError
 	 */
 	private final Map<String, String> userInfo;
 
-	public DFError(int code, String description, Map<String, String> userInfo)
+	public JSONQueryError(int code, String description, Map<String, String> userInfo)
 	{
 		this.code = code;
 		this.description = description;
