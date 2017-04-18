@@ -26,7 +26,7 @@ public class DFError
 	/**
 	 * The error code
 	 */
-	private final int code;
+	public final int code;
 	/**
 	 * A human readable description of the error
 	 */
