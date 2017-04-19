@@ -19,7 +19,7 @@ public class AdminAnnouncements extends ALJTablePanel
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
 
-	private AnnouncementQuery announcementQuery = new AnnouncementQuery();
+	private final AnnouncementQuery announcementQuery = new AnnouncementQuery();
 
 	public AdminAnnouncements()
 	{
@@ -40,7 +40,7 @@ public class AdminAnnouncements extends ALJTablePanel
 			}
 			if (returnedData instanceof ArrayList)
 			{
-				ArrayList<Object> messages = (ArrayList<Object>)returnedData;
+				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
 				announcementData.put("Announcements", messages);
 			}
 		});
@@ -68,7 +68,7 @@ public class AdminAnnouncements extends ALJTablePanel
 					if (bool)
 					{
 						if (announcementData.get("Announcements") != null)
-							announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1));
+						{ announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1)); }
 						else
 						{
 							ArrayList<Object> data = new ArrayList<>();
@@ -149,7 +149,7 @@ public class AdminAnnouncements extends ALJTablePanel
 	@Override
 	public String titleForHeaderInSectionInTable(ALJTable table, int section)
 	{
-		return (String)announcementData.keySet().toArray()[section];
+		return (String) announcementData.keySet().toArray()[section];
 	}
 
 	@Override

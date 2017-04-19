@@ -28,11 +28,12 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 class FileList extends ALJTablePanel
 {
-	private Map<String, ArrayList<Object>> fileListData = new HashMap<>();
+	private final Map<String, ArrayList<Object>> fileListData = new HashMap<>();
 
-	private DocumentsQuery query = new DocumentsQuery();
+	private final DocumentsQuery query = new DocumentsQuery();
 
-	private Course course;
+	private final Course course;
+	private File tempFile = null;
 
 	FileList(Course course)
 	{
@@ -46,7 +47,7 @@ class FileList extends ALJTablePanel
 
 		if (UIVariables.current.globalUserData.get("files") != null)
 		{
-			fileListData.put("Files", (ArrayList<Object>)UIVariables.current.globalUserData.get("files"));
+			fileListData.put("Files", (ArrayList<Object>) UIVariables.current.globalUserData.get("files"));
 		}
 
 		query.getAllDocumentsIdsInCourse(course.getCourseID());
@@ -56,8 +57,6 @@ class FileList extends ALJTablePanel
 	{
 		UIVariables.current.globalUserData.put("files", fileListData.get("Files"));
 	}
-
-	private File tempFile = null;
 
 	private void add()
 	{

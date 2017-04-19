@@ -28,7 +28,7 @@ public class StudentAnnouncements extends ALJTablePanel
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
 
-	private JLabel loadingLabel;
+	private final JLabel loadingLabel;
 
 	public StudentAnnouncements(Course course)
 	{
@@ -60,7 +60,7 @@ public class StudentAnnouncements extends ALJTablePanel
 			}
 			if (returnedData instanceof ArrayList)
 			{
-				ArrayList<Object> messages = (ArrayList<Object>)returnedData;
+				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
 				announcementData.put("", messages);
 				UIVariables.current.globalUserData.put("announcements" + course.getCourseID(), messages);
 			}

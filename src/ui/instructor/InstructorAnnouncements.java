@@ -26,11 +26,11 @@ public class InstructorAnnouncements extends ALJTablePanel
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
 
-	private Course courseForAnnouncements;
+	private final Course courseForAnnouncements;
 
-	private AnnouncementQuery query = new AnnouncementQuery();
+	private final AnnouncementQuery query = new AnnouncementQuery();
 
-	private JLabel loadingLabel;
+	private final JLabel loadingLabel;
 
 	public InstructorAnnouncements(Course course)
 	{
@@ -65,7 +65,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 			if (returnedData instanceof ArrayList)
 			{
 				remove(loadingLabel);
-				ArrayList<Object> messages = (ArrayList<Object>)returnedData;
+				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
 				announcementData.put("Announcements", messages);
 				UIVariables.current.globalUserData.put("announcements" + course.getCourseID(), messages);
 			}
@@ -94,7 +94,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 				}
 				if (returnedData instanceof Boolean)
 				{
-					boolean bool = (Boolean)returnedData;
+					boolean bool = (Boolean) returnedData;
 					if (bool)
 					{
 						Message announcement = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());

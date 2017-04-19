@@ -26,13 +26,10 @@ enum Process
 @SuppressWarnings("unchecked")
 public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDelegate
 {
-	private Group groupToManage = Group.none;
-
 	private final Map<String, ArrayList<Object>> tableData = new HashMap<>();
-
 	private final CourseQuery courseQuery = new CourseQuery();
 	private final UserQuery userQuery = new UserQuery();
-
+	private Group groupToManage = Group.none;
 	private Process currentProcess = Process.none;
 
 	private Runnable workToDoOnSuccess = null;
@@ -79,7 +76,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		if (groupToManage == Group.courses)
 		{
 			currentProcess = Process.loadingCourse;
-			courseQuery.getAllCourses(100, offset, (returnedData, error) -> {
+			courseQuery.getAllCourses(100, offset, (returnedData, error) ->
+			{
 				if (error != null)
 				{
 					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
@@ -103,7 +101,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		else if (groupToManage == Group.students)
 		{
 			currentProcess = Process.loadingStudent;
-			userQuery.getAllStudents(100, offset, (returnedData, error) -> {
+			userQuery.getAllStudents(100, offset, (returnedData, error) ->
+			{
 				if (error != null)
 				{
 					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
@@ -127,7 +126,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		else
 		{
 			currentProcess = Process.loadingTeacher;
-			userQuery.getAllInstructors(100, offset, (returnedData, error) -> {
+			userQuery.getAllInstructors(100, offset, (returnedData, error) ->
+			{
 				if (error != null)
 				{
 					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
@@ -373,7 +373,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 					break;
 				}
 
-				default: break;
+				default:
+					break;
 			}
 		}, true);
 		alert.addButton("Cancel", ButtonType.cancel, null, false);
@@ -518,7 +519,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 								}
 								if (returnedData instanceof Boolean)
 								{
-									boolean bool = (Boolean)returnedData;
+									boolean bool = (Boolean) returnedData;
 									if (bool)
 									{
 										tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
@@ -551,7 +552,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 								}
 								if (returnedData instanceof Boolean)
 								{
-									boolean bool = (Boolean)returnedData;
+									boolean bool = (Boolean) returnedData;
 									if (bool)
 									{
 										tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
@@ -578,7 +579,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				break;
 			}
 
-			default: break;
+			default:
+				break;
 		}
 	}
 

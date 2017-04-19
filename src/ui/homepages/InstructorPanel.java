@@ -25,9 +25,8 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 	private final ALJTable courseList;
 
 	private final ArrayList<TestAssignment> assignments = new ArrayList<>();
-	private ArrayList<Course> courses = new ArrayList<>();
-
 	private final JLabel coursesLabel;
+	private ArrayList<Course> courses = new ArrayList<>();
 
 	public InstructorPanel()
 	{
@@ -67,11 +66,12 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 
 		if (UIVariables.current.globalUserData.get("allCourses") != null)
 		{
-			courses.addAll((ArrayList<Course>)UIVariables.current.globalUserData.get("allCourses"));
+			courses.addAll((ArrayList<Course>) UIVariables.current.globalUserData.get("allCourses"));
 		}
 
 		InstructorQuery instructorQuery = new InstructorQuery();
-		instructorQuery.getCourses(UIVariables.current.currentUser.getUserID(), (returnedData, error) -> {
+		instructorQuery.getCourses(UIVariables.current.currentUser.getUserID(), (returnedData, error) ->
+		{
 			if (error != null)
 			{
 				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
