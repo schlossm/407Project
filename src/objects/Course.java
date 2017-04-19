@@ -165,12 +165,9 @@ public class Course extends Object implements Serializable {
                 + "\ncourseName: " + this.courseName
                 + "\ndescription" + this.description
                 + "\nroomNo: " + this.roomNo
-                + "\nteachers: " + this.teachers.toString()
-                + "\nstudents: " + this.students.toString()
                 + "\nstartDate: " + this.startDate
                 + "\ncapcity: " + this.capacity
                 + "\nendDate: " + this.endDate
-                + "\nmessages: " + this.messages.toString()
                 + "\nattendanceString: " + this.attendanceString
                 + "\nmaxStorage: " + this.maxStorage;
     }

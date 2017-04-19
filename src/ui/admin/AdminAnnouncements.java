@@ -33,6 +33,10 @@ public class AdminAnnouncements extends ALJTablePanel
 		{
 			if (error != null)
 			{
+				if (error.code == 3)
+				{
+					return;
+				}
 				Alert errorAlert = new Alert("Error", "ABC could not load the announcements.  Please try again.");
 				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
 				errorAlert.show(Window.current.mainScreen);

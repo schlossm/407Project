@@ -31,6 +31,7 @@ public class DFWebServerDispatch
 		queue.add(new PrivateDFDispatchObject(direction, statement, runnable));
 		debugLog("Added new entry!");
 		debugLog("Queue size: " + queue.size());
+		debugLog("Is already processing: " + isProcessing);
 		if (!isProcessing)
 		{
 			isProcessing = true;
@@ -50,11 +51,19 @@ public class DFWebServerDispatch
 		PrivateDFDispatchObject nextObject = queue.remove(0);
 		if (nextObject.fork == DispatchDirection.download)
 		{
-			dataDownloader.downloadDataWith(nextObject.SQLStatement, nextObject.runnable);
+			dataDownloader.downloadDataWith(nextObject.SQLStatement, (response, error) ->
+			{
+				processQueue();
+				nextObject.runnable.run(response, error);
+			});
 		}
 		else
 		{
-			dataUploader.uploadDataWith(nextObject.SQLStatement, nextObject.runnable);
+			dataUploader.uploadDataWith(nextObject.SQLStatement, (response, error) ->
+			{
+				processQueue();
+				nextObject.runnable.run(response, error);
+			});
 		}
 	}
 }

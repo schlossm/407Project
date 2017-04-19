@@ -2,7 +2,6 @@ package json;
 
 import com.google.gson.JsonObject;
 import database.DFDatabase;
-import database.DFDatabaseCallbackDelegate;
 import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.*;
@@ -11,12 +10,7 @@ import json.util.JSONQueryError;
 import objects.Assignment;
 import objects.Course;
 
-import ui.util.UIStrings;
-import uikit.DFNotificationCenter;
-
 import java.util.ArrayList;
-
-import static database.DFDatabase.debugLog;
 
 /**
  * Created by Naveen Ganessin on 3/6/2017.
@@ -50,8 +44,6 @@ public class CourseQuery{
                     .limit(limit)
                     .offset(offset);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
-                System.out.println(response);
-                System.out.println(error);
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 if (error != null) {
                     //Process the error and return appropriate new error to UI.
@@ -62,6 +54,7 @@ public class CourseQuery{
                 if (response instanceof JsonObject) {
                     jsonObject = (JsonObject) response;
                 } else {
+                    runnable.run(null, error1);
                     return;
                 }
                 ArrayList<Course> allCourses = new ArrayList<Course>();
