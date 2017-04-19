@@ -46,6 +46,6 @@ public class DFError
 	@Override
 	public String toString()
 	{
-		return "Error Code: " + String.valueOf(code) + ".\nError Description: " + description + "\nError Info: " + userInfo.toString();
+		return "Error Code: " + String.valueOf(code) + ".\nError Description: " + description + (userInfo != null ? "\nError Info: " + userInfo.toString() : "");
 	}
 }
