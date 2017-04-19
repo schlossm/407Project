@@ -3,14 +3,17 @@ package json;
 import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
+import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
+import jdk.nashorn.internal.runtime.Context;
+import json.util.JSONQueryError;
 
 /**
  * Created by gauravsrivastava on 3/13/17.
  */
-public class InstructorQuery implements DFDatabaseCallbackDelegate {
+public class InstructorQuery {
 
     private class GradeParameter {
         public int assignmentid;
@@ -22,7 +25,7 @@ public class InstructorQuery implements DFDatabaseCallbackDelegate {
         }
     }
 
-    GradeParameter gradeParameter;
+
     private JsonObject jsonObject;
 
 
@@ -72,7 +75,7 @@ public class InstructorQuery implements DFDatabaseCallbackDelegate {
      * @param userid
      * @param points
      */
-    public void enterGrade(int assignmentid, String userid, double points) {
+    public void enterGrade(int assignmentid, String userid, double points, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"studentid"};
         String table = "students";
@@ -80,22 +83,53 @@ public class InstructorQuery implements DFDatabaseCallbackDelegate {
             dfsql.select(selectedRows, false, null, null)
                     .from(table)
                     .where(DFSQLEquivalence.equals, "userid", userid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-            gradeParameter.assignmentid = assignmentid;
-            gradeParameter.points = points;
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if( error != null) {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                    return;
+                }
+                if(response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                    GradeParameter gradeParameter = new GradeParameter(assignmentid);
+                    gradeParameter.points = points;
+                    gradeParameter.studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("studentid").getAsInt();
+                    enterGradeHelper(gradeParameter.assignmentid, gradeParameter.studentid, gradeParameter.points, runnable);
+                } else {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                }
+
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
     }
 
-    public void enterGradeHelper(int assignmentid, int studentid, double points) {
+    public void enterGradeHelper(int assignmentid, int studentid, double points, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"studentid", "assignmentid", "grade"};
         String[] values = {"" + assignmentid, "" + studentid , "" + points};
 
         try {
             dfsql.insert("grades", values, rows);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null) {
+
+                }
+                if(response instanceof DFDataUploaderReturnStatus) {
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        runnable.run(true, null);
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
+                }
+
+            });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }

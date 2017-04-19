@@ -10,6 +10,7 @@ import objects.Grade;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -24,7 +25,7 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
 
     }
 
-    public void addDocument() {
+    public void addDocument(File documentFile) {
 
     }
 
