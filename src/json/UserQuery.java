@@ -1,6 +1,7 @@
 package json;
 
 import com.google.gson.JsonObject;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
 import database.DFDatabaseCallbackRunnable;
@@ -99,8 +100,13 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
                 {
                     uploadStatus = (DFDataUploaderReturnStatus)response;
                     if(uploadStatus == DFDataUploaderReturnStatus.success){
-                        runnable.run();
+                        runnable.run(true, null);
+                    } else{
+                        runnable.run(false, null);
                     }
+                }else
+                {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
                 }
             });
         } catch (DFSQLError e1) {
@@ -108,20 +114,48 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         }
     }
 
-    public void verifyUserLogin(String username, String password) {
+    public void verifyUserLogin(String username, String password, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         bufferString = password;
         String[] selectedRows = {"password"};
         verifyUserLoginReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->{
+                if(error != null)
+                {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject)
+                {
+                    jsonObject = (JsonObject)response;
+                }
+                else
+                {
+                    return;
+                }
+                String databasePassword = "";
+                try {
+                    databasePassword = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("password").getAsString();
+                    if(databasePassword.equals(bufferString)){runnable.run(Boolean.TRUE, null);
+                        debugLog("verifylogin returned success");}
+                    else {runnable.run(Boolean.FALSE, null);
+                        debugLog("verifylogin returned fail cause passwords don't match");}
+                } catch (NullPointerException e2){
+                    runnable.run(Boolean.FALSE, null);
+                    debugLog("verifylogin returned nothing");
+                }
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
     }
 
-    public boolean addUserAsStudent(String username) {
+    public boolean addUserAsStudent(String username, QueryCallbackRunnable runnable) {
         boolean isaddSuccess;
         DFSQL dfsql = new DFSQL();
         String attr = "userType";
