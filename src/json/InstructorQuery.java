@@ -2,12 +2,8 @@ package json;
 
 import com.google.gson.JsonObject;
 import database.DFDatabase;
-import database.DFDatabaseCallbackDelegate;
-import database.DFDatabaseCallbackRunnable;
-import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
-import jdk.nashorn.internal.runtime.Context;
 import json.util.JSONQueryError;
 
 /**
@@ -67,7 +63,7 @@ public class InstructorQuery {
                     }
                 }
                 if(response instanceof JsonObject) {
-                    
+
                 }
             });
         } catch (DFSQLError dfsqlError) {
@@ -139,33 +135,5 @@ public class InstructorQuery {
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
-    }
-
-
-
-    @Override
-    public void returnedData(JsonObject jsonObject, DFError error) {
-        System.out.println("triggered returnedData");
-        this.jsonObject = null;
-        if(error != null){
-            DFDatabase.print(error.toString());
-            this.jsonObject = null;
-        } else {
-            this.jsonObject = jsonObject;
-        }
-        if(gradeParameter.assignmentid != -1) {
-            gradeParameter.studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("studentid").getAsInt();
-            enterGradeHelper(gradeParameter.assignmentid, gradeParameter.studentid, gradeParameter.points);
-            gradeParameter.assignmentid = -1;
-        }
-        returnHandler();
-    }
-
-    private void returnHandler(){
-
-    }
-    @Override
-    public void uploadStatus(DFDataUploaderReturnStatus success, DFError error) {
-
     }
 }

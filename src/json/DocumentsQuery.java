@@ -35,7 +35,10 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
         Where where = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("id", documentid + ""));
         try {
             dfsql.delete(table, where);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
@@ -49,7 +52,10 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
             dfsql.select(selectedRows, false, null, null)
                     .from(table)
                     .where(DFSQLEquivalence.equals, "courseid", documentid + "");
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
@@ -64,7 +70,10 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
             dfsql.select(selectedRows, false, null, null)
                     .from(table)
                     .where(DFSQLEquivalence.equals, "courseid", courseid + "");
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
@@ -77,7 +86,10 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
