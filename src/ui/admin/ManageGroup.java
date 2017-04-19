@@ -20,10 +20,7 @@ import java.util.*;
 
 enum Process
 {
-	none, loadingCourse, loadingTeacher, loadingStudent,
-	deleteTeacher, deleteCourse, deleteStudent,
-	addTeacher, addCourse, addStudent,
-	addUserAsTeacher, addUserAsStudent
+	none, loadingCourse, loadingTeacher, loadingStudent, deleteCourse, addCourse
 }
 
 @SuppressWarnings("unchecked")
@@ -102,7 +99,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		UIVariables.current.globalUserData.put("All " + groupToManage, tableData.get(groupToManage + "s"));
 	}
 
-	public void showGenericError()
+	private void showGenericError()
 	{
 		Alert alert1 = new Alert("Error", "ABC could add the " + groupToManage + ".  Please try again.");
 		alert1.addButton("OK", ButtonType.defaultType, null, false);
@@ -114,12 +111,10 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		Alert alert = new Alert("New " + groupToManage, "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
-			//TODO: Error checking
 			switch (groupToManage)
 			{
 				case teachers:  //Upload new Instructor
 				{
-					ManageGroup group = this;
 					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), alert.textFieldForIdentifier(groupToManage + ".birthday").getText(), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.TEACHER, (returnedData, error) ->
 					{
 						if (error != null)
@@ -242,9 +237,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 					break;
 				}
 
-				case students:
+				case students:  //Upload a new student
 				{
-					currentProcess = Process.addStudent;
 					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), alert.textFieldForIdentifier(groupToManage + ".birthday").getText(), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.STUDENT, (returnedData, error) ->
 					{
 						if (error != null)
@@ -455,7 +449,6 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 						}
 						else if (groupToManage == Group.students)
 						{
-							currentProcess = Process.deleteStudent;
 							User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
 							userQuery.removeUserAsStudent(studentToRemove.getUserID(), (returnedData, error) ->
 							{
@@ -489,7 +482,6 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 						}
 						else if (groupToManage == Group.teachers)
 						{
-							currentProcess = Process.deleteTeacher;
 							User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
 							userQuery.removeUserAsInstructor(studentToRemove.getUserID(), (returnedData, error) ->
 							{
@@ -563,17 +555,6 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 
 				ArrayList<Object> aCourses = new ArrayList<>();
 				aCourses.addAll(Arrays.asList(courses));
-				tableData.put(groupToManage + "s", aCourses);
-			}
-		}
-		else if (currentProcess == Process.loadingStudent || currentProcess == Process.loadingTeacher)
-		{
-			if (Objects.equals(notificationName, UIStrings.returned))
-			{
-				User[] users = (User[]) userData;
-
-				ArrayList<Object> aCourses = new ArrayList<>();
-				aCourses.addAll(Arrays.asList(users));
 				tableData.put(groupToManage + "s", aCourses);
 			}
 		}
