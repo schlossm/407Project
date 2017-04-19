@@ -44,13 +44,14 @@ public class StudentQuery {
                 }
                 ArrayList<String> allCoursesForInstructor = new ArrayList<String>();
                 String courseId = null;
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
                         courseId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsString();
                         allCoursesForInstructor.add(courseId);
                     }
                 }catch (NullPointerException e2){
-                    runnable.run(null, null);
+                    runnable.run(null, error1);
                 }
                 runnable.run(allCoursesForInstructor, null);
             });
@@ -87,6 +88,7 @@ public class StudentQuery {
                     return;
                 }
                 JsonObject jsonObject;
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 if (response instanceof JsonObject) {
                     jsonObject = (JsonObject) response;
                 } else {
@@ -100,7 +102,7 @@ public class StudentQuery {
                     assignmentId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("assignmentid").getAsInt();
                     userId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
                 }catch (NullPointerException e2){
-                    runnable.run(null, null);
+                    runnable.run(null, error1);
                 }
                 Grade grade = new Grade(userId, assignmentId, String.valueOf(points));
             /* Wait for Alex to implement the rest of the fields */
@@ -146,6 +148,7 @@ public class StudentQuery {
                 } else {
                     return;
                 }
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 int points = 0;
                 int assignmentId = 0;
                 String userId = "";
@@ -154,7 +157,7 @@ public class StudentQuery {
                     assignmentId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("assignmentid").getAsInt();
                     userId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
                 }catch (NullPointerException e2){
-                    runnable.run(null, null);
+                    runnable.run(null, error1);
                 }
                 Grade grade = new Grade(userId, assignmentId, String.valueOf(points));
             /* Wait for Alex to implement the rest of the fields */

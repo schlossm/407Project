@@ -7,10 +7,13 @@ import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
+import objects.Instructor;
 import objects.User;
 import objects.userType;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
+
+import java.util.ArrayList;
 
 import static database.DFDatabase.debugLog;
 
@@ -25,6 +28,134 @@ public class UserQuery{
     private String bufferString;
     private boolean verifyUserLoginReturn;
 
+    public void getAllStudents(int limit, int offset, QueryCallbackRunnable runnable) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectedRows = {"student.userid", "email", "firstname", "lastname", "password", "birthday"};
+        String table1 = "students";
+        String table2 = "users";
+        try {
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, table2, "students.userid", "users.userid")
+                    .limit(limit)
+                    .offset(offset);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                System.out.println(response);
+                System.out.println(error);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    return;
+                }
+                ArrayList<User> allStudents = new ArrayList<User>();
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                String usernameReceived = null, userEmail = null, userBirthday = null, userFirstName = null, userLastName = null;
+                int userTypeInt;
+                userType userType = null;
+                User user;
+                try {
+                    for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                        usernameReceived = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userID").getAsString();
+                        userEmail = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("email").getAsString();
+                        userBirthday = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("birthday").getAsString();
+                        userFirstName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("firstName").getAsString();
+                        userLastName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("lastName").getAsString();
+                        userTypeInt = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userType").getAsInt();
+                        userType = intToUserTypeConverter(userTypeInt);
+
+                        user = new User();
+
+                        user.setUserID(usernameReceived);
+                        user.setEmail(userEmail);
+                        user.setFirstName(userFirstName);
+                        user.setLastName(userLastName);
+                        user.setBirthday(userBirthday);
+                        user.setUserType(userType);
+                        allStudents.add(user);
+                    }
+                }catch (NullPointerException e2){runnable.run(null, error1);}
+                runnable.run(allStudents, null);
+            });
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    /**
+     * get all instructors
+     * @param limit
+     * @param offset
+     */
+    public void getAllInstructors(int limit, int offset, QueryCallbackRunnable runnable) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectedRows = {"instructor.userid", "email", "firstname", "lastname", "password", "birthday", "officehours", "roomno"};
+        String table1 = "instructor";
+        String table2 = "users";
+        try {
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, table2, "instructor.userid", "users.userid")
+                    .limit(limit)
+                    .offset(offset);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                System.out.println(response);
+                System.out.println(error);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    return;
+                }
+                ArrayList<User> allInstructors = new ArrayList<User>();
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                String usernameReceived = null, userEmail = null, userBirthday = null, userFirstName = null, userLastName = null, userOfficeHours = null, userRoomNo = null;
+                int userTypeInt;
+                userType userType = null;
+                Instructor instructor;
+                try {
+                    for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                        usernameReceived = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userID").getAsString();
+                        userEmail = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("email").getAsString();
+                        userBirthday = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("birthday").getAsString();
+                        userFirstName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("firstName").getAsString();
+                        userLastName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("lastName").getAsString();
+                        userTypeInt = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userType").getAsInt();
+                        userOfficeHours = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("officehours").getAsString();
+                        userRoomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("roomno").getAsString();
+                        userType = intToUserTypeConverter(userTypeInt);
+
+                        instructor = new Instructor();
+
+                        instructor.setUserID(usernameReceived);
+                        instructor.setEmail(userEmail);
+                        instructor.setFirstName(userFirstName);
+                        instructor.setLastName(userLastName);
+                        instructor.setBirthday(userBirthday);
+                        instructor.setUserType(userType);
+                        instructor.setOfficeHours(userOfficeHours);
+                        instructor.setRoomNo(userRoomNo);
+                        allInstructors.add(instructor);
+                    }
+                }catch (NullPointerException e2){runnable.run(null, error1);}
+                runnable.run(allInstructors, null);
+            });
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
 
     public void getUser(String username, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();

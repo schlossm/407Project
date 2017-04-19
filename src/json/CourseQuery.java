@@ -6,6 +6,7 @@ import database.DFDatabaseCallbackDelegate;
 import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
+import json.util.JSONQueryError;
 import objects.Course;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
@@ -29,49 +30,6 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     private String bufferString;
     private boolean verifyUserLoginReturn;
 
-    /**
-     * get all students
-     * @param limit
-     * @param offset
-     */
-    public void getAllStudents(int limit, int offset) {
-        DFSQL dfsql = new DFSQL();
-        String[] selectedRows = {"student.userid", "email", "firstname", "lastname", "password", "birthday"};
-        String table1 = "students";
-        String table2 = "users";
-        try {
-            dfsql.select(selectedRows, false, null, null)
-                    .from(table1)
-                    .join(DFSQLJoin.left, table2, "students.userid", "users.userid")
-                    .limit(limit)
-                    .offset(offset);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-        } catch (DFSQLError e1) {
-            e1.printStackTrace();
-        }
-    }
-
-    /**
-     * get all instructors
-     * @param limit
-     * @param offset
-     */
-    public void getAllInstructors(int limit, int offset) {
-        DFSQL dfsql = new DFSQL();
-        String[] selectedRows = {"instructor.userid", "email", "firstname", "lastname", "password", "birthday", "officehours", "roomno"};
-        String table1 = "instructor";
-        String table2 = "users";
-        try {
-            dfsql.select(selectedRows, false, null, null)
-                    .from(table1)
-                    .join(DFSQLJoin.left, table2, "instructor.userid", "users.userid")
-                    .limit(limit)
-                    .offset(offset);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-        } catch (DFSQLError e1) {
-            e1.printStackTrace();
-        }
-    }
 
     /**
      * get all courses
