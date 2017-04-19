@@ -14,21 +14,16 @@ import static database.DFDatabase.debugLog;
  */
 public class DFWebServerDispatch
 {
-	static final String website			    = "https://www.mascomputech.com/abc";
-	static final String readFile			= "ReadFile.php";
-	static final String writeFile			= "WriteFile.php";
-	static final String websiteUserName	    = "tokanone_abcapp";
-	static final String databaseUserPass    = "RAD-88Q-gDx-pEZ";
-
-	private final DFDataDownloader dataDownloader	= new DFDataDownloader();
-	private final DFDataUploader dataUploader		= new DFDataUploader();
-
-	final DFDataSizePrinter dataSizePrinter = DFDataSizePrinter.current;
-
 	public static final DFWebServerDispatch current = new DFWebServerDispatch();
-
+	static final String website = "https://www.mascomputech.com/abc";
+	static final String readFile = "ReadFile.php";
+	static final String writeFile = "WriteFile.php";
+	static final String websiteUserName = "tokanone_abcapp";
+	static final String databaseUserPass = "RAD-88Q-gDx-pEZ";
+	final DFDataSizePrinter dataSizePrinter = DFDataSizePrinter.current;
+	private final DFDataDownloader dataDownloader = new DFDataDownloader();
+	private final DFDataUploader dataUploader = new DFDataUploader();
 	private final ArrayList<PrivateDFDispatchObject> queue = new ArrayList<>();
-	private PrivateDFDispatchObject nextObject;
 	private boolean isProcessing = false;
 
 	public void add(DispatchDirection direction, DFSQL statement, DFDatabaseCallbackRunnable runnable)
@@ -52,7 +47,7 @@ public class DFWebServerDispatch
 		}
 		debugLog("Processing Next Entry in Dispatch Queue");
 
-		nextObject = queue.remove(0);
+		PrivateDFDispatchObject nextObject = queue.remove(0);
 		if (nextObject.fork == DispatchDirection.download)
 		{
 			dataDownloader.downloadDataWith(nextObject.SQLStatement, nextObject.runnable);
