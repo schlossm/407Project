@@ -79,17 +79,74 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		if (groupToManage == Group.courses)
 		{
 			currentProcess = Process.loadingCourse;
-			courseQuery.getAllCourses(100, offset);
+			courseQuery.getAllCourses(100, offset, (returnedData, error) -> {
+				if (error != null)
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+					errorAlert.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData instanceof ArrayList)
+				{
+					ArrayList<Object> courses = (ArrayList<Object>) returnedData;
+					tableData.put(groupToManage + "s", courses);
+				}
+				else
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+					errorAlert.show(Window.current.mainScreen);
+				}
+			});
 		}
 		else if (groupToManage == Group.students)
 		{
 			currentProcess = Process.loadingStudent;
-			courseQuery.getAllStudents(100, offset);
+			userQuery.getAllStudents(100, offset, (returnedData, error) -> {
+				if (error != null)
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+					errorAlert.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData instanceof ArrayList)
+				{
+					ArrayList<Object> students = (ArrayList<Object>) returnedData;
+					tableData.put(groupToManage + "s", students);
+				}
+				else
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+					errorAlert.show(Window.current.mainScreen);
+				}
+			});
 		}
 		else
 		{
 			currentProcess = Process.loadingTeacher;
-			courseQuery.getAllInstructors(100, offset);
+			userQuery.getAllInstructors(100, offset, (returnedData, error) -> {
+				if (error != null)
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+					errorAlert.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData instanceof ArrayList)
+				{
+					ArrayList<Object> instructors = (ArrayList<Object>) returnedData;
+					tableData.put(groupToManage + "s", instructors);
+				}
+				else
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+					errorAlert.show(Window.current.mainScreen);
+				}
+			});
 		}
 		offset += 100;
 	}
