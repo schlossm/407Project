@@ -32,7 +32,7 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"title", "content", "timestamp", "authoruserid", "courseid"};
         String[] values = {title, content, timestamp, authoruserid, "" + courseid};
-        String table = "announcement";
+        String table = "Announcement";
         try {
             dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, this);
@@ -47,7 +47,7 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
      */
     public void removeAnnouncement(int announcementid) {
         DFSQL dfsql = new DFSQL();
-        String table = "announcement";
+        String table = "Announcement";
         Where where = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("id", announcementid + ""));
         try {
             dfsql.delete(table, where);
@@ -63,7 +63,7 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
     public void getAllAnnouncement() {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id", "title", "content", "timestamp", "authoruserid", "courseid"};
-        String table = "announcement";
+        String table = "Announcement";
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table);
@@ -80,7 +80,7 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
     public void getAllAnnouncementInCourse(int courseid) {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id", "title", "content", "timestamp", "authoruserid", "courseid"};
-        String table = "announcement";
+        String table = "Announcement";
         getAllAnnouncementInCourseReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null)
@@ -109,17 +109,25 @@ public class AnnouncementQuery implements DFDatabaseCallbackDelegate {
 
     private void returnHandler() {
         if(getAllAnnouncementInCourseReturn){
-            ArrayList<Message> allCoursesForInstructor = new ArrayList<Message>();
-            int courseId, authorUserId, id;
+            ArrayList<Message> allAnouncementsInCourse = new ArrayList<Message>();
+            int courseId;
+            String authorUserId, title, content, timestamp;
+            Message announcement;
 
             try {
                 for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
                     courseId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsInt();
+                    authorUserId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("authoruserid").getAsString();
+                    title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("title").getAsString();
+                    content = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("content").getAsString();
+                    timestamp = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("timestamp").getAsString();
+                    announcement = new Message(title, content, timestamp, authorUserId, courseId);
+                    allAnouncementsInCourse.add(announcement);
                 }
             }catch (NullPointerException e2){
                 DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
             }
-            DFNotificationCenter.defaultCenter.post(UIStrings.returned, allCoursesForInstructor);
+            DFNotificationCenter.defaultCenter.post(UIStrings.returned, allAnouncementsInCourse);
             getAllAnnouncementInCourseReturn = false;
         } else if(getGradeReturn){
             int points = 0;
