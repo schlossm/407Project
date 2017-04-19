@@ -19,11 +19,11 @@ import java.awt.event.MouseEvent;
 
 public class ClassCell extends ALJTableCell
 {
-	private Course course;
 	private final JLabel detailLabelOne;
 	private final JLabel detailLabelTwo;
 	private final JLabel detailLabelThree;
 	private final JLabel detailLabelFour;
+	private Course course;
 
 	public ClassCell()
 	{
@@ -73,7 +73,7 @@ public class ClassCell extends ALJTableCell
 		detailLabelOne.setText("Hours: " + course.getMeetingTime());
 		detailLabelTwo.setText("Room: " + course.getRoomNo());
 		detailLabelThree.setText("Name: " + course.getCourseName());
-		detailLabelFour.setText("Quota: " + course.getMaxStorage()/1024/1024 + " MB");
+		detailLabelFour.setText("Quota: " + course.getMaxStorage() / 1024 / 1024 + " MB");
 		this.course = course;
 	}
 
@@ -91,7 +91,7 @@ public class ClassCell extends ALJTableCell
 				{
 					int newQuota = Integer.valueOf(changeQuota.textFieldForIdentifier("ClassCell.quota").getText());
 					course.setMaxStorage(newQuota * 1024 * 1024);
-					detailLabelFour.setText("Quota: " + course.getMaxStorage()/1024/1024 + " MB");
+					detailLabelFour.setText("Quota: " + course.getMaxStorage() / 1024 / 1024 + " MB");
 					changeQuota.dispose();
 				}
 				catch (Exception ignored)

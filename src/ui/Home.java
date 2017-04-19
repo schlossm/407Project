@@ -18,6 +18,8 @@ import java.awt.event.MouseListener;
 
 class Home extends ALJPanel
 {
+	private AnnouncementPanel announcementPanel;
+
 	Home()
 	{
 		setBackground(Color.white);
@@ -65,8 +67,6 @@ class Home extends ALJPanel
 
 		//loadAnnouncements();
 	}
-
-	private AnnouncementPanel announcementPanel;
 
 	private void loadAnnouncements()
 	{

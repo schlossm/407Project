@@ -27,10 +27,10 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 {
 	public final JLabel titleLabel;
 	protected JLabel accessoryView;
-	private ALJTableCellAccessoryViewType _accessoryViewType = ALJTableCellAccessoryViewType.none;
 	ALJTableIndex currentIndex;
-
 	ALJTableCellDelegate delegate;
+	private ALJTableCellAccessoryViewType _accessoryViewType = ALJTableCellAccessoryViewType.none;
+	private boolean isClicked = false;
 
 	public ALJTableCell(ALJTableCellAccessoryViewType accessoryViewType)
 	{
@@ -41,9 +41,9 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		titleLabel.setVerticalAlignment(SwingConstants.CENTER);
 		add(titleLabel);
 
-		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal,   this, LayoutAttribute.leading,  1.0, 8));
-		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top,     LayoutRelation.equal,   this, LayoutAttribute.top,      1.0, 8));
-		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.bottom,  LayoutRelation.equal,   this, LayoutAttribute.bottom,   1.0, -8));
+		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
+		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
+		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, -8));
 
 		setAccessoryType(accessoryViewType);
 		_accessoryViewType = accessoryViewType;
@@ -133,40 +133,38 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		return new Dimension(super.getPreferredSize().width, titleLabel.getPreferredSize().height + 16);
 	}
 
-	private boolean isClicked = false;
-
 	@Override
 	public void mousePoint(MouseEvent action, MLMEventType eventType)
 	{
 		if (eventType == MLMEventType.pressed)
 		{
-			if (action.getSource() != accessoryView) return ;
+			if (action.getSource() != accessoryView) { return; }
 			isClicked = true;
 			accessoryView.setOpaque(true);
 			accessoryView.setBackground(Color.lightGray);
 		}
 		else if (eventType == MLMEventType.draggedIn)
 		{
-			if (!isClicked) return;
-			if (action.getSource() != accessoryView) return;
+			if (!isClicked) { return; }
+			if (action.getSource() != accessoryView) { return; }
 			accessoryView.setOpaque(true);
 			accessoryView.setBackground(Color.lightGray);
 		}
 		else if (eventType == MLMEventType.released)
 		{
-			if (!isClicked) return;
+			if (!isClicked) { return; }
 			isClicked = false;
-			if (action.getSource() != accessoryView && !accessoryView.isOpaque()) return;
+			if (action.getSource() != accessoryView && !accessoryView.isOpaque()) { return; }
 			accessoryView.setOpaque(false);
-			accessoryView.setBackground(new Color(0,0,0,0));
+			accessoryView.setBackground(new Color(0, 0, 0, 0));
 			delegate.accessoryViewClicked(_accessoryViewType, currentIndex);
 		}
 		else if (eventType == MLMEventType.draggedOut)
 		{
-			if (!isClicked) return;
-			if (action.getSource() != accessoryView) return;
+			if (!isClicked) { return; }
+			if (action.getSource() != accessoryView) { return; }
 			accessoryView.setOpaque(false);
-			accessoryView.setBackground(new Color(0,0,0,0));
+			accessoryView.setBackground(new Color(0, 0, 0, 0));
 		}
 	}
 /*

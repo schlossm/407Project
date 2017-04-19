@@ -6,22 +6,20 @@ import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
 import ui.util.ButtonType;
-import ui.util.UIStrings;
 import ui.util.UIVariables;
-import uikit.DFNotificationCenter;
-import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-public class AdminAnnouncements extends ALJTablePanel implements DFNotificationCenterDelegate
+@SuppressWarnings("unchecked")
+public class AdminAnnouncements extends ALJTablePanel
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
 
-	private AnnouncementQuery announcementQuery = new AnnouncementQuery();
-
-	private Runnable workToDoOnSuccess = null;
-	private Runnable workToDoOnFailure = null;
+	private final AnnouncementQuery announcementQuery = new AnnouncementQuery();
 
 	public AdminAnnouncements()
 	{
@@ -31,8 +29,25 @@ public class AdminAnnouncements extends ALJTablePanel implements DFNotificationC
 		starter.add("New Announcement");
 		announcementData.put("", starter);
 
-		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
-		announcementQuery.getAllAnnouncementInCourse(-1);
+		announcementQuery.getAllAnnouncementInCourse(-1, (returnedData, error) ->
+		{
+			if (error != null)
+			{
+				if (error.code == 3)
+				{
+					return;
+				}
+				Alert errorAlert = new Alert("Error", "ABC could not load the announcements.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+				return;
+			}
+			if (returnedData instanceof ArrayList)
+			{
+				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
+				announcementData.put("Announcements", messages);
+			}
+		});
 	}
 
 	private void add()
@@ -41,30 +56,41 @@ public class AdminAnnouncements extends ALJTablePanel implements DFNotificationC
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
 			String timestamp = new Date().toString();
-			workToDoOnSuccess = () ->
+
+			announcementQuery.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1, (returnedData, error) ->
 			{
-				if (announcementData.get("Announcements") != null)
-					announcementData.get("Announcements").add(new Message(-1, alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1));
-				else
+				if (error != null)
 				{
-					ArrayList<Object> data = new ArrayList<>();
-					Message message = new Message(-1, alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1);
-					data.add(message);
-					announcementData.put("Announcements", data);
+					Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+					errorAlert.show(Window.current.mainScreen);
+					return;
 				}
-				table.reloadData();
-				alert.dispose();
-			};
-
-			workToDoOnFailure = () ->
-			{
-				Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-				errorAlert.show(Window.current.mainScreen);
-			};
-
-			announcementQuery.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1);
-			workToDoOnSuccess.run();
+				if (returnedData instanceof Boolean)
+				{
+					boolean bool = (Boolean) returnedData;
+					if (bool)
+					{
+						if (announcementData.get("Announcements") != null)
+						{ announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1)); }
+						else
+						{
+							ArrayList<Object> data = new ArrayList<>();
+							Message message = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1);
+							data.add(message);
+							announcementData.put("Announcements", data);
+						}
+						table.reloadData();
+						alert.dispose();
+					}
+					else
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
+						errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+						errorAlert.show(Window.current.mainScreen);
+					}
+				}
+			});
 
 		}, true);
 		alert.addButton("Cancel", ButtonType.cancel, null, false);
@@ -112,7 +138,14 @@ public class AdminAnnouncements extends ALJTablePanel implements DFNotificationC
 	{
 		ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
 
-		newCell.titleLabel.setText(((Message)announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).getTitle());
+		if (index.section == 1)
+		{
+			newCell.titleLabel.setText(((Message) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).getTitle());
+		}
+		else
+		{
+			newCell.titleLabel.setText((String) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+		}
 
 		return newCell;
 	}
@@ -120,7 +153,7 @@ public class AdminAnnouncements extends ALJTablePanel implements DFNotificationC
 	@Override
 	public String titleForHeaderInSectionInTable(ALJTable table, int section)
 	{
-		return (String)announcementData.keySet().toArray()[section];
+		return (String) announcementData.keySet().toArray()[section];
 	}
 
 	@Override
@@ -131,16 +164,4 @@ public class AdminAnnouncements extends ALJTablePanel implements DFNotificationC
 
 	@Override
 	public void tableView(ALJTable tableView, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt) { }
-
-	@Override
-	public void performActionFor(String notificationName, Object userData)
-	{
-		if (Objects.equals(notificationName, UIStrings.returned))
-		{
-			if (userData != null)
-			{
-
-			}
-		}
-	}
 }

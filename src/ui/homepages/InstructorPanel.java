@@ -2,11 +2,11 @@ package ui.homepages;
 
 import json.InstructorQuery;
 import objects.Course;
+import ui.Window;
 import ui.admin.ClassCell;
 import ui.util.ALJTable.*;
 import ui.util.*;
 import uikit.DFNotificationCenter;
-import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -17,21 +17,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @SuppressWarnings("unchecked")
-public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLMDelegate, DFNotificationCenterDelegate
+public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLMDelegate
 {
 	private final ALJTable nextDueTable;
 	private final ALJTable courseList;
 
 	private final ArrayList<TestAssignment> assignments = new ArrayList<>();
-	private final ArrayList<Course> courses = new ArrayList<>();
-
 	private final JLabel coursesLabel;
-
-	private final InstructorQuery instructorQuery = new InstructorQuery();
+	private ArrayList<Course> courses = new ArrayList<>();
 
 	public InstructorPanel()
 	{
@@ -71,11 +66,31 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 
 		if (UIVariables.current.globalUserData.get("allCourses") != null)
 		{
-			courses.addAll((ArrayList<Course>)UIVariables.current.globalUserData.get("allCourses"));
+			courses.addAll((ArrayList<Course>) UIVariables.current.globalUserData.get("allCourses"));
 		}
 
-		DFNotificationCenter.defaultCenter.register(this, UIStrings.returned);
-		instructorQuery.getCourses(UIVariables.current.currentUser.getUserID());
+		InstructorQuery instructorQuery = new InstructorQuery();
+		instructorQuery.getCourses(UIVariables.current.currentUser.getUserID(), (returnedData, error) ->
+		{
+			if (error != null)
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+				return;
+			}
+			if (returnedData instanceof ArrayList)
+			{
+				courses = (ArrayList<Course>) returnedData;
+				UIVariables.current.globalUserData.put("allCourses", courses);
+			}
+			else
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+			}
+		});
 	}
 
 	@Override
@@ -148,27 +163,9 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 	@Override
 	public void mousePoint(MouseEvent action, MLMEventType eventType)
 	{
-		if (eventType == MLMEventType.released && new Rectangle(0,0, coursesLabel.getWidth(), coursesLabel.getHeight()).getBounds().contains(action.getPoint()))
+		if (eventType == MLMEventType.released && new Rectangle(0, 0, coursesLabel.getWidth(), coursesLabel.getHeight()).getBounds().contains(action.getPoint()))
 		{
 			DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, "My Courses");
-		}
-	}
-
-	@Override
-	public void performActionFor(String notificationName, Object userData)
-	{
-		if (Objects.equals(notificationName, UIStrings.returned))
-		{
-			try
-			{
-				Course[] courseInfo = (Course[])userData;
-				courses.addAll(List.of(courseInfo));
-				UIVariables.current.globalUserData.put("allCourses", courses);
-				courseList.reloadData();
-			}
-			catch (Exception ignored) { }
-
-			//TODO: Get Assignments
 		}
 	}
 }

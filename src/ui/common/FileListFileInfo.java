@@ -2,7 +2,7 @@ package ui.common;
 
 import java.nio.file.Path;
 
-public class FileListFileInfo
+class FileListFileInfo
 {
 	Path file;
 	String name;

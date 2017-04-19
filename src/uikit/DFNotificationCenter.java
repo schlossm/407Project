@@ -20,22 +20,24 @@ class DFNotificationCenterObject
 }
 
 /**
-*	DFNotificationCenter - A Notification parser
-*	Objects can place calls to register(_:, _:) to register themselves to listen for notifications
-*	Objects can place calls to post(_:, _:) to post notifications with optional userData
-*
-*	This class is meant to be used for passing information among different packages(modules)
-*/
-@SuppressWarnings({"unchecked", "unused"}) public class DFNotificationCenter
+ * DFNotificationCenter - A Notification parser
+ * Objects can place calls to register(_:, _:) to register themselves to listen for notifications
+ * Objects can place calls to post(_:, _:) to post notifications with optional userData
+ * <p>
+ * This class is meant to be used for passing information among different packages(modules)
+ */
+@SuppressWarnings({"unchecked", "unused"})
+public class DFNotificationCenter
 {
 	public static final DFNotificationCenter defaultCenter = new DFNotificationCenter();
 
 	private final ArrayList<DFNotificationCenterObject> observers = new ArrayList<>();
+
 	private DFNotificationCenter() { }
 
 	/**
-	 *	@param observer The object that will be receiving the notification.  This object must conform to the DFNotificationCenterDelegate interface
-	 *  @param notificationName The notification name the object wishes to listen for.  All other notifications will be ignored
+	 * @param observer         The object that will be receiving the notification.  This object must conform to the DFNotificationCenterDelegate interface
+	 * @param notificationName The notification name the object wishes to listen for.  All other notifications will be ignored
 	 */
 	public synchronized void register(DFNotificationCenterDelegate observer, String notificationName)
 	{
@@ -50,8 +52,9 @@ class DFNotificationCenterObject
 	}
 
 	/**
-	 * 	A convenience method for removing all instances of an Object
-	 * 	@param observer The object that wishes to be removed
+	 * A convenience method for removing all instances of an Object
+	 *
+	 * @param observer The object that wishes to be removed
 	 */
 	public synchronized void remove(DFNotificationCenterDelegate observer)
 	{
@@ -59,8 +62,8 @@ class DFNotificationCenterObject
 	}
 
 	/**
-	 * 	@param notificationName The notification name the object wishes to post for
-	 * 	@param userData Optional data the object calling this function wishes to pass on to any observers
+	 * @param notificationName The notification name the object wishes to post for
+	 * @param userData         Optional data the object calling this function wishes to pass on to any observers
 	 */
 	public synchronized void post(String notificationName, Object userData)
 	{
@@ -71,7 +74,7 @@ class DFNotificationCenterObject
 			for (StackTraceElement element : stackTraceElements)
 			{
 				if (element.getClassName().contains("TimeManager"))
-					foundTimeManager = true;
+				{ foundTimeManager = true; }
 			}
 			if (!foundTimeManager)
 			{

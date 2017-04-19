@@ -7,7 +7,7 @@ import java.awt.event.ComponentListener;
 
 /**
  * Created by michaelschloss on 2/1/17.
- *
+ * <p>
  * Custom subclass of JFrame.  Subclass ALJFrame to get automatic AutoLayout inheritance.
  */
 public class ALJFrame extends JFrame implements ComponentListener
@@ -21,7 +21,7 @@ public class ALJFrame extends JFrame implements ComponentListener
 	@Override
 	public void componentResized(ComponentEvent e)
 	{
-		if (!isVisible()) return;
+		if (!isVisible()) { return; }
 		process();
 		getContentPane().revalidate();
 		getContentPane().repaint();
@@ -33,7 +33,7 @@ public class ALJFrame extends JFrame implements ComponentListener
 	@Override
 	public void componentMoved(ComponentEvent e)
 	{
-		if (!isVisible()) return;
+		if (!isVisible()) { return; }
 		process();
 		getContentPane().revalidate();
 		getContentPane().repaint();
@@ -63,11 +63,11 @@ public class ALJFrame extends JFrame implements ComponentListener
 			component.setBounds(0, component.getBounds().y, getContentPane().getWidth(), getContentPane().getHeight() - component.getBounds().y);
 			if (component instanceof ALJPanel)
 			{
-				((ALJPanel)component).layoutSubviews();
+				((ALJPanel) component).layoutSubviews();
 			}
 			else if (component instanceof JPanel)
 			{
-				((ComponentListener)component).componentResized(null);
+				((ComponentListener) component).componentResized(null);
 			}
 		}
 	}
