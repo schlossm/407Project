@@ -29,11 +29,6 @@ public class InstructorQuery {
     private JsonObject jsonObject;
 
 
-    public InstructorQuery() {
-        this.gradeParameter = new GradeParameter(-1);
-    }
-
-
     /**
      * given a userid it returns the instructorid
      * @param userid
@@ -47,7 +42,7 @@ public class InstructorQuery {
      *  title, name as well todo
      * @param userid
      */
-    public void getCourses(String userid) {
+    public void getCourses(String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.courseID"};
         String table1 = "courseinstructormembership";
@@ -63,7 +58,18 @@ public class InstructorQuery {
                     .from(table1)
                     .join(DFSQLJoin.left, joins)
                     .where(DFSQLEquivalence.equals, table2 + ".userid",  userid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null) {
+                    JSONQueryError error1;
+                    if(error.code == 1) {
+                        error1 = new JSONQueryError(3, "No data returned", null);
+                        runnable.run(null, error1);
+                    }
+                }
+                if(response instanceof JsonObject) {
+                    
+                }
+            });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
