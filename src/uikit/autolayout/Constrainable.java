@@ -10,14 +10,18 @@ public interface Constrainable
 	void layoutSubviews();
 
 	int compressionResistanceWidth();
+
 	int compressionResistanceHeight();
 
 	void setCompressionResistanceWidth(int compressionResistanceWidth);
+
 	void setCompressionResistanceHeight(int compressionResistanceHeight);
 
 	void setCalculatedHeight(int calculatedHeight);
+
 	void setCalculatedWidth(int calculatedWidth);
 
 	int calculatedHeight();
+
 	int calculatedWidth();
 }

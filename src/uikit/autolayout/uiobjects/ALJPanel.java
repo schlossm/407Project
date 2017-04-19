@@ -13,7 +13,10 @@ import java.util.ArrayList;
 public class ALJPanel extends JLayeredPane implements Constrainable
 {
 	private final ArrayList<LayoutConstraint> _constraints = new ArrayList<>();
-
+	private int panelCompressionWidth = 750;
+	private int panelCompressionHeight = 750;
+	private int calculatedHeight = 0;
+	private int calculatedWidth = 0;
 	public ALJPanel()
 	{
 		setLayout(null);
@@ -22,12 +25,6 @@ public class ALJPanel extends JLayeredPane implements Constrainable
 		setOpaque(true);
 
 	}
-
-	private int panelCompressionWidth = 750;
-	private int panelCompressionHeight = 750;
-
-	private int calculatedHeight = 0;
-	private int calculatedWidth = 0;
 
 	@Override
 	public void addConstraint(LayoutConstraint constraint)
@@ -56,7 +53,7 @@ public class ALJPanel extends JLayeredPane implements Constrainable
 
 	public void removeConstraintsFor(JComponent component)
 	{
-		for (LayoutConstraint constraint : (ArrayList<LayoutConstraint>)_constraints.clone())
+		for (LayoutConstraint constraint : (ArrayList<LayoutConstraint>) _constraints.clone())
 		{
 			if (constraint.viewOne == component)
 			{

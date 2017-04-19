@@ -2,7 +2,7 @@ package uikit.autolayout;
 
 /**
  * Created by michaelschloss on 1/26/17.
- *
+ * <p>
  * The relation between the first attribute and the modified second attribute in a constraint.
  */
 public enum LayoutRelation

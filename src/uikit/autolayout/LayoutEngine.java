@@ -13,14 +13,21 @@ import static java.lang.Integer.max;
 public class LayoutEngine
 {
 	public static final LayoutEngine current = new LayoutEngine();
+
 	private LayoutEngine() { }
+
+	public static String getClassAndHashCode(Object object)
+	{
+		String[] classes = object.getClass().toString().substring(6).split(Pattern.quote("."));
+		return classes[max(0, classes.length - 1)] + ":" + System.identityHashCode(object);
+	}
 
 	public void processConstraintsIn(Constrainable view)
 	{
 		JComponent component;
 		try
 		{
-			component = ((JComponent)view);
+			component = ((JComponent) view);
 		}
 		catch (ClassCastException e)
 		{
@@ -152,7 +159,7 @@ public class LayoutEngine
 						break;
 				}
 				constraint.viewOne.setBounds(leading, constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.leading, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.leading, constraint.attributeTwo});
 				break;
 			}
 
@@ -198,7 +205,7 @@ public class LayoutEngine
 				{
 					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, trailing - constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().height);
 				}
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.trailing, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.trailing, constraint.attributeTwo});
 				break;
 			}
 
@@ -239,7 +246,7 @@ public class LayoutEngine
 				}
 
 				constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, top, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.top, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.top, constraint.attributeTwo});
 				break;
 			}
 
@@ -292,7 +299,7 @@ public class LayoutEngine
 					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, bottom - constraint.viewOne.getBounds().y);
 				}
 
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.bottom, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.bottom, constraint.attributeTwo});
 				break;
 			}
 
@@ -342,9 +349,9 @@ public class LayoutEngine
 				}
 				else
 				{
-					constraint.viewOne.setBounds(centerX - (constraint.viewOne.getBounds().width/2), constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
+					constraint.viewOne.setBounds(centerX - (constraint.viewOne.getBounds().width / 2), constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
 				}
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.centerX, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.centerX, constraint.attributeTwo});
 				break;
 			}
 
@@ -394,9 +401,9 @@ public class LayoutEngine
 				}
 				else
 				{
-					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, centerY - (constraint.viewOne.getBounds().height/2), constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
+					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, centerY - (constraint.viewOne.getBounds().height / 2), constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
 				}
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.centerX, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.centerX, constraint.attributeTwo});
 				break;
 			}
 
@@ -412,7 +419,7 @@ public class LayoutEngine
 				switch (constraint.attributeTwo)
 				{
 					case width:
-						width = (int)(parent.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
+						width = (int) (parent.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
 
 						if (constraint.relation == LayoutRelation.greaterThanOrEqual)
 						{
@@ -436,7 +443,7 @@ public class LayoutEngine
 				}
 
 				constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, width, constraint.viewOne.getBounds().height);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.width, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.width, constraint.attributeTwo});
 				break;
 			}
 
@@ -452,7 +459,7 @@ public class LayoutEngine
 				switch (constraint.attributeTwo)
 				{
 					case height:
-						height = (int)(parent.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
+						height = (int) (parent.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
 						if (constraint.relation == LayoutRelation.greaterThanOrEqual)
 						{
 							height = max(height, constraint.viewOne.getPreferredSize().height);
@@ -475,7 +482,7 @@ public class LayoutEngine
 				}
 
 				constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, height);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.height, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.height, constraint.attributeTwo});
 				break;
 			}
 		}
@@ -511,13 +518,13 @@ public class LayoutEngine
 
 					case centerY:
 					{
-						top = constraint.viewTwo.getBounds().y + (int)(constraint.viewTwo.getBounds().getHeight() / 2.0 * constraint.multiplier) + constraint.constant;
+						top = constraint.viewTwo.getBounds().y + (int) (constraint.viewTwo.getBounds().getHeight() / 2.0 * constraint.multiplier) + constraint.constant;
 						break;
 					}
 
 					case bottom:
 					{
-						top = constraint.viewTwo.getBounds().y + (int)(constraint.viewTwo.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
+						top = constraint.viewTwo.getBounds().y + (int) (constraint.viewTwo.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
 						break;
 					}
 
@@ -529,7 +536,7 @@ public class LayoutEngine
 				}
 
 				constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, top, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.top, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.top, constraint.attributeTwo});
 				break;
 			}
 
@@ -555,11 +562,11 @@ public class LayoutEngine
 						break;
 
 					case centerY:
-						bottom = constraint.viewTwo.getBounds().y + (int)(constraint.viewTwo.getBounds().getHeight() / 2.0 * constraint.multiplier) + constraint.constant;
+						bottom = constraint.viewTwo.getBounds().y + (int) (constraint.viewTwo.getBounds().getHeight() / 2.0 * constraint.multiplier) + constraint.constant;
 						break;
 
 					case bottom:
-						bottom = constraint.viewTwo.getBounds().y + (int)(constraint.viewTwo.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
+						bottom = constraint.viewTwo.getBounds().y + (int) (constraint.viewTwo.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
 						break;
 
 					default:
@@ -574,7 +581,7 @@ public class LayoutEngine
 				}
 
 				constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, bottom - constraint.viewOne.getBounds().y);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.bottom, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.bottom, constraint.attributeTwo});
 				break;
 			}
 
@@ -600,11 +607,11 @@ public class LayoutEngine
 						break;
 
 					case centerX:
-						leading = constraint.viewTwo.getBounds().x + (int)(constraint.viewTwo.getBounds().getWidth() / 2.0 * constraint.multiplier) + constraint.constant;
+						leading = constraint.viewTwo.getBounds().x + (int) (constraint.viewTwo.getBounds().getWidth() / 2.0 * constraint.multiplier) + constraint.constant;
 						break;
 
 					case trailing:
-						leading = constraint.viewTwo.getBounds().x + (int)(constraint.viewTwo.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
+						leading = constraint.viewTwo.getBounds().x + (int) (constraint.viewTwo.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
 						break;
 
 					default:
@@ -613,7 +620,7 @@ public class LayoutEngine
 				}
 
 				constraint.viewOne.setBounds(leading, constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.leading, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.leading, constraint.attributeTwo});
 				break;
 			}
 
@@ -635,15 +642,15 @@ public class LayoutEngine
 				switch (constraint.attributeTwo)
 				{
 					case leading:
-						trailing = (int)(constraint.viewTwo.getBounds().getX() * constraint.multiplier) + constraint.constant;
+						trailing = (int) (constraint.viewTwo.getBounds().getX() * constraint.multiplier) + constraint.constant;
 						break;
 
 					case centerX:
-						trailing = constraint.viewTwo.getBounds().x + (int)(constraint.viewTwo.getBounds().getWidth() / 2.0 * constraint.multiplier) + constraint.constant;
+						trailing = constraint.viewTwo.getBounds().x + (int) (constraint.viewTwo.getBounds().getWidth() / 2.0 * constraint.multiplier) + constraint.constant;
 						break;
 
 					case trailing:
-						trailing = constraint.viewTwo.getBounds().x + (int)(constraint.viewTwo.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
+						trailing = constraint.viewTwo.getBounds().x + (int) (constraint.viewTwo.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
 						break;
 
 					default:
@@ -658,7 +665,7 @@ public class LayoutEngine
 				}
 
 				constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, trailing - constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().height);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.trailing, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.trailing, constraint.attributeTwo});
 				break;
 			}
 
@@ -674,7 +681,7 @@ public class LayoutEngine
 				switch (constraint.attributeTwo)
 				{
 					case width:
-						width = constraint.viewTwo.getBounds().x + (int)(constraint.viewTwo.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
+						width = constraint.viewTwo.getBounds().x + (int) (constraint.viewTwo.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
 
 						if (constraint.relation == LayoutRelation.greaterThanOrEqual)
 						{
@@ -724,7 +731,7 @@ public class LayoutEngine
 				{
 					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, width, constraint.viewOne.getBounds().height);
 				}
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.width, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.width, constraint.attributeTwo});
 				break;
 			}
 
@@ -740,7 +747,7 @@ public class LayoutEngine
 				switch (constraint.attributeTwo)
 				{
 					case height:
-						height = constraint.viewTwo.getBounds().y + (int)(constraint.viewTwo.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
+						height = constraint.viewTwo.getBounds().y + (int) (constraint.viewTwo.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
 						if (constraint.relation == LayoutRelation.greaterThanOrEqual)
 						{
 							height = max(height, constraint.viewOne.getPreferredSize().height);
@@ -790,7 +797,7 @@ public class LayoutEngine
 				{
 					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, height);
 				}
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.height, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.height, constraint.attributeTwo});
 				break;
 			}
 
@@ -816,11 +823,11 @@ public class LayoutEngine
 						break;
 
 					case centerX:
-						centerX = constraint.viewTwo.getBounds().x + (int)(constraint.viewTwo.getBounds().getWidth() / 2.0 * constraint.multiplier) + constraint.constant;
+						centerX = constraint.viewTwo.getBounds().x + (int) (constraint.viewTwo.getBounds().getWidth() / 2.0 * constraint.multiplier) + constraint.constant;
 						break;
 
 					case trailing:
-						centerX = constraint.viewTwo.getBounds().x + (int)(constraint.viewTwo.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
+						centerX = constraint.viewTwo.getBounds().x + (int) (constraint.viewTwo.getBounds().getWidth() * constraint.multiplier) + constraint.constant;
 						break;
 
 					default:
@@ -840,9 +847,9 @@ public class LayoutEngine
 				}
 				else if (contains(attributesSatisfied, LayoutAttribute.width))
 				{
-					constraint.viewOne.setBounds(centerX - (constraint.viewOne.getBounds().width/2), constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
+					constraint.viewOne.setBounds(centerX - (constraint.viewOne.getBounds().width / 2), constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
 				}
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.centerX, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.centerX, constraint.attributeTwo});
 				break;
 			}
 
@@ -868,11 +875,11 @@ public class LayoutEngine
 						break;
 
 					case centerY:
-						centerY = constraint.viewTwo.getBounds().y + (int)(constraint.viewTwo.getBounds().getHeight() / 2.0 * constraint.multiplier) + constraint.constant;
+						centerY = constraint.viewTwo.getBounds().y + (int) (constraint.viewTwo.getBounds().getHeight() / 2.0 * constraint.multiplier) + constraint.constant;
 						break;
 
 					case bottom:
-						centerY = constraint.viewTwo.getBounds().y + (int)(constraint.viewTwo.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
+						centerY = constraint.viewTwo.getBounds().y + (int) (constraint.viewTwo.getBounds().getHeight() * constraint.multiplier) + constraint.constant;
 						break;
 
 					default:
@@ -892,9 +899,9 @@ public class LayoutEngine
 				}
 				else if (contains(attributesSatisfied, LayoutAttribute.width))
 				{
-					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, centerY - (constraint.viewOne.getBounds().height/2), constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
+					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, centerY - (constraint.viewOne.getBounds().height / 2), constraint.viewOne.getBounds().width, constraint.viewOne.getBounds().height);
 				}
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.centerX, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.centerX, constraint.attributeTwo});
 				break;
 			}
 		}
@@ -938,7 +945,7 @@ public class LayoutEngine
 				{
 					constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, width, constraint.viewOne.getBounds().height);
 				}
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.width, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.width, constraint.attributeTwo});
 				break;
 			}
 
@@ -966,7 +973,7 @@ public class LayoutEngine
 				}
 
 				constraint.viewOne.setBounds(constraint.viewOne.getBounds().x, constraint.viewOne.getBounds().y, constraint.viewOne.getBounds().width, height);
-				attributesSatisfied.add(new LayoutAttribute[] {LayoutAttribute.height, constraint.attributeTwo});
+				attributesSatisfied.add(new LayoutAttribute[]{LayoutAttribute.height, constraint.attributeTwo});
 				break;
 			}
 
@@ -1090,7 +1097,7 @@ public class LayoutEngine
 				                 }
 				                 else if (o2.attributeOne == LayoutAttribute.leading || o2.attributeOne == LayoutAttribute.trailing || o2.attributeOne == LayoutAttribute.top || o2.attributeOne == LayoutAttribute.bottom || o2.attributeOne == LayoutAttribute.centerX || o2.attributeOne == LayoutAttribute.width || o2.attributeOne == LayoutAttribute.height)
 				                 {
-				                 	return 1;
+					                 return 1;
 				                 }
 				                 return -1;
 			                 }
@@ -1160,17 +1167,11 @@ public class LayoutEngine
 		}
 	}
 
-	public static String getClassAndHashCode(Object object)
-	{
-		String[] classes = object.getClass().toString().substring(6).split(Pattern.quote("."));
-		return classes[max(0, classes.length - 1)] + ":" + System.identityHashCode(object);
-	}
-
 	private boolean contains(ArrayList<LayoutAttribute[]> attributes, LayoutAttribute attribute)
 	{
 		for (LayoutAttribute[] pair : attributes)
 		{
-			if (pair[0] == attribute) return true;
+			if (pair[0] == attribute) { return true; }
 		}
 		return false;
 	}

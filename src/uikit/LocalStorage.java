@@ -1,4 +1,5 @@
 package uikit;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -31,7 +32,9 @@ import java.io.ObjectOutputStream;
 public class LocalStorage
 {
 	public static LocalStorage defaultManager = new LocalStorage();
+
 	private LocalStorage() {}
+
 	/*
 	 * Save an individual object to a file (*.ser)
 	 */
@@ -45,7 +48,8 @@ public class LocalStorage
 			objOut.writeObject(object);
 			objOut.close();
 			fileOut.close();
-		} catch (Exception ignored) { }
+		}
+		catch (Exception ignored) { }
 	}
 
 	/*

@@ -5,65 +5,66 @@ import java.io.IOException;
 
 import static java.awt.Font.createFont;
 
-@SuppressWarnings("unused") public class UIFont
+@SuppressWarnings("unused")
+public class UIFont
 {
 	//Display.  Size 32+
 
-	public static Font displayBlack         ;
-	public static Font displayBold          ;
-	public static Font displayHeavy         ;
-	public static Font displayLight         ;
-	public static Font displayMedium        ;
-	public static Font displayRegular       ;
-	public static Font displaySemibold      ;
-	public static Font displayThin          ;
-	public static Font displayUltralight    ;
+	public static Font displayBlack;
+	public static Font displayBold;
+	public static Font displayHeavy;
+	public static Font displayLight;
+	public static Font displayMedium;
+	public static Font displayRegular;
+	public static Font displaySemibold;
+	public static Font displayThin;
+	public static Font displayUltralight;
 
 	//Text.  Size 31-
 
-	public static Font textBold             ;
-	public static Font textBoldItalic       ;
-	public static Font textHeavy            ;
-	public static Font textHeavyItalic      ;
-	public static Font textLight            ;
-	public static Font textLightItalic      ;
-	public static Font textMedium           ;
-	public static Font textMediumItalic     ;
-	public static Font textRegular          ;
-	public static Font textRegularItalic    ;
-	public static Font textSemibold         ;
-	public static Font textSemiboldItalic   ;
-	public static Font textUltrathin        ;
-	public static Font textUltrathinItalic  ;
+	public static Font textBold;
+	public static Font textBoldItalic;
+	public static Font textHeavy;
+	public static Font textHeavyItalic;
+	public static Font textLight;
+	public static Font textLightItalic;
+	public static Font textMedium;
+	public static Font textMediumItalic;
+	public static Font textRegular;
+	public static Font textRegularItalic;
+	public static Font textSemibold;
+	public static Font textSemiboldItalic;
+	public static Font textUltrathin;
+	public static Font textUltrathinItalic;
 
 	public static void loadIntoGE()
 	{
 		try
 		{
-			displayBlack            = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Black.otf"));
-			displayBold             = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Bold.otf"));
-			displayHeavy            = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Heavy.otf"));
-			displayLight            = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Light.otf"));
-			displayMedium           = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Medium.otf"));
-			displayRegular          = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Regular.otf"));
-			displaySemibold         = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Semibold.otf"));
-			displayThin             = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Thin.otf"));
-			displayUltralight       = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Ultralight.otf"));
+			displayBlack = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Black.otf"));
+			displayBold = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Bold.otf"));
+			displayHeavy = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Heavy.otf"));
+			displayLight = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Light.otf"));
+			displayMedium = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Medium.otf"));
+			displayRegular = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Regular.otf"));
+			displaySemibold = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Semibold.otf"));
+			displayThin = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Thin.otf"));
+			displayUltralight = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Display-Ultralight.otf"));
 
-			textBold                = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Bold.otf"));
-			textBoldItalic          = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-BoldItalic.otf"));
-			textHeavy               = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Heavy.otf"));
-			textHeavyItalic         = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-HeavyItalic.otf"));
-			textLight               = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Light.otf"));
-			textLightItalic         = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-LightItalic.otf"));
-			textMedium              = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Medium.otf"));
-			textMediumItalic        = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-MediumItalic.otf"));
-			textRegular             = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Regular.otf"));
-			textRegularItalic       = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-RegularItalic.otf"));
-			textSemibold            = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Semibold.otf"));
-			textSemiboldItalic      = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-SemiboldItalic.otf"));
-			textUltrathin           = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Ultrathin.otf"));
-			textUltrathinItalic     = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-UltrathinItalic.otf"));
+			textBold = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Bold.otf"));
+			textBoldItalic = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-BoldItalic.otf"));
+			textHeavy = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Heavy.otf"));
+			textHeavyItalic = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-HeavyItalic.otf"));
+			textLight = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Light.otf"));
+			textLightItalic = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-LightItalic.otf"));
+			textMedium = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Medium.otf"));
+			textMediumItalic = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-MediumItalic.otf"));
+			textRegular = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Regular.otf"));
+			textRegularItalic = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-RegularItalic.otf"));
+			textSemibold = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Semibold.otf"));
+			textSemiboldItalic = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-SemiboldItalic.otf"));
+			textUltrathin = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-Ultrathin.otf"));
+			textUltrathinItalic = createFont(Font.TRUETYPE_FONT, UIFont.class.getResourceAsStream("SF-UI-Text-UltrathinItalic.otf"));
 		}
 		catch (FontFormatException | IOException e)
 		{
