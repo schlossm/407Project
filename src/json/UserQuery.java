@@ -1,10 +1,8 @@
 package json;
 
 import com.google.gson.JsonObject;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
-import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
@@ -36,6 +34,8 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
             dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
             {
+            	System.out.println(response);
+	            System.out.println(error);
                 if(error != null)
                 {
                     //Process the error and return appropriate new error to UI.
