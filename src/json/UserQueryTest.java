@@ -1,9 +1,7 @@
 package json;
 
 import database.DFDatabase;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import static database.DFDatabase.queue;
 
@@ -45,14 +43,14 @@ public class UserQueryTest
 	/*
 	 * This method runs before each test
 	 */
-	@org.junit.Before
+	@Before
 	public void setUp() throws Exception
 	{ }
 
 	/*
 	 * This method runs after each test
 	 */
-	@org.junit.After
+	@After
 	public void tearDown() throws Exception
 	{ }
 

@@ -703,9 +703,4 @@ public class UserQuery
 			return userType.TA;
 		}
 	}
-
-	public static void main(String[] args)
-	{
-		UserQuery userQuery = new UserQuery();
-	}
 }
