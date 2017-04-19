@@ -155,8 +155,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         }
     }
 
-    public boolean addUserAsStudent(String username, QueryCallbackRunnable runnable) {
-        boolean isaddSuccess;
+    public void addUserAsStudent(String username, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String attr = "userType";
         String value = userTypeToIntConverter(userType.STUDENT) + "";
@@ -165,14 +164,61 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         try {
             dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
             debugLog(dfsql.formattedStatement());
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-            dfsql.insert("students", values, rows);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-        } catch (DFSQLError e1) {
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->{
+                if (error != null)
+                {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                    return;
+                }
+
+                if (response instanceof DFDataUploaderReturnStatus)
+                {
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        try
+                        {
+                            DFSQL dfsql1 = new DFSQL().insert("students", values, rows);
+                            DFDatabase.defaultDatabase.execute(dfsql1, (response1, error12) ->
+                            {
+                                if (response1 instanceof DFDataUploaderReturnStatus)
+                                {
+                                    DFDataUploaderReturnStatus returnStatus1 = (DFDataUploaderReturnStatus)response1;
+                                    if (returnStatus1 == DFDataUploaderReturnStatus.success)
+                                    {
+                                        runnable.run(true, null);
+                                    }
+                                    else
+                                    {
+                                        runnable.run(false, null);
+                                    }
+                                }
+                                else
+                                {
+                                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                                }
+                            });
+                        }
+                        catch (DFSQLError e2)
+                        {
+                            runnable.run(false, new JSONQueryError(0, "Internal Error", null));
+                        }
+                    }
+                    else
+                    {
+                        runnable.run(false, new JSONQueryError(0, "Internal Error", null));
+                    }
+                }
+                else
+                {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
+            });
+        }
+        catch (DFSQLError e1) {
             e1.printStackTrace();
         }
-        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
-        return  isaddSuccess;
     }
 
     public void removeUserAsStudent(String username, QueryCallbackRunnable runnable)
