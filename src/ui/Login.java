@@ -288,7 +288,74 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			passwordField.setEditable(false);
 			this.requestFocus();
 			stage = Stage.verify;
-			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()), (returnedData, error) ->
+			{
+				if (error != null)
+				{
+					if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+					{
+						Taskbar.getTaskbar().requestUserAttention(true, true);
+					}
+					Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+					incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> {
+						usernameField.requestFocus();
+						usernameField.selectAll();
+					}, false);
+					incorrectPassword.show(presentingFrame);
+					return;
+				}
+				if (returnedData instanceof Boolean)
+				{
+					boolean bool = (Boolean) returnedData;
+					if (bool)
+					{
+						query.getUser(usernameField.getText(), (returnedData1, error1) ->
+						{
+							if (error1 != null)
+							{
+								if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+								{
+									Taskbar.getTaskbar().requestUserAttention(true, true);
+								}
+								Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+								incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+								incorrectPassword.show(presentingFrame);
+								return;
+							}
+							if (returnedData1 instanceof User)
+							{
+								UIVariables.current.currentUser = (User) returnedData1;
+								LocalStorage.defaultManager.saveObjectToFile(UIVariables.current.currentUser, UIVariables.current.applicationDirectories.library + ".user.abc");
+								Window.current.postLogin();
+							}
+							else
+							{
+								if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+								{
+									Taskbar.getTaskbar().requestUserAttention(true, true);
+								}
+								Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+								incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+								incorrectPassword.show(presentingFrame);
+							}
+						});
+					}
+					else
+					{
+						if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+						{
+							Taskbar.getTaskbar().requestUserAttention(true, true);
+						}
+						Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+						incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> {
+							usernameField.requestFocus();
+							usernameField.selectAll();
+						}, false);
+						incorrectPassword.show(presentingFrame);
+					}
+				}
+
+			});
 		}
 		else if (e.getSource() == loginButton)
 		{
@@ -297,7 +364,74 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			usernameField.setEditable(false);
 			passwordField.setEditable(false);
 			stage = Stage.verify;
-			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()), (returnedData, error) ->
+			{
+				if (error != null)
+				{
+					if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+					{
+						Taskbar.getTaskbar().requestUserAttention(true, true);
+					}
+					Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+					incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> {
+						usernameField.requestFocus();
+						usernameField.selectAll();
+					}, false);
+					incorrectPassword.show(presentingFrame);
+					return;
+				}
+				if (returnedData instanceof Boolean)
+				{
+					boolean bool = (Boolean) returnedData;
+					if (bool)
+					{
+						query.getUser(usernameField.getText(), (returnedData1, error1) ->
+						{
+							if (error1 != null)
+							{
+								if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+								{
+									Taskbar.getTaskbar().requestUserAttention(true, true);
+								}
+								Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+								incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+								incorrectPassword.show(presentingFrame);
+								return;
+							}
+							if (returnedData1 instanceof User)
+							{
+								UIVariables.current.currentUser = (User) returnedData1;
+								LocalStorage.defaultManager.saveObjectToFile(UIVariables.current.currentUser, UIVariables.current.applicationDirectories.library + ".user.abc");
+								Window.current.postLogin();
+							}
+							else
+							{
+								if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+								{
+									Taskbar.getTaskbar().requestUserAttention(true, true);
+								}
+								Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+								incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+								incorrectPassword.show(presentingFrame);
+							}
+						});
+					}
+					else
+					{
+						if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+						{
+							Taskbar.getTaskbar().requestUserAttention(true, true);
+						}
+						Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+						incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> {
+							usernameField.requestFocus();
+							usernameField.selectAll();
+						}, false);
+						incorrectPassword.show(presentingFrame);
+					}
+				}
+
+			});
 		}
 		else if (e.getSource() == quitButton)
 		{
@@ -433,12 +567,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		if (Objects.equals(notificationName, UIStrings.success))
 		{
 			stage = Stage.loadUser;
-			query.getUser(usernameField.getText(), (returnedData, error) ->
-			{
-				UIVariables.current.currentUser = (User)returnedData;
-				LocalStorage.defaultManager.saveObjectToFile(userData, UIVariables.current.applicationDirectories.library + ".user.abc");
-				Window.current.postLogin();
-			});
+
 		}
 		else if (Objects.equals(notificationName, UIStrings.failure))
 		{

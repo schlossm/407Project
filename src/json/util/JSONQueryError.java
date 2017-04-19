@@ -20,7 +20,7 @@ public class JSONQueryError
 	/**
 	 * The error code
 	 */
-	private final int code;
+	public final int code;
 	/**
 	 * A human readable description of the error
 	 */
