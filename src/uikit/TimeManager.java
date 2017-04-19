@@ -11,18 +11,18 @@ import static database.DFDatabase.queue;
 @SuppressWarnings("InfiniteLoopStatement")
 public class TimeManager implements Runnable
 {
-	private final   Calendar calendar           = Calendar.getInstance(TimeZone.getTimeZone("America/Indianapolis"));
-	private long    startMillisecond            = calendar.getTimeInMillis();
-	private int     oldDay                      = calendar.get(Calendar.DAY_OF_YEAR);
-	private boolean justFiredOffNotification    = false;
+	private final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Indianapolis"));
+	private long startMillisecond = calendar.getTimeInMillis();
+	private int oldDay = calendar.get(Calendar.DAY_OF_YEAR);
+	private boolean justFiredOffNotification = false;
 
 	private void listenForTimeChanges()
 	{
 		while (true)
 		{
-			Calendar tempCalendar   = Calendar.getInstance(TimeZone.getTimeZone("America/Indianapolis"));
-			int      thisDay        = tempCalendar.get(Calendar.DAY_OF_YEAR);
-			long     thisTime       = tempCalendar.getTimeInMillis();
+			Calendar tempCalendar = Calendar.getInstance(TimeZone.getTimeZone("America/Indianapolis"));
+			int thisDay = tempCalendar.get(Calendar.DAY_OF_YEAR);
+			long thisTime = tempCalendar.getTimeInMillis();
 
 			if (thisDay != oldDay)
 			{

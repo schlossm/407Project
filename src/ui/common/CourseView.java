@@ -28,7 +28,7 @@ public class CourseView extends ALJPanel
 {
 	private final CourseViewTabBar tabBar;
 
-	private Course courseToView;
+	private final Course courseToView;
 
 	private final JLabel title;
 	private ALJPanel activePanel;
@@ -46,10 +46,10 @@ public class CourseView extends ALJPanel
 		tabBar = new CourseViewTabBar();
 		tabBar.parent = this;
 		add(tabBar);
-		addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1,20));
-		addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1,0));
-		addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1,0));
-		addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1,200));
+		addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1, 20));
+		addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1, 0));
+		addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1, 0));
+		addConstraint(new LayoutConstraint(tabBar, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1, 200));
 
 		if (UIVariables.current.currentUser.getUserType() == userType.TEACHER)
 		{
@@ -62,7 +62,8 @@ public class CourseView extends ALJPanel
 				BufferedImage img = read(this.getClass().getResource("/uikit/images/" + "close-envelope@2x" + ".png"));
 				Image scaledInstance = img.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
 				JLabel email = new JLabel(new ImageIcon(scaledInstance));
-				email.addMouseListener(new MouseListener() {
+				email.addMouseListener(new MouseListener()
+				{
 					@Override
 					public void mouseClicked(MouseEvent e)
 					{
@@ -132,7 +133,7 @@ public class CourseView extends ALJPanel
 
 	void changeTab(String newTab)
 	{
-		ALJPanel newPanel = null;
+		ALJPanel newPanel;
 		switch (newTab)
 		{
 			case "Announcements":
@@ -148,7 +149,7 @@ public class CourseView extends ALJPanel
 						newPanel = new StudentAnnouncements(courseToView);
 					}
 				}
-				else return;
+				else { return; }
 				break;
 			}
 
@@ -158,7 +159,7 @@ public class CourseView extends ALJPanel
 				{
 					newPanel = new FileList(courseToView);
 				}
-				else return;
+				else { return; }
 				break;
 			}
 
@@ -186,9 +187,8 @@ public class CourseView extends ALJPanel
 
 class CourseViewTabBar extends ALJTablePanel
 {
+	private final String[] options = new String[]{"Announcements", "Files", "Assignments", "Grades"};
 	CourseView parent;
-
-	private final String[] options = new String[] { "Announcements", "Files", "Assignments", "Grades" };
 
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)

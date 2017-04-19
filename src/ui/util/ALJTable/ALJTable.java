@@ -11,7 +11,10 @@ import uikit.autolayout.uiobjects.ALJPanel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Objects;
 
 import static uikit.autolayout.LayoutEngine.getClassAndHashCode;
@@ -19,13 +22,12 @@ import static uikit.autolayout.LayoutEngine.getClassAndHashCode;
 @SuppressWarnings("unused")
 public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCellDelegate
 {
+	private final ALJPanel tableView;
+	private final JScrollPane scrollPane;
 	public ALJTableDataSource dataSource;
 	public ALJTableDelegate delegate;
 	public int heightForRow = -1;
 	private boolean _isLoaded = false;
-
-	private final ALJPanel tableView;
-	private final JScrollPane scrollPane;
 
 	public ALJTable()
 	{

@@ -18,16 +18,15 @@ import java.util.Objects;
 
 class Login extends JPanel implements ActionListener, DocumentListener, MLMDelegate, KeyListener, DFNotificationCenterDelegate
 {
-	private JTextField      usernameField;
-	private JPasswordField  passwordField;
-	private JButton         loginButton;
-	private final JButton         quitButton;
-	private Object          activeTextField;
-	private boolean         typingPassword = true;
-
+	private final JButton quitButton;
 	private final UserQuery query = new UserQuery();
-
 	private final JFrame presentingFrame;
+	private JTextField usernameField;
+	private JPasswordField passwordField;
+	private JButton loginButton;
+	private Object activeTextField;
+	private boolean typingPassword = true;
+	private Stage stage = Stage.none;
 
 	Login(JFrame frame)
 	{
@@ -42,7 +41,8 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		this.setBorder(new EmptyBorder((int) (frame.getHeight() * 0.2), 40, 20, 40));
 		JPanel loginPan = this;
 
-		frame.setFocusTraversalPolicy(new FocusTraversalPolicy() {
+		frame.setFocusTraversalPolicy(new FocusTraversalPolicy()
+		{
 			@Override
 			public Component getComponentAfter(Container aContainer, Component aComponent)
 			{
@@ -175,7 +175,11 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			}
 
 			@Override
-			public Component getDefaultComponent(Container aContainer) { typingPassword = false; return null; }
+			public Component getDefaultComponent(Container aContainer)
+			{
+				typingPassword = false;
+				return null;
+			}
 		});
 
 
@@ -283,12 +287,81 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		if (e.getSource() == passwordField)
 		{
 			typingPassword = false;
-			if (passwordField.getPassword().length == 0) return;
+			if (passwordField.getPassword().length == 0) { return; }
 			usernameField.setEditable(false);
 			passwordField.setEditable(false);
 			this.requestFocus();
 			stage = Stage.verify;
-			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()), (returnedData, error) ->
+			{
+				if (error != null)
+				{
+					if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+					{
+						Taskbar.getTaskbar().requestUserAttention(true, true);
+					}
+					Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+					incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
+					{
+						usernameField.requestFocus();
+						usernameField.selectAll();
+					}, false);
+					incorrectPassword.show(presentingFrame);
+					return;
+				}
+				if (returnedData instanceof Boolean)
+				{
+					boolean bool = (Boolean) returnedData;
+					if (bool)
+					{
+						query.getUser(usernameField.getText(), (returnedData1, error1) ->
+						{
+							if (error1 != null)
+							{
+								if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+								{
+									Taskbar.getTaskbar().requestUserAttention(true, true);
+								}
+								Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+								incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+								incorrectPassword.show(presentingFrame);
+								return;
+							}
+							if (returnedData1 instanceof User)
+							{
+								UIVariables.current.currentUser = (User) returnedData1;
+								LocalStorage.defaultManager.saveObjectToFile(UIVariables.current.currentUser, UIVariables.current.applicationDirectories.library + ".user.abc");
+								Window.current.postLogin();
+							}
+							else
+							{
+								if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+								{
+									Taskbar.getTaskbar().requestUserAttention(true, true);
+								}
+								Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+								incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+								incorrectPassword.show(presentingFrame);
+							}
+						});
+					}
+					else
+					{
+						if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+						{
+							Taskbar.getTaskbar().requestUserAttention(true, true);
+						}
+						Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+						incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
+						{
+							usernameField.requestFocus();
+							usernameField.selectAll();
+						}, false);
+						incorrectPassword.show(presentingFrame);
+					}
+				}
+
+			});
 		}
 		else if (e.getSource() == loginButton)
 		{
@@ -297,7 +370,76 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 			usernameField.setEditable(false);
 			passwordField.setEditable(false);
 			stage = Stage.verify;
-			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()));
+			query.verifyUserLogin(usernameField.getText(), new String(passwordField.getPassword()), (returnedData, error) ->
+			{
+				if (error != null)
+				{
+					if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+					{
+						Taskbar.getTaskbar().requestUserAttention(true, true);
+					}
+					Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+					incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
+					{
+						usernameField.requestFocus();
+						usernameField.selectAll();
+					}, false);
+					incorrectPassword.show(presentingFrame);
+					return;
+				}
+				if (returnedData instanceof Boolean)
+				{
+					boolean bool = (Boolean) returnedData;
+					if (bool)
+					{
+						query.getUser(usernameField.getText(), (returnedData1, error1) ->
+						{
+							if (error1 != null)
+							{
+								if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+								{
+									Taskbar.getTaskbar().requestUserAttention(true, true);
+								}
+								Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+								incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+								incorrectPassword.show(presentingFrame);
+								return;
+							}
+							if (returnedData1 instanceof User)
+							{
+								UIVariables.current.currentUser = (User) returnedData1;
+								LocalStorage.defaultManager.saveObjectToFile(UIVariables.current.currentUser, UIVariables.current.applicationDirectories.library + ".user.abc");
+								Window.current.postLogin();
+							}
+							else
+							{
+								if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+								{
+									Taskbar.getTaskbar().requestUserAttention(true, true);
+								}
+								Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
+								incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+								incorrectPassword.show(presentingFrame);
+							}
+						});
+					}
+					else
+					{
+						if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.USER_ATTENTION))
+						{
+							Taskbar.getTaskbar().requestUserAttention(true, true);
+						}
+						Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
+						incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
+						{
+							usernameField.requestFocus();
+							usernameField.selectAll();
+						}, false);
+						incorrectPassword.show(presentingFrame);
+					}
+				}
+
+			});
 		}
 		else if (e.getSource() == quitButton)
 		{
@@ -420,20 +562,13 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		}
 	}
 
-	private enum Stage
-	{
-		verify, loadUser, none
-	}
-
-	private Stage stage = Stage.none;
-
 	@Override
 	public void performActionFor(String notificationName, Object userData)
 	{
 		if (Objects.equals(notificationName, UIStrings.success))
 		{
 			stage = Stage.loadUser;
-			query.getUser(usernameField.getText());
+
 		}
 		else if (Objects.equals(notificationName, UIStrings.failure))
 		{
@@ -446,7 +581,8 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 					Taskbar.getTaskbar().requestUserAttention(true, true);
 				}
 				Alert incorrectPassword = new Alert("Incorrect Credentials", "Your username or password were incorrect.\n\nPlease try again.");
-				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 -> {
+				incorrectPassword.addButton("OK", ButtonType.defaultType, e1 ->
+				{
 					usernameField.requestFocus();
 					usernameField.selectAll();
 				}, false);
@@ -466,9 +602,14 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 		else if (Objects.equals(notificationName, UIStrings.returned))
 		{
 			stage = Stage.none;
-			UIVariables.current.currentUser = (User)userData;
+			UIVariables.current.currentUser = (User) userData;
 			LocalStorage.defaultManager.saveObjectToFile(userData, UIVariables.current.applicationDirectories.library + ".user.abc");
 			Window.current.postLogin();
 		}
+	}
+
+	private enum Stage
+	{
+		verify, loadUser, none
 	}
 }

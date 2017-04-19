@@ -40,11 +40,11 @@ public class DFDatabase
 	 */
 	public static final DFDatabase defaultDatabase = new DFDatabase();
 
-	private final String websiteUserName	= "tokanone_abcapp";
-	private final String websiteUserPass	= "RAD-88Q-gDx-pEZ";
+	private final String websiteUserName = "tokanone_abcapp";
+	private final String websiteUserPass = "RAD-88Q-gDx-pEZ";
 
-	private final char[] hexArray			= "0123456789ABCDEF".toCharArray();
-	private boolean      useEncryption      = true;
+	private final char[] hexArray = "0123456789ABCDEF".toCharArray();
+	private boolean useEncryption = true;
 
 	private SecretKeySpec secretKeySpec;
 	private byte[] iv;
@@ -56,21 +56,13 @@ public class DFDatabase
 	private int _debug = 0;
 	private Cipher encryptor, decryptor;
 
-	public int debug()
-	{
-		return _debug;
-	}
-
-	public void enableDebug()
-	{
-		_debug = 1;
-	}
-
 	private DFDatabase()
 	{
-		Authenticator.setDefault (new Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication (websiteUserName, websiteUserPass.toCharArray());
+		Authenticator.setDefault(new Authenticator()
+		{
+			protected PasswordAuthentication getPasswordAuthentication()
+			{
+				return new PasswordAuthentication(websiteUserName, websiteUserPass.toCharArray());
 			}
 		});
 		try
@@ -102,28 +94,59 @@ public class DFDatabase
 		}
 	}
 
+	public static String getMethodName()
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+
+		return "`" + ste[Integer.min(ste.length - 1, Integer.max(2, 0))].getMethodName() + "`";
+	}
+
+	public static String getMethodNameOfSuperMethod()
+	{
+		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+
+		return ste[Integer.min(ste.length - 1, Integer.max(6, 0))].getClassName().split("\\.")[1] + "." + ste[Integer.min(ste.length - 1, Integer.max(6, 0))].getMethodName() + "";
+	}
+
+	public static void print(Object object)
+	{
+		System.out.println(object);
+	}
+
+	public static void debugLog(Object object)
+	{
+		if (DFDatabase.defaultDatabase._debug == 1) { print(object); }
+	}
+
+	public int debug()
+	{
+		return _debug;
+	}
+
+	public void enableDebug()
+	{
+		_debug = 1;
+	}
+
 	/**
 	 * @param SQLStatement the SQL statement to execute backend side
-	 * @param delegate the delegate object that will respond to data changes.  This object must conform to the DFDatabaseCallbackDelegate interface
+	 * @param runnable     the runnable object that will respond to data changes.  This object must conform to the DFDatabaseCallbackRunnable interface
 	 */
-	public void execute( DFSQL SQLStatement,  DFDatabaseCallbackDelegate delegate)
+	public void execute(DFSQL SQLStatement, DFDatabaseCallbackRunnable runnable)
 	{
 		if (Objects.equals(SQLStatement.formattedStatement(), ""))
 		{
 			Map<String, String> errorInfo = new HashMap<>();
 			errorInfo.put(kMethodName, getMethodName());
 			errorInfo.put(kExpandedDescription, "DFDatabase cannot work with an empty DFSQL Object.");
-			if (delegate != null)
-			{
-				delegate.returnedData(null, new DFError(-3, "Empty DFSQL object delivered", errorInfo));
-			}
+			if (runnable != null) { runnable.run(null, new DFError(-3, "Empty DFSQL object delivered", errorInfo)); }
 			return;
 		}
 
-		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, delegate);
+		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") || SQLStatement.formattedStatement().contains("DELETE") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
 	}
 
-	public  String hashString( String decryptedString)
+	public String hashString(String decryptedString)
 	{
 		byte[] key = decryptedString.getBytes();
 		MessageDigest sha;
@@ -140,102 +163,78 @@ public class DFDatabase
 		}
 	}
 
-	public  String encryptString( String decryptedString)
-    {
-	    if (useEncryption)
-	    {
-		    byte[] byteText = decryptedString.getBytes();
-		    try
-		    {
-			    byte[] byteCipherText = encryptor.doFinal(byteText);
-			    return bytesToHex(iv) + bytesToHex(byteCipherText);
-		    }
-		    catch (IllegalBlockSizeException | BadPaddingException e)
-		    {
-			    e.printStackTrace();
-			    return "";
-		    }
-	    }
-	    else
-	    {
-		    return decryptedString;
-	    }
-    }
-
-	public  String decryptString( String encryptedString)
-    {
-	    if (useEncryption)
-	    {
-		    byte[] byteText = hexToBytes(encryptedString);
-		    byte[] iv = new byte[16];
-		    int length = byteText.length - 16;
-
-		    byte[] encryptedBytes = new byte[length];
-		    System.arraycopy(byteText, 0, iv, 0, iv.length);
-		    System.arraycopy(byteText, iv.length, encryptedBytes, 0, (byteText.length - iv.length));
-		    IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-		    try
-		    {
-			    decryptor.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-			    byte[] byteCipherText = decryptor.doFinal(encryptedBytes);
-			    return new String(byteCipherText);
-		    }
-		    catch (IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException | InvalidKeyException e)
-		    {
-			    e.printStackTrace();
-			    return "";
-		    }
-	    }
-	    else
-	    {
-		    return encryptedString;
-	    }
+	public String encryptString(String decryptedString)
+	{
+		if (useEncryption)
+		{
+			byte[] byteText = decryptedString.getBytes();
+			try
+			{
+				byte[] byteCipherText = encryptor.doFinal(byteText);
+				return bytesToHex(iv) + bytesToHex(byteCipherText);
+			}
+			catch (IllegalBlockSizeException | BadPaddingException e)
+			{
+				e.printStackTrace();
+				return "";
+			}
+		}
+		else
+		{
+			return decryptedString;
+		}
 	}
 
-    private  String bytesToHex(byte[] bytes)
-    {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ )
-        {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-
-    private  byte[] hexToBytes(String s)
-    {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2)
-        {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
-        }
-        return data;
-    }
-
-	public  static String getMethodName()
+	public String decryptString(String encryptedString)
 	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+		if (useEncryption)
+		{
+			byte[] byteText = hexToBytes(encryptedString);
+			byte[] iv = new byte[16];
+			int length = byteText.length - 16;
 
-		return "`" + ste[Integer.min(ste.length - 1, Integer.max(2, 0))].getMethodName() + "`";
+			byte[] encryptedBytes = new byte[length];
+			System.arraycopy(byteText, 0, iv, 0, iv.length);
+			System.arraycopy(byteText, iv.length, encryptedBytes, 0, (byteText.length - iv.length));
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+			try
+			{
+				decryptor.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+				byte[] byteCipherText = decryptor.doFinal(encryptedBytes);
+				return new String(byteCipherText);
+			}
+			catch (IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException | InvalidKeyException e)
+			{
+				e.printStackTrace();
+				return "";
+			}
+		}
+		else
+		{
+			return encryptedString;
+		}
 	}
 
-	public  static String getMethodNameOfSuperMethod()
+	private String bytesToHex(byte[] bytes)
 	{
-		final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-
-		return ste[Integer.min(ste.length - 1, Integer.max(6, 0))].getClassName().split("\\.")[1] + "." + ste[Integer.min(ste.length - 1, Integer.max(6, 0))].getMethodName() + "";
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++)
+		{
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 
-	public static void print(Object object)
+	private byte[] hexToBytes(String s)
 	{
-		System.out.println(object);
-	}
-
-	public static void debugLog(Object object)
-	{
-		if (DFDatabase.defaultDatabase._debug == 1) print(object);
+		int len = s.length();
+		byte[] data = new byte[len / 2];
+		for (int i = 0; i < len; i += 2)
+		{
+			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
+		}
+		return data;
 	}
 }

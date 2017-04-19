@@ -1,7 +1,7 @@
 package database.DFSQL;
 
 /**
- Defines a `JOIN` statement
+ * Defines a `JOIN` statement
  */
 public class Join
 {

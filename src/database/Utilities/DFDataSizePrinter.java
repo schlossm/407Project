@@ -12,61 +12,62 @@ import static java.lang.Double.valueOf;
  */
 public class DFDataSizePrinter
 {
-    /**
-     * The singleton instance of the printer
-     */
+	/**
+	 * The singleton instance of the printer
+	 */
 	public static final DFDataSizePrinter current = new DFDataSizePrinter();
 
 	private DFDataSizePrinter() { }
 
-    /**
-     * Prints the data size
-     * @param dataSize An integer equaling the number of bytes desired to print
-     */
+	/**
+	 * Prints the data size
+	 *
+	 * @param dataSize An integer equaling the number of bytes desired to print
+	 */
 	public void printDataSize(Integer dataSize)
-    {
-        Integer byteSize = 0;
+	{
+		Integer byteSize = 0;
 
-        Double length = valueOf(dataSize);
+		Double length = valueOf(dataSize);
 
-        while (length >= 1024.0)
-        {
-            byteSize += 1;
-            length /= 1024.0;
-        }
+		while (length >= 1024.0)
+		{
+			byteSize += 1;
+			length /= 1024.0;
+		}
 
-        StringBuilder sb = new StringBuilder();
-        Formatter formatter = new Formatter(sb, Locale.US);
-        formatter.format("%.2f", length);
-        formatter.close();
+		StringBuilder sb = new StringBuilder();
+		Formatter formatter = new Formatter(sb, Locale.US);
+		formatter.format("%.2f", length);
+		formatter.close();
 
-        String fileSize = "";
+		String fileSize = "";
 
-        switch (byteSize)
-        {
-        case 0:
-        	fileSize = "B";
-        	break;
-        case 1:
-        	fileSize = "KB";
-        	break;
-        case 2:
-        	fileSize = "MB";
-        	break;
-        case 3:
-        	fileSize = "GB";
-        	break;
-        case 4:
-        	fileSize = "TB";
-        	break;
-        case 5:
-        	fileSize = "PB";
-        	break;
-        }
+		switch (byteSize)
+		{
+			case 0:
+				fileSize = "B";
+				break;
+			case 1:
+				fileSize = "KB";
+				break;
+			case 2:
+				fileSize = "MB";
+				break;
+			case 3:
+				fileSize = "GB";
+				break;
+			case 4:
+				fileSize = "TB";
+				break;
+			case 5:
+				fileSize = "PB";
+				break;
+		}
 
-	    String size = new String(sb);
-	    size = size.replace(".00", "");
+		String size = new String(sb);
+		size = size.replace(".00", "");
 
-        print("Downloaded Data Size: " + size + " " + fileSize);
-    }
+		print("Downloaded Data Size: " + size + " " + fileSize);
+	}
 }

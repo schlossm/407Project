@@ -1,7 +1,7 @@
 package database.DFSQL;
 
 /**
- A helper struct to combine an attribute-value pair
+ * A helper struct to combine an attribute-value pair
  */
 public class DFSQLClause
 {
@@ -10,7 +10,7 @@ public class DFSQLClause
 
 	public DFSQLClause(String attribute, String value)
 	{
-		this.attribute  = attribute;
-		this.value      = value;
+		this.attribute = attribute;
+		this.value = value;
 	}
 }

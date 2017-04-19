@@ -18,11 +18,20 @@ public class Message implements Serializable {
         // empty constructor
     }
 
+    @Deprecated
     public Message(int id, String title, String text, String timestamp, String authorUserId, int courseId) {
         this.title = title;
         this.text = text;
         this.timestamp = timestamp;
         this.id = id;
+        this.authorUserId = authorUserId;
+        this.courseId = courseId;
+    }
+
+    public Message(String title, String text, String timestamp, String authorUserId, int courseId) {
+        this.title = title;
+        this.text = text;
+        this.timestamp = timestamp;
         this.authorUserId = authorUserId;
         this.courseId = courseId;
     }

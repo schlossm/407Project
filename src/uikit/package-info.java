@@ -1,5 +1,4 @@
 /**
  * @author michaelschloss
- *
  */
 package uikit;
