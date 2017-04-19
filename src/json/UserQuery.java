@@ -141,70 +141,214 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         return  isaddSuccess;
     }
 
-    public boolean removeUserAsStudent(String username) {
-        boolean isaddSuccess;
+    public void removeUserAsStudent(String username, QueryCallbackRunnable runnable)
+    {
         DFSQL dfsql = new DFSQL();
         String attr = "userType";
         String value = "0";
-        try {
+        try
+        {
             dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
-            debugLog(dfsql.formattedStatement());
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-            dfsql.delete(   "students",
-                            new Where(  DFSQLConjunction.none,
-                                        DFSQLEquivalence.equals,
-                                        new DFSQLClause("userid", username)
-                            )
-                        );
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-        } catch (DFSQLError e1) {
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+	            if (error != null)
+	            {
+		            JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+		            runnable.run(null, error1);
+		            return;
+	            }
+
+	            if (response instanceof DFDataUploaderReturnStatus)
+	            {
+		            DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
+		            if (returnStatus == DFDataUploaderReturnStatus.success)
+		            {
+			            try
+			            {
+				            DFSQL dfsql1 = new DFSQL().delete("students",
+				                                              new Where(DFSQLConjunction.none,
+				                                                        DFSQLEquivalence.equals,
+				                                                        new DFSQLClause("userid", username)));
+				            DFDatabase.defaultDatabase.execute(dfsql1, (response1, error12) ->
+				            {
+					            if (response1 instanceof DFDataUploaderReturnStatus)
+					            {
+						            DFDataUploaderReturnStatus returnStatus1 = (DFDataUploaderReturnStatus)response1;
+						            if (returnStatus1 == DFDataUploaderReturnStatus.success)
+						            {
+							            runnable.run(true, null);
+						            }
+						            else
+						            {
+							            runnable.run(false, null);
+						            }
+					            }
+					            else
+					            {
+						            runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+					            }
+				            });
+			            }
+			            catch (DFSQLError e2)
+			            {
+				            runnable.run(false, new JSONQueryError(0, "Internal Error", null));
+			            }
+		            }
+		            else
+		            {
+			            runnable.run(false, new JSONQueryError(0, "Internal Error", null));
+		            }
+	            }
+	            else
+	            {
+		            runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+	            }
+            });
+        }
+        catch (DFSQLError e1)
+        {
             e1.printStackTrace();
         }
-        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
-        return  isaddSuccess;
     }
 
-    public boolean addUserAsInstructor(String username, String officehours, String roomno) {
-        boolean isaddSuccess;
+    public void addUserAsInstructor(String username, String officehours, String roomno, QueryCallbackRunnable runnable)
+    {
         DFSQL dfsql = new DFSQL();
         String attr = "userType";
         String value = userTypeToIntConverter(userType.TEACHER) + "";
         String[] rows = {"userid", "officehours", "roomno"};
         String[] values = {username, officehours, roomno};
-        try {
+        try
+        {
             dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
-            debugLog(dfsql.formattedStatement());
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-            dfsql.insert("instructor", values, rows);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-        } catch (DFSQLError e1) {
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+	            if (error != null)
+	            {
+		            JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+		            runnable.run(null, error1);
+		            return;
+	            }
+
+	            if (response instanceof DFDataUploaderReturnStatus)
+	            {
+		            DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
+		            if (returnStatus == DFDataUploaderReturnStatus.success)
+		            {
+			            try
+			            {
+				            DFSQL dfsql1 = new DFSQL().insert("instructor", values, rows);
+				            DFDatabase.defaultDatabase.execute(dfsql1, (response1, error12) ->
+				            {
+					            if (response1 instanceof DFDataUploaderReturnStatus)
+					            {
+						            DFDataUploaderReturnStatus returnStatus1 = (DFDataUploaderReturnStatus)response1;
+						            if (returnStatus1 == DFDataUploaderReturnStatus.success)
+						            {
+							            runnable.run(true, null);
+						            }
+						            else
+						            {
+							            runnable.run(false, null);
+						            }
+					            }
+					            else
+					            {
+						            runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+					            }
+				            });
+			            }
+			            catch (DFSQLError e2)
+			            {
+				            runnable.run(false, new JSONQueryError(0, "Internal Error", null));
+			            }
+		            }
+		            else
+		            {
+			            runnable.run(false, new JSONQueryError(0, "Internal Error", null));
+		            }
+	            }
+	            else
+	            {
+		            runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+	            }
+            });
+        }
+        catch (DFSQLError e1)
+        {
             e1.printStackTrace();
         }
-        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
-        return  isaddSuccess;
     }
 
-    public boolean removeUserAsInstructor(String username) {
-        boolean isaddSuccess;
+    public void removeUserAsInstructor(String username, QueryCallbackRunnable runnable)
+    {
         DFSQL dfsql = new DFSQL();
         String attr = "userType";
         String value = "0";
-        try {
+        try
+        {
             dfsql.update("users", attr, value).where(DFSQLEquivalence.equals, "userid", username);
-            debugLog(dfsql.formattedStatement());
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-            dfsql.delete(   "instructor",
-                    new Where(  DFSQLConjunction.none,
-                            DFSQLEquivalence.equals,
-                            new DFSQLClause("userid", username)
-                    )
-            );
-            DFDatabase.defaultDatabase.execute(dfsql, this);
-        } catch (DFSQLError e1) {
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+	            if (error != null)
+	            {
+		            JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+		            runnable.run(null, error1);
+		            return;
+	            }
+
+	            if (response instanceof DFDataUploaderReturnStatus)
+	            {
+		            DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
+		            if (returnStatus == DFDataUploaderReturnStatus.success)
+		            {
+		            	try
+			            {
+				            DFSQL dfsql1 = new DFSQL().delete("instructor",
+				                         new Where(DFSQLConjunction.none,
+				                                   DFSQLEquivalence.equals,
+				                                   new DFSQLClause("userid", username))
+				            );
+				            DFDatabase.defaultDatabase.execute(dfsql1, (response1, error12) ->
+				            {
+					            if (response1 instanceof DFDataUploaderReturnStatus)
+					            {
+						            DFDataUploaderReturnStatus returnStatus1 = (DFDataUploaderReturnStatus)response1;
+						            if (returnStatus1 == DFDataUploaderReturnStatus.success)
+						            {
+							            runnable.run(true, null);
+						            }
+						            else
+						            {
+							            runnable.run(false, null);
+						            }
+					            }
+					            else
+					            {
+						            runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+					            }
+				            });
+			            }
+			            catch (DFSQLError e2)
+			            {
+				            runnable.run(false, new JSONQueryError(0, "Internal Error", null));
+			            }
+		            }
+		            else
+		            {
+			            runnable.run(false, new JSONQueryError(0, "Internal Error", null));
+		            }
+	            }
+	            else
+	            {
+		            runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+	            }
+            });
+        }
+        catch (DFSQLError e1)
+        {
             e1.printStackTrace();
         }
-        isaddSuccess = uploadSuccess == DFDataUploaderReturnStatus.success;
-        return  isaddSuccess;
     }
 
     @Override
@@ -324,8 +468,7 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
 	            }
 	            else
 	            {
-
-		            runnable.run(null, new JSONQueryError(0, "Internal Error", null););
+		            runnable.run(null, new JSONQueryError(0, "Internal Error", null));
 	            }
             });
         } catch (DFSQLError e1)
@@ -335,11 +478,11 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
     }
 
     private int userTypeToIntConverter(userType userType){
-        if(userType == userType.ADMIN){
+        if(userType == objects.userType.ADMIN){
             return 1;
-        } else if (userType == userType.TEACHER){
+        } else if (userType == objects.userType.TEACHER){
             return 2;
-        } else if(userType == userType.STUDENT){
+        } else if(userType == objects.userType.STUDENT){
             return 3;
         } else {
             return 4;
@@ -374,8 +517,8 @@ public class UserQuery implements DFDatabaseCallbackDelegate {
         }
         this.uploadSuccess = success;
     }
+
     public static void main(String[] args){
         UserQuery userQuery = new UserQuery();
-        userQuery.getUser("testUserStudent");
     }
 }

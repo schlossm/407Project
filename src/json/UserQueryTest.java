@@ -1,6 +1,5 @@
 package json;
 
-import database.DFDatabase;
 import objects.User;
 import objects.userType;
 import org.junit.AfterClass;
@@ -15,7 +14,8 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by Naveen Ganessin on 2/21/2017.
  */
-public class UserQueryTest implements DFNotificationCenterDelegate {
+public class UserQueryTest
+{
     private static UserQuery userQuery;
     private static String name, invalidName;
     private static User user;
@@ -26,6 +26,11 @@ public class UserQueryTest implements DFNotificationCenterDelegate {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         userQuery = new UserQuery();
+    }
+
+    public static void main(String[] args)
+    {
+
     }
 
     /*
@@ -89,22 +94,5 @@ public class UserQueryTest implements DFNotificationCenterDelegate {
         }
         System.out.println("loginSuccess : "+ loginSuccess);
         assertTrue(loginSuccess);
-    }
-    @Override
-    public void performActionFor(String notificationName, Object userData) {
-        if(notificationName.equals(UIStrings.returned)){
-            if(userData == null){
-                user = null;
-            } else{
-                user = (User)userData;
-            }
-            System.out.println("getUser activated in performactionfor");
-        } else if (notificationName.equals(UIStrings.success)) {
-            System.out.println("verifylogin returned success in performactionfor");
-            loginSuccess = true;
-        } else if (notificationName.equals(UIStrings.failure)) {
-            loginSuccess = false;
-            System.out.println("verifylogin returned success in performactionfor");
-        }
     }
 }
