@@ -8,6 +8,9 @@ import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
 import objects.Course;
+import objects.Instructor;
+import objects.User;
+import objects.userType;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
@@ -36,9 +39,9 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param limit
      * @param offset
      */
-    public void getAllCourses(int limit, int offset) {
+    public void getAllCourses(int limit, int offset, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String[] selectRows = {"id", "courseid", "capacity", "description", "roomno", "meetingtime", "startdate", "enddate"};
+        String[] selectRows = {"id", "courseid", "coursename", "capacity", "description", "roomno", "meetingtime", "startdate", "enddate"};
         String table = "courses";
         getAllCoursesReturn = true;
         try {
@@ -46,7 +49,53 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
                     .from(table)
                     .limit(limit)
                     .offset(offset);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                System.out.println(response);
+                System.out.println(error);
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    return;
+                }
+                ArrayList<Course> allCourses = new ArrayList<Course>();
+                String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
+                int courseId = 0, capacity = 0;
+                Course course;
+                try {
+                    for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                        courseTitle = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsString();
+                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("coursename").getAsString();
+                        description = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("description").getAsString();
+                        roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("roomno").getAsString();
+                        meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("meetingtime").getAsString();
+                        courseId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
+                        capacity = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("capacity").getAsInt();
+                        endDate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("startdate").getAsString();
+                        startDate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("enddate").getAsString();
+
+                        course = new Course();
+
+                        course.setCourseID(courseId);
+                        course.setCapacity(capacity);
+                        course.setCourseName(courseName);
+                        course.setDescription(description);
+                        course.setEndDate(endDate);
+                        course.setStartDate(startDate);
+                        course.setMeetingTime(meetingTime);
+                        course.setRoomNo(roomNo);
+                        course.setTitle(courseTitle);
+                        allCourses.add(course);
+                    }
+                }catch (NullPointerException e2){runnable.run(null, error1);}
+                runnable.run(allCourses, null);
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
