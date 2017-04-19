@@ -3,14 +3,13 @@ package json;
 import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
+import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
 import objects.Course;
-import objects.Instructor;
-import objects.User;
-import objects.userType;
+
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
@@ -160,13 +159,26 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param courseid courseid of the course such as 11111
      * @param userid userid of the instructor given that the user is already an instructor
      */
-    public boolean addInstructorToCourse(int courseid, String userid) {
+    public boolean addInstructorToCourse(int courseid, String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"id"};
         courseidForInsertionInstrutor = courseid;
         try {
             dfsql.select(selectedRows, false, null, null).from("instructor").where(DFSQLEquivalence.equals, "userid", userid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+
+                if(error != null) {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
+                if(response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                    int instructorid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
+                    addInstructorToCourseGiven(courseid, instructorid, runnable);
+                } else {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
+            });
+
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
@@ -174,14 +186,35 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
 
     }
 
-    private boolean addInstructorToCourseGiven(int courseid, int instructorid) {
+    private boolean addInstructorToCourseGiven(int courseid, int instructorid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"courseid", "instructorid"};
         String[] values = {"" + courseid, "" + instructorid};
         String table = "courseintructormembership";
         try {
             dfsql.insert(table, values, rows);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null)  {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                    return;
+                }
+                if(response instanceof DFDataUploaderReturnStatus){
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        runnable.run(true, null);
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
+
+                }
+                else {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
+            });
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
@@ -194,19 +227,30 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param courseid remove instructor from courseid
      * @param userid remove instructor of userid
      */
-    public void removeInstructorInCourse(int courseid, String userid) {
+    public void removeInstructorInCourse(int courseid, String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"id"};
         courseidForDeletionInstructor = courseid;
         try {
             dfsql.select(selectedRows, false, null, null).from("instructor").where(DFSQLEquivalence.equals, "userid", userid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null) {
+                    return;
+                }
+                if(response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                    int instructorid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
+                    removeInstructorFromCourseGiven(courseid, instructorid, runnable);
+                } else {
+                    return;
+                }
+            });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
     }
 
-    private void removeInstructorFromCourseGiven(int courseid, int instructorid) {
+    private void removeInstructorFromCourseGiven(int courseid, int instructorid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String table = "courseintructormembership";
         Where[] where = new Where[2];
@@ -214,7 +258,28 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         where[1] = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("courseid", "" + courseid));
         try {
             dfsql.delete(table, where);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null)  {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                    return;
+                }
+                if(response instanceof DFDataUploaderReturnStatus){
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        runnable.run(true, null);
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
+
+                }
+                else {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
+            });
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
@@ -225,7 +290,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * Returns a list of all userid(string) of the instructors in a course
      * @param courseid courseid of the course such as 11111
      */
-    public void getAllInstructorsInCourse(int courseid) {
+    public void getAllInstructorsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"userid"}; //username
         String tables[] = {"courseinstructormembership", "instructor"};
@@ -235,7 +300,9 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
                     .from(tables[0])
                     .join(DFSQLJoin.left, tables[1], tables[0] + ".instructorid", tables[1] + ".instructorid")
                     .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+
+            });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
@@ -246,29 +313,39 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param courseid courseid of the course such as 11111
      * @param userid userid of the student to add to the course
      */
-    public boolean addStudentToCourse(int courseid, String userid) {
+    public void addStudentToCourse(int courseid, String userid, QueryCallbackRunnable runnable) {
 
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"id"};
         courseidForInsertionStudent = courseid;
         try {
             dfsql.select(selectedRows, false, null, null).from("students").where(DFSQLEquivalence.equals, "userid", userid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null) {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                    return;
+                }
+                if(response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    return;
+                }
+            });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
-        return uploadSuccess == DFDataUploaderReturnStatus.success;
-
     }
 
-    private boolean addStudentToCourseGiven(int courseid, int studentid) {
+    private boolean addStudentToCourseGiven(int courseid, int studentid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"courseid", "studentid"};
         String[] values = {"" + courseid, "" + studentid};
         String table = "coursestudentmembership";
         try {
             dfsql.insert(table, values, rows);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+
+            });
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
@@ -280,19 +357,21 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * @param courseid remove student from courseid
      * @param userid remove student of userid
      */
-    public void removeStudentInCourse(int courseid, String userid) {
+    public void removeStudentInCourse(int courseid, String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"id"};
         courseidForDeletionInstructor = courseid;
         try {
             dfsql.select(selectedRows, false, null, null).from("students").where(DFSQLEquivalence.equals, "userid", userid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+
+            });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
     }
 
-    private void removeStudentFromCourseGiven(int courseid, int studentid) {
+    private void removeStudentFromCourseGiven(int courseid, int studentid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String table = "courseinstructormembership";
         Where[] where = new Where[2];
@@ -300,7 +379,9 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
         where[1] = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("courseid", "" + courseid));
         try {
             dfsql.delete(table, where);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+
+            });
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
@@ -311,14 +392,16 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * List of all userid (String) of students in the course
      * @param courseid courseid of the course such as 11111
      */
-    public void getAllStudentsInCourse(int courseid) {
+    public void getAllStudentsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"userid"};
         String tables[] = {"coursestudentmembership", "students"};
         getAllStudentsInCourseReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null).from(tables).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+
+            });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
@@ -328,14 +411,19 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      * Returns all info of an assignment given the assignment id
      * @param assignmentid
      */
-    public void getAssignmentInfo(int assignmentid) {
+    public void getAssignmentInfo(int assignmentid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"assignmentid, name, courseid", "maxpoints", "type", "deadline"};
         String table = "assignment";
         getAssignmentInfoReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null).from(table).where(DFSQLEquivalence.equals, "assignmentid", "" + assignmentid);
-            DFDatabase.defaultDatabase.execute(dfsql, this);
+            DFDatabase.defaultDatabase.execute(dfsql, new DFDatabaseCallbackRunnable() {
+                @Override
+                public void run(Object response, DFError error) {
+
+                }
+            });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
@@ -377,7 +465,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
      */
     public void getAllAssignmentsInCourse(int courseid) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"assignmentid"};
+        String selectedRows[] = {"assignmentid", "name"};
         String table = "assignment";
         getAllAssignmentsReturn = true;
         try {
@@ -393,12 +481,7 @@ public class CourseQuery implements DFDatabaseCallbackDelegate{
     public void returnedData(JsonObject jsonObject, DFError error) {
         System.out.println("triggered returnedData");
         this.jsonObject = null;
-        if(courseidForInsertionInstrutor != -1) {
-            int instructorid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
-            addInstructorToCourseGiven(courseidForInsertionInstrutor, instructorid);
-            courseidForInsertionInstrutor = -1;
-        }
-        else if(courseidForDeletionInstructor != -1) {
+        if(courseidForDeletionInstructor != -1) {
             int instructorid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
             removeInstructorFromCourseGiven(courseidForDeletionInstructor, instructorid);
             courseidForDeletionInstructor = -1;

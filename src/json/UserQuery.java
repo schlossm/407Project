@@ -317,7 +317,7 @@ public class UserQuery{
                                 {
                                     DFDataUploaderReturnStatus returnStatus1 = (DFDataUploaderReturnStatus)response1;
                                     if (returnStatus1 == DFDataUploaderReturnStatus.success)
-                                    {
+                                        {
                                         runnable.run(true, null);
                                     }
                                     else
