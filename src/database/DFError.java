@@ -5,6 +5,7 @@ import java.util.Map;
 /*
  * ERROR CODES:
  *
+ * -3: Empty SQL Statement
  * 0 : Unknown Java Error
  * 1 : No data
  * 2 : Duplicate Primary Key
@@ -25,7 +26,7 @@ public class DFError
 	/**
 	 * The error code
 	 */
-	private final int code;
+	public final int code;
 	/**
 	 * A human readable description of the error
 	 */
@@ -45,6 +46,6 @@ public class DFError
 	@Override
 	public String toString()
 	{
-		return "Error Code: " + String.valueOf(code) + ".\nError Description: " + description + "\nError Info: " + userInfo.toString();
+		return "Error Code: " + String.valueOf(code) + ".\nError Description: " + description + (userInfo != null ? "\nError Info: " + userInfo.toString() : "");
 	}
 }

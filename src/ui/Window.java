@@ -30,13 +30,12 @@ import java.io.File;
 public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 {
 	public static Window current;
-
+	public ALJFrame mainScreen;
 	JFrame loginFrame;
 	private ALJPanel activePanel;
 	private ALJPanel container;
 	private ABCTabBar tabBar;
 	private Login loginPanel;
-	public ALJFrame mainScreen;
 
 	Window()
 	{

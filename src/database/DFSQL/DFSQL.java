@@ -13,37 +13,31 @@ import static java.lang.Integer.parseInt;
 public class DFSQL
 {
 	private static String WhereStatementComparesNullString = "Where Statement is comparing a null statement.";
-
+	private final ArrayList<DFSQL> appendedSQL = new ArrayList<>();
+	String deleteFromTable = "";
+	String[] fromTables = new String[]{};
 	private String[] selectRows = new String[]{};
 	private boolean distinctSelect = false;
 	private String intoTable = "";
 	private String inDB = "";
-
-	String deleteFromTable = "";
-	String[] fromTables = new String[]{};
 	private InternalJoin[] joinStatements = new InternalJoin[]{};
 	private Where[] whereStatements = new Where[]{};
 	private OrderBy[] orderByStatements = new OrderBy[]{};
 	private String[] groupByStatements = new String[]{};
-
 	private int limitNum = -1;
 	private int offsetNum = -1;
-
 	private String[] insertRows = new String[]{};
 	private String[] insertValues = new String[]{};
 	private String[] duplicateKeys = new String[]{};
 	private String[] duplicateValues = new String[]{};
-
 	private DFSQLClause[] updateStatements = new DFSQLClause[]{};
 
-	private final ArrayList<DFSQL> appendedSQL = new ArrayList<>();
+	public DFSQL() { }
 
 	public String formattedStatement()
 	{
 		return formatted();
 	}
-
-	public DFSQL() { }
 
 	/**
 	 * Appends an already built DFSQL object to the callee

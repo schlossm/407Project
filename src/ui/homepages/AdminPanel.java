@@ -65,8 +65,8 @@ public class AdminPanel extends ALJPanel implements DFNotificationCenterDelegate
 
 	private void initializeAnnouncements()
 	{
-		scrollPane.setBorder(new EmptyBorder(0,0,0,0));
-		ScrollPaneLayout layout = (ScrollPaneLayout)(scrollPane.getLayout());
+		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		ScrollPaneLayout layout = (ScrollPaneLayout) (scrollPane.getLayout());
 		layout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		layout.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
@@ -74,10 +74,10 @@ public class AdminPanel extends ALJPanel implements DFNotificationCenterDelegate
 		scrollPane.setWheelScrollingEnabled(true);
 		add(scrollPane);
 
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading,     LayoutRelation.equal, this, LayoutAttribute.centerX,    1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top,         LayoutRelation.equal, this, LayoutAttribute.top,        1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing,    LayoutRelation.equal, this, LayoutAttribute.trailing,   1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom,      LayoutRelation.equal, this, LayoutAttribute.bottom,     1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
+		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 
 		loadAnnouncements();
 	}

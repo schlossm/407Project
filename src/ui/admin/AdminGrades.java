@@ -94,16 +94,18 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 		int num80To90 = 0;
 		int num70To80 = 0;
 		int num60To70 = 0;
-		int below60   = 0;
+		int below60 = 0;
 
 		String filename = UIVariables.current.applicationDirectories.temp + File.separator + "test_grades.ser";
 
 		// Read the 10 Grade objects back into memory
-		try {
+		try
+		{
 			FileInputStream fileIn = new FileInputStream(filename);
 			ObjectInputStream objIn = new ObjectInputStream(fileIn);
 
-			for (int i = 0; i < 10; ++i) {
+			for (int i = 0; i < 10; ++i)
+			{
 				Grade g = (Grade) objIn.readObject();
 
 				int gradeInt = parseInt(g.getScore());

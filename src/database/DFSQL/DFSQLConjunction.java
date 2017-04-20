@@ -1,22 +1,23 @@
 package database.DFSQL;
 
 /**
- The possible conjunctions for `WHERE` statements
-
- - Note: `.none` does not insert " NONE" into the SQL Statement, it is used as a placeholder
+ * The possible conjunctions for `WHERE` statements
+ * <p>
+ * - Note: `.none` does not insert " NONE" into the SQL Statement, it is used as a placeholder
  */
 @SuppressWarnings("unused")
 public enum DFSQLConjunction
 {
-    and(" AND"), or(" OR"), none(" NONE"), andNot(" AND NOT"), orNot(" OR NOT");
+	and(" AND"), or(" OR"), none(" NONE"), andNot(" AND NOT"), orNot(" OR NOT");
 
-    private final String text;
+	private final String text;
 
-    DFSQLConjunction(String text)
-    {
-        this.text = text;
-    }
+	DFSQLConjunction(String text)
+	{
+		this.text = text;
+	}
 
-    @Override public String toString() { return text; }
+	@Override
+	public String toString() { return text; }
 }
 

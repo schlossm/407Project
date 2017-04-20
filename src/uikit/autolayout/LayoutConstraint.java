@@ -21,12 +21,6 @@ public class LayoutConstraint
 
 	boolean hasBeenProcessed = false;
 
-	@Override
-	public String toString()
-	{
-		return getClassAndHashCode(viewOne) + "." + attributeOne.toString() + relation.toString() + (viewTwo != null ? getClassAndHashCode(viewTwo) : "null") + "." + attributeTwo.toString() + " * " + multiplier + " + " + constant;
-	}
-
 	public LayoutConstraint(Component view1, LayoutAttribute attr1, LayoutRelation relation, Component view2, LayoutAttribute attr2, double multiplier, int constant)
 	{
 		this.viewOne = view1;
@@ -36,5 +30,11 @@ public class LayoutConstraint
 		this.attributeTwo = attr2;
 		this.multiplier = multiplier;
 		this.constant = constant;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getClassAndHashCode(viewOne) + "." + attributeOne.toString() + relation.toString() + (viewTwo != null ? getClassAndHashCode(viewTwo) : "null") + "." + attributeTwo.toString() + " * " + multiplier + " + " + constant;
 	}
 }

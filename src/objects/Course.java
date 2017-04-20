@@ -13,6 +13,7 @@ public class Course extends Object implements Serializable {
     private String courseName;
     private String description;
     private String roomNo;
+    private int capacity;
     private ArrayList<User> teachers;
     private ArrayList<User> students;
     private String meetingTime;
@@ -32,6 +33,14 @@ public class Course extends Object implements Serializable {
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public int getCourseID() {
@@ -156,11 +165,9 @@ public class Course extends Object implements Serializable {
                 + "\ncourseName: " + this.courseName
                 + "\ndescription" + this.description
                 + "\nroomNo: " + this.roomNo
-                + "\nteachers: " + this.teachers.toString()
-                + "\nstudents: " + this.students.toString()
                 + "\nstartDate: " + this.startDate
+                + "\ncapcity: " + this.capacity
                 + "\nendDate: " + this.endDate
-                + "\nmessages: " + this.messages.toString()
                 + "\nattendanceString: " + this.attendanceString
                 + "\nmaxStorage: " + this.maxStorage;
     }

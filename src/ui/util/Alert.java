@@ -35,8 +35,8 @@ class AlertPasswordField extends JPasswordField
 
 class TextFieldArrayClass
 {
-	JTextField textField;
-	String identifier;
+	final JTextField textField;
+	final String identifier;
 
 	TextFieldArrayClass(String identifier, JTextField textField)
 	{
@@ -45,22 +45,20 @@ class TextFieldArrayClass
 	}
 }
 
-@SuppressWarnings({"unused", "RedundantCast", "unchecked"})
+@SuppressWarnings({"unused", "RedundantCast", "unchecked", "ConstantConditions"})
 public class Alert implements KeyListener, MLMDelegate
 {
+	private static ArrayList<JDialog> alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething = new ArrayList<>();
 	private final JPanel alert;
-	private JPanel buttonPanel;
-	private JFrame dimView;
-	private int numButtons;
 	private final ArrayList<TextFieldArrayClass> textFields = new ArrayList<>();
 	private final Map<String, JCheckBox> checkBoxes = new HashMap<>();
 	private final Map<String, JComboBox> dropDowns = new HashMap<>();
 	private final ArrayList<JButton> buttons = new ArrayList<>();
+	private JPanel buttonPanel;
+	private JFrame dimView;
+	private int numButtons;
 	private boolean hasCancelAction = false;
 	private boolean hasDefaultAction = false;
-
-	private static ArrayList<JDialog> alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething = new ArrayList<>();
-
 	private JTextField activeTextField;
 
 	public Alert(String title, String message)

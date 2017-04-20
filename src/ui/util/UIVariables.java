@@ -26,10 +26,8 @@ public class UIVariables implements DFNotificationCenterDelegate
 	public User currentUser;
 
 	public Directory applicationDirectories;
-
-	private Map<String, NSObject> map = new HashMap<>();
-
 	public Map<String, Object> globalUserData = new HashMap<>();
+	private Map<String, NSObject> map = new HashMap<>();
 
 	private UIVariables()
 	{

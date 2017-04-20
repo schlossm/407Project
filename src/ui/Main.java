@@ -60,7 +60,11 @@ class Main
 				}
 				if (Desktop.getDesktop().isSupported(Desktop.Action.APP_QUIT_HANDLER))
 				{
-					Desktop.getDesktop().setQuitHandler((e, response) -> { UIVariables.current.synchronize(); System.exit(0); });
+					Desktop.getDesktop().setQuitHandler((e, response) ->
+					                                    {
+						                                    UIVariables.current.synchronize();
+						                                    System.exit(0);
+					                                    });
 				}
 			}
 
@@ -98,7 +102,7 @@ class Main
 		Course.testCourse.setStartDate("[Start Date in TBD format]");
 		Course.testCourse.setEndDate("[End Date in TBD format]");
 		Course.testCourse.setMeetingTime("[Meeting Time in TBD format]");
-		Message message = new Message(-1, "Hello", "Test Message", new Date().toString(), "-1", -1);
+		Message message = new Message("Hello", "Test Message", new Date().toString(), "-1", -1);
 		ArrayList<Message> messages = new ArrayList<>();
 		messages.add(message);
 		Course.testCourse.setMessages(messages);
