@@ -1,22 +1,23 @@
 package database.DFSQL;
 
 /**
- The possible directions an attribute can be ordered
+ * The possible directions an attribute can be ordered
  */
 @SuppressWarnings("unused")
 public enum DFSQLOrderBy
 {
-    /**
-     Order direction
-     */
-    ascending(" ASC"), descending(" DESC");
+	/**
+	 * Order direction
+	 */
+	ascending(" ASC"), descending(" DESC");
 
-    private final String text;
+	private final String text;
 
-    DFSQLOrderBy(final String text)
-    {
-        this.text = text;
-    }
+	DFSQLOrderBy(final String text)
+	{
+		this.text = text;
+	}
 
-    @Override public String toString() { return text; }
+	@Override
+	public String toString() { return text; }
 }

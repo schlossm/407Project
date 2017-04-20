@@ -75,7 +75,14 @@ public class AnnouncementQuery
 			{
 				if (error != null)
 				{
-					JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+					JSONQueryError error1;
+					if (error.code == 1)
+					{
+						error1 = new JSONQueryError(3, "No Data", null);
+					}
+					else {
+						error1 = new JSONQueryError(0, "Internal Error", null);
+					}
 					runnable.run(null, error1);
 					return;
 				}
