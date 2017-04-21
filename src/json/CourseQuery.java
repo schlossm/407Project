@@ -271,7 +271,7 @@ public class CourseQuery{
      * @param courseid courseid of the course such as 11111
      * @param userid userid of the instructor given that the user is already an instructor
      */
-    public boolean addInstructorToCourse(int courseid, String userid, QueryCallbackRunnable runnable) {
+    public void addInstructorToCourse(int courseid, String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"id"};
         courseidForInsertionInstrutor = courseid;
@@ -294,15 +294,13 @@ public class CourseQuery{
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
-        return uploadSuccess == DFDataUploaderReturnStatus.success;
-
     }
 
-    private boolean addInstructorToCourseGiven(int courseid, int instructorid, QueryCallbackRunnable runnable) {
+    private void addInstructorToCourseGiven(int courseid, int instructorid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"courseid", "instructorid"};
         String[] values = {"" + courseid, "" + instructorid};
-        String table = "courseintructormembership";
+        String table = "courseinstructormembership";
         try {
             dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
@@ -330,8 +328,6 @@ public class CourseQuery{
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
-        return uploadSuccess == DFDataUploaderReturnStatus.success;
-
     }
 
     /**
@@ -364,7 +360,7 @@ public class CourseQuery{
 
     private void removeInstructorFromCourseGiven(int courseid, int instructorid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String table = "courseintructormembership";
+        String table = "courseinstructormembership";
         Where[] where = new Where[2];
         where[0] = new Where(DFSQLConjunction.and, DFSQLEquivalence.equals, new DFSQLClause("instructorid", "" + instructorid));
         where[1] = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("courseid", "" + courseid));

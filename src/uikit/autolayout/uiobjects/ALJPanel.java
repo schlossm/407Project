@@ -100,8 +100,13 @@ public class ALJPanel extends JLayeredPane implements Constrainable
 			}
 			else if (component instanceof JPanel)
 			{
-				((ComponentListener) component).componentResized(null);
+				try
+				{
+					((ComponentListener) component).componentResized(null);
+				}
+				catch (Exception ignored) { }
 				component.revalidate();
+
 			}
 			component.repaint();
 		}
