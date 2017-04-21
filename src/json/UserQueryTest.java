@@ -62,7 +62,7 @@ public class UserQueryTest
 	public void testGetUser()
 	{
 		UserQuery userQuery = new UserQuery();
-		userQuery.getAllStudents(100, 0, (returnedData, error) ->
+		new CourseQuery().addInstructorToCourse(123456, "teach", (returnedData, error) ->
 		{
 			System.out.println("Returned Data: " + returnedData);
 			System.out.println("Error: " + error);

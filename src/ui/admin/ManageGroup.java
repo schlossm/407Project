@@ -3,6 +3,7 @@ package ui.admin;
 import json.CourseQuery;
 import json.UserQuery;
 import objects.Course;
+import objects.Instructor;
 import objects.User;
 import objects.userType;
 import ui.Window;
@@ -219,13 +220,15 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 										if (bool1)
 										{
 											alert.dispose();
-											User newUser = new User();
+											Instructor newUser = new Instructor();
 											newUser.setBirthday(alert.textFieldForIdentifier(groupToManage + ".birthday").getText());
 											newUser.setUserType(userType.TEACHER);
 											newUser.setUserID(alert.textFieldForIdentifier(groupToManage + ".username").getText());
 											newUser.setEmail(alert.textFieldForIdentifier(groupToManage + ".email").getText());
 											newUser.setFirstName(alert.textFieldForIdentifier(groupToManage + ".firstName").getText());
 											newUser.setLastName(alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
+											newUser.setOfficeHours(alert.textFieldForIdentifier(groupToManage + ".officeHours").getText());
+											newUser.setRoomNo(alert.textFieldForIdentifier(groupToManage + ".roomNumber").getText());
 
 											if (tableData.get(groupToManage + "s") != null)
 											{
@@ -506,12 +509,25 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 			newCell.setCourse(course);
 			return newCell;
 		}
-
-		ALJTableCell newCell = new ALJTableCell(!Objects.equals(tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item), "New " + groupToManage) ? ALJTableCellAccessoryViewType.delete : ALJTableCellAccessoryViewType.none);
-
-		newCell.titleLabel.setText((String) (tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)));
-
-		return newCell;
+		else
+		{
+			ALJTableCell newCell = new ALJTableCell(!Objects.equals(tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item), "New " + groupToManage) ? ALJTableCellAccessoryViewType.delete : ALJTableCellAccessoryViewType.none);
+			if (index.section == 0)
+			{
+				newCell.titleLabel.setText((String) (tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)));
+			}
+			else if (groupToManage == Group.teachers)
+			{
+				Instructor instructor = (Instructor) tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item);
+				newCell.titleLabel.setText(instructor.getFirstName() + " " + instructor.getLastName());
+			}
+			else if (groupToManage == Group.students)
+			{
+				User student = (User) tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item);
+				newCell.titleLabel.setText(student.getFirstName() + " " + student.getLastName());
+			}
+			return newCell;
+		}
 	}
 
 	@Override
