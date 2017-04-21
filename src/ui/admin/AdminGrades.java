@@ -1,6 +1,14 @@
 package ui.admin;
 
 import objects.Grade;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.PieSectionLabelGenerator;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.general.PieDataset;
 import ui.util.UIStrings;
 import ui.util.UIVariables;
 import uikit.DFNotificationCenter;
@@ -16,6 +24,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static java.lang.Integer.parseInt;
@@ -96,7 +105,7 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 		int num60To70 = 0;
 		int below60 = 0;
 
-		String filename = UIVariables.current.applicationDirectories.temp + File.separator + "test_grades.ser";
+		String filename = UIVariables.current.applicationDirectories.temp + File.separator + "test_grades.abc";
 
 		// Read the 10 Grade objects back into memory
 		try
@@ -144,6 +153,31 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 		seventyToEightyLabel.setText(num70To80 + " grades 70-79");
 		sixtyToSeventyLabel.setText(num60To70 + " grades 60-69");
 		belowSixtyLabel.setText(below60 + " grades <60");
+
+		DefaultPieDataset dataset = new DefaultPieDataset();
+		dataset.setValue("Grades 90+", num90Plus);
+		dataset.setValue("Grades 80-90", num80To90);
+		dataset.setValue("Grades 70-80", num70To80);
+		dataset.setValue("Grades 60-70", num60To70);
+		dataset.setValue("Grades <60", below60);
+
+		buildPieChart(dataset);
+	}
+
+	private void buildPieChart(PieDataset dataset)
+	{
+		JFreeChart chart = ChartFactory.createPieChart("Grade Distribution", dataset, true, false, false);
+
+		PiePlot plot = (PiePlot)chart.getPlot();
+		PieSectionLabelGenerator gen = new StandardPieSectionLabelGenerator("{0}: {1} ({2})", new DecimalFormat("0"), new DecimalFormat("0%"));
+		plot.setLabelGenerator(gen);
+
+		ChartPanel panel = new ChartPanel(chart);
+		add(panel);
+		addConstraint(new LayoutConstraint(panel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 0));
+		addConstraint(new LayoutConstraint(panel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
+		addConstraint(new LayoutConstraint(panel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, -8));
+		addConstraint(new LayoutConstraint(panel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, -8));
 	}
 
 	@Override

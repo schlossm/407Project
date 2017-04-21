@@ -13,7 +13,7 @@ public class InstructorQuery {
 
     private class GradeParameter {
         public int assignmentid;
-        public int studentid;
+        public String studentid;
         public double points;
 
         public GradeParameter(int assignmentid) {
@@ -79,7 +79,7 @@ public class InstructorQuery {
      */
     public void enterGrade(int assignmentid, String userid, double points, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"studentid"};
+        String selectedRows[] = {"userid"};
         String table = "students";
         try {
             dfsql.select(selectedRows, false, null, null)
@@ -95,7 +95,7 @@ public class InstructorQuery {
                     jsonObject = (JsonObject) response;
                     GradeParameter gradeParameter = new GradeParameter(assignmentid);
                     gradeParameter.points = points;
-                    gradeParameter.studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("studentid").getAsInt();
+                    gradeParameter.studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
                     enterGradeHelper(gradeParameter.assignmentid, gradeParameter.studentid, gradeParameter.points, runnable);
                 } else {
                     JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
@@ -108,10 +108,10 @@ public class InstructorQuery {
         }
     }
 
-    public void enterGradeHelper(int assignmentid, int studentid, double points, QueryCallbackRunnable runnable) {
+    private void enterGradeHelper(int assignmentid, String studentid, double points, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"studentid", "assignmentid", "grade"};
-        String[] values = {"" + assignmentid, "" + studentid , "" + points};
+        String[] values = {studentid, "" + assignmentid , "" + points};
 
         try {
             dfsql.insert("grades", values, rows);
