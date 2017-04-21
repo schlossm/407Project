@@ -143,7 +143,12 @@ public class DFDatabase
 			return;
 		}
 
-		DFWebServerDispatch.current.add(SQLStatement.formattedStatement().contains("UPDATE") || SQLStatement.formattedStatement().contains("INSERT") || SQLStatement.formattedStatement().contains("DELETE") ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
+		int indexOfUpdate = SQLStatement.formattedStatement().indexOf("UPDATE");
+		int indexOfInsert = SQLStatement.formattedStatement().indexOf("INSERT");
+		int indexOfDelete = SQLStatement.formattedStatement().indexOf("DELETE");
+		int indexOfSelect = SQLStatement.formattedStatement().indexOf("SELECT");
+
+		DFWebServerDispatch.current.add(indexOfUpdate > indexOfSelect || indexOfInsert > indexOfSelect || indexOfDelete > indexOfSelect ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
 	}
 
 	public String hashString(String decryptedString)
