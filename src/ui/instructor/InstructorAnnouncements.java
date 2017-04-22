@@ -57,6 +57,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 		{
 			if (error != null)
 			{
+				if (error.code == 3) return;
 				Alert errorAlert = new Alert("Error", "ABC could not load the announcements.  Please try again.");
 				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
 				errorAlert.show(Window.current.mainScreen);
@@ -68,6 +69,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
 				announcementData.put("Announcements", messages);
 				UIVariables.current.globalUserData.put("announcements" + course.getCourseID(), messages);
+				table.clearAndReload();
 			}
 		});
 	}
@@ -82,8 +84,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 		Alert alert = new Alert("New Announcement", "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
-			String timestamp = new Date().toString();
-			query.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID(), (returnedData, error) ->
+			query.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID(), (returnedData, error) ->
 			{
 				if (error != null)
 				{
@@ -97,7 +98,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 					boolean bool = (Boolean) returnedData;
 					if (bool)
 					{
-						Message announcement = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());
+						Message announcement = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), new Date().toString(), UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());
 
 						if (announcementData.get("Announcements") == null)
 						{

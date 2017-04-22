@@ -84,7 +84,7 @@ public class CourseView extends ALJPanel
 							URI mailURI;
 							try
 							{
-								mailURI = new URI("mailto:teacher@abc.com?subject=" + course.getCourseName().replace(" ", "%20") + "%20[[INSERT%20QUESTION%20HERE]]");
+								mailURI = new URI("mailto:" + course.getTeachers().get(0).getEmail() +"?subject=" + course.getCourseName().replace(" ", "%20") + "%20[[INSERT%20QUESTION%20HERE]]");
 							}
 							catch (URISyntaxException e1)
 							{

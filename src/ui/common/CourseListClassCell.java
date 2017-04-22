@@ -2,8 +2,10 @@ package ui.common;
 
 import objects.Course;
 import objects.Instructor;
+import objects.userType;
 import ui.util.ALJTable.ALJTableCell;
 import ui.util.ALJTable.ALJTableCellAccessoryViewType;
+import ui.util.UIVariables;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -19,7 +21,7 @@ public class CourseListClassCell extends ALJTableCell
 	private final JLabel detailLabelThree;
 	private final JLabel detailLabelFour;
 
-	CourseListClassCell()
+	public CourseListClassCell()
 	{
 		super(ALJTableCellAccessoryViewType.none);
 
@@ -76,9 +78,21 @@ public class CourseListClassCell extends ALJTableCell
 			stringBuilder.delete(stringBuilder.toString().length() - 2, stringBuilder.toString().length());
 			detailLabelFour.setText(stringBuilder.toString());
 		}
+		else if (course.getStudents() != null)
+		{
+
+			detailLabelFour.setText(course.getStudents().size() + (course.getStudents().size() == 1 ?  " student" : " students") + " in this course");
+		}
 		else
 		{
-			detailLabelFour.setText("Loading teachers");
+			if (UIVariables.current.currentUser.getUserType() == userType.STUDENT)
+			{
+				detailLabelFour.setText("Loading teachers");
+			}
+			else
+			{
+				detailLabelFour.setText("Loading students");
+			}
 		}
 	}
 

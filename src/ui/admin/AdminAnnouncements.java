@@ -55,9 +55,7 @@ public class AdminAnnouncements extends ALJTablePanel
 		Alert alert = new Alert("New Announcement", "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
 		{
-			String timestamp = new Date().toString();
-
-			announcementQuery.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1, (returnedData, error) ->
+			announcementQuery.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), UIVariables.current.currentUser.getUserID(), -1, (returnedData, error) ->
 			{
 				if (error != null)
 				{
@@ -72,11 +70,11 @@ public class AdminAnnouncements extends ALJTablePanel
 					if (bool)
 					{
 						if (announcementData.get("Announcements") != null)
-						{ announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1)); }
+						{ announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), new Date().toString(), UIVariables.current.currentUser.getUserID(), -1)); }
 						else
 						{
 							ArrayList<Object> data = new ArrayList<>();
-							Message message = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1);
+							Message message = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), new Date().toString(), UIVariables.current.currentUser.getUserID(), -1);
 							data.add(message);
 							announcementData.put("Announcements", data);
 						}
