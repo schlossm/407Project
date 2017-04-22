@@ -8,9 +8,7 @@ import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
-import objects.Assignment;
-import objects.Question;
-import objects.QuizAssignment;
+import objects.*;
 
 import java.util.ArrayList;
 
@@ -212,7 +210,7 @@ public class AssignmentQuery  {
      * id, name, duedate
      * @param courseid
      */
-    public void getAllQuizzesInCourse(int courseid) {
+    public void getAllQuizzesInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"assignmentId", "name", "type", "courseid", "deadline"};
         String[] attrs = {"courseid", "type"};
@@ -222,10 +220,45 @@ public class AssignmentQuery  {
             dfsql.select(selectedRows, false, null, null).from(table)
                     .where(DFSQLConjunction.and, DFSQLEquivalence.equals, attrs, values);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                System.out.println(response);
+                System.out.println(error);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    return;
+                }
+                ArrayList<Assignment> allCoursesForInstructor = new ArrayList<Assignment>();
+                int assignmentId, crn;
+                String name, type, deadline;
+                Assignment assignment = null;
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                try {
+                    for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                        name = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
+                        type = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsString();
+                        deadline = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
+                        assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("").getAsInt();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
 
+
+
+                        allCoursesForInstructor.add(assignment);
+                    }
+                }catch (NullPointerException e2){
+                    e2.printStackTrace();
+                    runnable.run(null, error1);
+                }
+                runnable.run(allCoursesForInstructor, null);
             });
-        } catch (DFSQLError e1) {
-            e1.printStackTrace();
+        } catch (DFSQLError dfsqlError) {
+            dfsqlError.printStackTrace();
         }
     }
 
