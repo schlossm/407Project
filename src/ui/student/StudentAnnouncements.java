@@ -27,7 +27,6 @@ import java.util.Map;
 public class StudentAnnouncements extends ALJTablePanel
 {
 	private final Map<String, ArrayList<Object>> announcementData = new HashMap<>();
-
 	private final JLabel loadingLabel;
 
 	public StudentAnnouncements(Course course)
@@ -51,6 +50,7 @@ public class StudentAnnouncements extends ALJTablePanel
 		AnnouncementQuery query = new AnnouncementQuery();
 		query.getAllAnnouncementInCourse(course.getCourseID(), (returnedData, error) ->
 		{
+			System.out.println("Loaded");
 			if (error != null)
 			{
 				if (error.code == 3) { return; }
@@ -64,6 +64,8 @@ public class StudentAnnouncements extends ALJTablePanel
 				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
 				announcementData.put("", messages);
 				UIVariables.current.globalUserData.put("announcements" + course.getCourseID(), messages);
+				remove(loadingLabel);
+				table.clearAndReload();
 			}
 		});
 	}
@@ -109,5 +111,4 @@ public class StudentAnnouncements extends ALJTablePanel
 
 	@Override
 	public void tableView(ALJTable tableView, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt) { }
-
 }

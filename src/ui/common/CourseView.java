@@ -163,6 +163,16 @@ public class CourseView extends ALJPanel
 				break;
 			}
 
+			case "Assignments":
+			{
+				if (!(activePanel instanceof AssignmentsList))
+				{
+					newPanel = new AssignmentsList(courseToView);
+				}
+				else { return; }
+				break;
+			}
+
 			default:
 			{
 				System.err.println(newTab + " has not been implemented yet.  I feel like this is dêjá vu.");

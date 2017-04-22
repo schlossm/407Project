@@ -29,15 +29,11 @@ import java.util.Map;
 class FileList extends ALJTablePanel
 {
 	private final Map<String, ArrayList<Object>> fileListData = new HashMap<>();
-
 	private final DocumentsQuery query = new DocumentsQuery();
-
-	private final Course course;
 	private File tempFile = null;
 
 	FileList(Course course)
 	{
-		this.course = course;
 		if (isInstructor())
 		{
 			ArrayList<Object> beginner = new ArrayList<>();
@@ -183,7 +179,10 @@ class FileList extends ALJTablePanel
 		{
 			return new FileListCell(ALJTableCellAccessoryViewType.delete, (FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
 		}
-		return new ALJTableCell(ALJTableCellAccessoryViewType.none);
+		else
+		{
+			return new FileListCell(ALJTableCellAccessoryViewType.none, (FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+		}
 	}
 
 	@Override
@@ -214,7 +213,7 @@ class FileListCell extends ALJTableCell
 		super(accessoryViewType);
 
 		removeConstraintsFor(titleLabel);
-		titleLabel.setText(info.file.toFile().getName());
+		titleLabel.setText(info.name);
 
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));

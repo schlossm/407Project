@@ -6,6 +6,7 @@ import ui.ErrorMessage;
 import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
+import ui.util.AnnouncementCell;
 import ui.util.ButtonType;
 import ui.util.UIVariables;
 import uikit.autolayout.uiobjects.ALJTablePanel;
@@ -128,18 +129,16 @@ public class AdminAnnouncements extends ALJTablePanel
 	@Override
 	public ALJTableCell cellForRowAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-		ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
-
 		if (index.section == 1)
 		{
-			newCell.titleLabel.setText(((Message) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).getTitle());
+			return new AnnouncementCell(((Message) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)));
 		}
 		else
 		{
+			ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
 			newCell.titleLabel.setText((String) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+			return newCell;
 		}
-
-		return newCell;
 	}
 
 	@Override
