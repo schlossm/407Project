@@ -13,17 +13,19 @@ public class Assignment implements Serializable {
     private String openDate;
     private String dueDate;
     private String instructions;
+    private double maxPoints;
 
     public Assignment(int assignmentID) {
         this.assignmentID = assignmentID;
     }
 
-    public Assignment(String title, String instructions, int courseID, String openDate, String dueDate) {
+    public Assignment(String title, String instructions, int courseID, String openDate, String dueDate, double maxPoints) {
         this.title = title;
         this.instructions = instructions;
         this.courseID = courseID;
         this.openDate = openDate;
         this.dueDate = dueDate;
+        this.maxPoints = maxPoints;
     }
 
     public Assignment() {
@@ -78,12 +80,21 @@ public class Assignment implements Serializable {
         this.instructions = newInstr;
     }
 
+    public double getMaxPoints() {
+        return maxPoints;
+    }
+
+    public void setMaxPoints(double maxpoints) {
+        this.maxPoints = maxpoints;
+    }
+
     public String toString() {
         return "title: " + this.title
                 + "\nassignmentID: " + this.assignmentID
                 + "\ncourseID: " + this.courseID
                 + "\nopenDate: " + this.openDate
                 + "\ndueDate: " + this.dueDate
-                + "\ninstructions: " + this.instructions;
+                + "\ninstructions: " + this.instructions
+                + "\nmaxpoint: " + this.maxPoints;
     }
 }
