@@ -52,19 +52,20 @@ public class StudentQuery {
                 }
                 ArrayList<String> allCoursesForInstructor = new ArrayList<String>();
                 int crn;
-                String title, courseName, ;
+                String title, courseName, meetingTime;
                 Course course = null;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
                         title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[0]).getAsString();
-                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
-                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsInt();
+                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsInt();
+                        meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
 
                         course = new Course();
                         course.setTitle(title);
-                        course.setMeetingTime();
-                        allCoursesForInstructor.add(courseId);
+                        course.setMeetingTime(meetingTime);
+                        //allCoursesForInstructor.add(courseId);
                     }
                 }catch (NullPointerException e2){
                     runnable.run(null, error1);
