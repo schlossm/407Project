@@ -23,11 +23,11 @@ public class AnnouncementQuery
 	/**
 	 * Add an announcement
 	 */
-	public void addAnnouncement(String title, String content, String timestamp, String authoruserid, int courseid, QueryCallbackRunnable runnable)
+	public void addAnnouncement(String title, String content, String authoruserid, int courseid, QueryCallbackRunnable runnable)
 	{
 		DFSQL dfsql = new DFSQL();
-		String[] rows = {"title", "content", "timestamp", "authoruserid", "courseid"};
-		String[] values = {title, content, timestamp, authoruserid, "" + courseid};
+		String[] rows = {"title", "content", "authoruserid", "courseid"};
+		String[] values = {title, content, authoruserid, "" + courseid};
 		String table = "Announcement";
 		try
 		{
