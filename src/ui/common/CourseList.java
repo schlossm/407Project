@@ -4,7 +4,7 @@ import json.CourseQuery;
 import json.InstructorQuery;
 import json.StudentQuery;
 import objects.Course;
-import objects.User;
+import objects.Instructor;
 import objects.userType;
 import ui.Window;
 import ui.util.ALJTable.ALJTable;
@@ -25,7 +25,8 @@ public class CourseList extends ALJTablePanel
 
 	public CourseList()
 	{
-		if (UIVariables.current.globalUserData.get("allCourses") != null)
+		System.out.println(UIVariables.current.globalUserData.get("allCourses"));
+		if (!((ArrayList<Course>) UIVariables.current.globalUserData.get("allCourses")).isEmpty())
 		{
 			courses = (ArrayList<Course>) UIVariables.current.globalUserData.get("allCourses");
 		}
@@ -88,7 +89,7 @@ public class CourseList extends ALJTablePanel
 								if (returnedData1 instanceof ArrayList)
 								{
 									//TODO: Change to Instructor upon pull request
-									course.setTeachers((ArrayList<User>) returnedData1);
+									course.setTeachers((ArrayList<Instructor>) returnedData1);
 								}
 								else
 								{
