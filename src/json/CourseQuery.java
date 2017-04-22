@@ -438,13 +438,19 @@ public class CourseQuery{
      */
     public void getAllInstructorsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid"}; //username
-        String tables[] = {"courseinstructormembership", "instructor"};
-        getAllStudentsInCourseReturn = true;
+        String selectedRows[] = {"userid", "email", "firstname", "lastname", "intructorid"}; //username
+        String table1 = "courseinstructormembership";
+        String table2 = "instructor";
+        String table3 = "users";
+
+        Join[] joins = new Join[] {
+                new Join(table2, table1 + ".instructorid", table2 + ".id"),
+                new Join(table3, table3 + ".userid", table2 + ".userid") };
+
         try {
             dfsql.select(selectedRows, false, null, null)
-                    .from(tables[0])
-                    .join(DFSQLJoin.left, tables[1], tables[0] + ".instructorid", tables[1] + ".instructorid")
+                    .from(table1)
+                    .join(DFSQLJoin.left, joins)
                     .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
 
@@ -473,6 +479,8 @@ public class CourseQuery{
                 }
                 if(response instanceof JsonObject) {
                     jsonObject = (JsonObject) response;
+                    int studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
+                    addStudentToCourseGiven(courseid, studentid, runnable);
                 } else {
                     return;
                 }
@@ -510,7 +518,17 @@ public class CourseQuery{
         try {
             dfsql.select(selectedRows, false, null, null).from("students").where(DFSQLEquivalence.equals, "userid", userid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
-
+                if(error != null) {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                    return;
+                }
+                if(response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                    int studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
+                    removeStudentFromCourseGiven(courseid, studentid, runnable);
+                } else {
+                    return;
+                }
             });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -540,11 +558,20 @@ public class CourseQuery{
      */
     public void getAllStudentsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid"};
-        String tables[] = {"coursestudentmembership", "students"};
-        getAllStudentsInCourseReturn = true;
+        String selectedRows[] = {"userid", "email", "firstname", "lastname", "studentid"}; //username
+        String table1 = "coursestudentmembership";
+        String table2 = "students";
+        String table3 = "users";
+
+        Join[] joins = new Join[] {
+                new Join(table2, table1 + ".studentid", table2 + ".id"),
+                new Join(table3, table3 + ".userid", table2 + ".userid") };
+
         try {
-            dfsql.select(selectedRows, false, null, null).from(tables).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, joins)
+                    .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
 
             });

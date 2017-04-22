@@ -145,7 +145,7 @@ public class AssignmentQuery  {
         }
     }
 
-    public void removeQuiz(int quizid) {
+    public void removeQuiz(int assignment) {
 
 
     }
@@ -216,7 +216,7 @@ public class AssignmentQuery  {
 
     }
 
-    public void addGradeForQuiz(int quizid, double grade) {
+    public void addGradeForQuiz(int assignm, double grade) {
 
     }
 
