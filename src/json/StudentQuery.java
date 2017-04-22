@@ -57,11 +57,11 @@ public class StudentQuery {
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
-                        title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[0]).getAsString();
-                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
-                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsInt();
-                        meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
-                        roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[4]).getAsString();
+                        title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsString();
+                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("coursename").getAsInt();
+                        meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("meetingtime").getAsString();
+                        roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("roomno").getAsString();
 
                         course = new Course();
                         course.setTitle(title);
