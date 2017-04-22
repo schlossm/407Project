@@ -276,10 +276,47 @@ public class AssignmentQuery  {
         try {
             dfsql.select(selectedRows, false, null, null).from(table).where(DFSQLEquivalence.equals, "assignmentid", "" + assignmentid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                System.out.println(response);
+                System.out.println(error);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    return;
+                }
+                ArrayList<Assignment> allAssignmentsInCourse = new ArrayList<Assignment>();
+                int assignmentId, crn;
+                String name, type, deadline;
+                Assignment assignment = null;
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                try {
+                    for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                        name = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                        type = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("type").getAsString();
+                        deadline = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("deadline").getAsString();
+                        assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentId").getAsInt();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsInt();
 
+                        assignment.setTitle(name);
+                        assignment.setAssignmentID(assignmentId);
+                        assignment.setCourseID(crn);
+                        assignment.setType(type);
+                        assignment.setDueDate(deadline);
+                    }
+                }catch (NullPointerException e2){
+                    e2.printStackTrace();
+                    runnable.run(null, error1);
+                }
+                runnable.run(assignment, null);
             });
-        } catch (DFSQLError e1) {
-            e1.printStackTrace();
+        } catch (DFSQLError dfsqlError) {
+            dfsqlError.printStackTrace();
         }
     }
 
