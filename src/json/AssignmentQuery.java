@@ -19,6 +19,7 @@ import java.util.ArrayList;
  */
 public class AssignmentQuery  {
 
+    private JsonObject jsonObject;
 
     public void addQuiz(QuizAssignment quizAssignment, int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
@@ -26,6 +27,7 @@ public class AssignmentQuery  {
         String[] rowsfortable1 = {"name", "courseid", "maxpoints", "type", "deadline"};
         String table1 = "assignment";
         String[] valuesfortable1 = {quizAssignment.getTitle(), quizAssignment.getCourseID() + "", quizAssignment.getMaxPoints() + "", "quiz", quizAssignment.getDueDate()};
+        int lastAssignmentId = -1;
         try {
             dfsql.insert(table1, valuesfortable1, rowsfortable1);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
@@ -57,12 +59,17 @@ public class AssignmentQuery  {
                         try {
                             dfsql.select("LAST_INSERT_ID()", false, null, null);
                             DFDatabase.defaultDatabase.execute(dfsql, (response1, error12) -> {
-                                if(error != null) {
-
+                                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                                if (error != null) {
+                                    //Process the error and return appropriate new error to UI.
+                                    runnable.run(null, error1);
                                     return;
                                 }
                                 if (response instanceof JsonObject) {
-
+                                    jsonObject = (JsonObject) response;
+                                } else {
+                                    runnable.run(null, error1);
+                                    return;
                                 }
 
                             });
@@ -87,7 +94,7 @@ public class AssignmentQuery  {
         }
 
 
-        int lastAssignmentId = -1;
+
 
 
         String[]valuesfortable2 = {lastAssignmentId + "", };
