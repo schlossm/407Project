@@ -543,7 +543,26 @@ public class CourseQuery{
         try {
             dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null)  {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                    return;
+                }
+                if(response instanceof DFDataUploaderReturnStatus){
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        runnable.run(true, null);
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
 
+                }
+                else {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
             });
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -589,7 +608,26 @@ public class CourseQuery{
         try {
             dfsql.delete(table, where);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null)  {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                    return;
+                }
+                if(response instanceof DFDataUploaderReturnStatus){
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        runnable.run(true, null);
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
 
+                }
+                else {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
             });
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
