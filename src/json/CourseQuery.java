@@ -37,7 +37,7 @@ public class CourseQuery{
                 "(SELECT COUNT(grade) FROM `grades` WHERE grade < 60.00) AS 60BE"};
         String table = "grades";
         try {
-            dfsql.select(selectRows, false, null, null).from(table);
+            dfsql.select(selectRows, false, null, null).from(table).limit(1);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 if (error != null) {

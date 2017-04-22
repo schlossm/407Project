@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFSQL.*;
 import json.util.JSONQueryError;
+import objects.Course;
 import objects.Grade;
 import java.util.ArrayList;
 
@@ -21,7 +22,7 @@ public class StudentQuery {
      */
     public void getCourses(String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.courseID"};
+        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.meetingtime"};
         String table1 = "coursestudentmembership";
         String table2 = "students";
         String table3 = "courses";
@@ -50,11 +51,19 @@ public class StudentQuery {
                     return;
                 }
                 ArrayList<String> allCoursesForInstructor = new ArrayList<String>();
-                String courseId;
+                int crn;
+                String title, courseName, ;
+                Course course = null;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
-                        courseId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsString();
+                        title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[0]).getAsString();
+                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsInt();
+
+                        course = new Course();
+                        course.setTitle(title);
+                        course.setMeetingTime();
                         allCoursesForInstructor.add(courseId);
                     }
                 }catch (NullPointerException e2){

@@ -11,14 +11,12 @@ public class Question implements Serializable {
     private String question;
     private ArrayList<String> choices;
     private String correctChoice;
-    private String selectedChoice;
     private double points;
 
-    public Question(String question, ArrayList<String> choices, String correctChoice, String selectedChoice, double points) {
+    public Question(String question, ArrayList<String> choices, String correctChoice, double points) {
         this.question = question;
         this.choices = choices;
         this.correctChoice = correctChoice;
-        this.selectedChoice = selectedChoice;
         this.points = points;
     }
 
@@ -62,7 +60,6 @@ public class Question implements Serializable {
         return "question: " + this.question
                 + "\nchoices: " + this.choices
                 + "\ncorrectChoice: " + this.correctChoice
-                + "\nselectedChoice: " + this.selectedChoice
                 + "\npoints: " + this.points;
     }
 }
