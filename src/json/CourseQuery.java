@@ -10,6 +10,7 @@ import json.util.JSONQueryError;
 import objects.Assignment;
 import objects.Course;
 import objects.Instructor;
+import objects.userType;
 
 import java.util.ArrayList;
 
@@ -440,7 +441,7 @@ public class CourseQuery{
     public void getAllInstructorsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
 
-        String selectedRows[] = {"users.userid", "email", "firstname", "lastname", "instructor.id"}; //username
+        String selectedRows[] = {"users.userid", "email", "firstname", "lastname", "instructor.id", "roomno", "officehours"}; //username
 
         String table1 = "courseinstructormembership";
         String table2 = "instructor";
@@ -477,11 +478,11 @@ public class CourseQuery{
                     JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                     try {
                         for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
-                            userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[0]).getAsString();
+                            userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
                             email = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsString();
                             firstName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
                             lastName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
-                            instructorId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[4]).getAsInt();
+                            instructorId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
                             roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[5]).getAsString();
                             officeHours = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[6]).getAsString();
 
@@ -492,10 +493,12 @@ public class CourseQuery{
                             instructor.setFirstName(firstName);
                             instructor.setLastName(lastName);
                             instructor.setUserID(userId);
+                            instructor.setUserType(userType.TEACHER);
                             instructor.setInstructorId(instructorId);
                             allCoursesForInstructor.add(instructor);
                         }
                     }catch (NullPointerException e2){
+                        e2.printStackTrace();
                         runnable.run(null, error1);
                     }
                     runnable.run(allCoursesForInstructor, null);
