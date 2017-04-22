@@ -439,7 +439,9 @@ public class CourseQuery{
      */
     public void getAllInstructorsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid", "email", "firstname", "lastname", "intructorid", "roomno", "officehours"}; //username
+
+        String selectedRows[] = {"users.userid", "email", "firstname", "lastname", "intructorid"}; //username
+
         String table1 = "courseinstructormembership";
         String table2 = "instructor";
         String table3 = "users";
@@ -601,7 +603,7 @@ public class CourseQuery{
      */
     public void getAllStudentsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid", "email", "firstname", "lastname", "studentid"}; //username
+        String selectedRows[] = {"users.userid", "email", "firstname", "lastname", "studentid"}; //username
         String table1 = "coursestudentmembership";
         String table2 = "students";
         String table3 = "users";

@@ -6,6 +6,7 @@ import database.DFSQL.*;
 import json.util.JSONQueryError;
 import objects.Grade;
 import objects.Message;
+import objects.Question;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
@@ -128,6 +129,18 @@ public class AnnouncementQuery
 		}
 	}
 
+	public void getAllAnnouncementForStudent(String userid, QueryCallbackRunnable runnable) {
+		DFSQL dfsql = new DFSQL();
+		String[] selectedRows = {"id", "title", "content", "timestamp", "authoruserid", "courseid"};
+		String table1 = "Annoucement";
+		String table2 = "coursestudentmembership";
+		String table3 = "users";
+		Join[] joins = new Join[] {
+				new Join(table2, table1 + ".courseid", table2 + ".courseid"),
+				new Join(table3, table3 + ".userid", table2 + ".userid")};
+
+	}
+
 	private void returnHandler()
 	{
 		if (getAllAnnouncementInCourseReturn)
@@ -200,4 +213,6 @@ public class AnnouncementQuery
 			getGradeReturn = false;
 		}
 	}
+
+
 }
