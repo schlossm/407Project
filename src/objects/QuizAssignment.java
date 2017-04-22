@@ -40,4 +40,12 @@ public class QuizAssignment extends Assignment implements Serializable {
         return super.toString()
                 + "\nquestions: " + this.questions;
     }
+
+    public double getMaxPoints() {
+        double points = 0;
+        for(Question question: questions) {
+            points += question.getPoints();
+        }
+        return points;
+    }
 }

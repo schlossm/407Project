@@ -23,11 +23,10 @@ public class AssignmentQuery  {
 
     public void addQuiz(QuizAssignment quizAssignment, int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String[] rowsfortable2 = {"assignmentid", "question", "correct", "choices", "points"};
         String[] rowsfortable1 = {"name", "courseid", "maxpoints", "type", "deadline"};
         String table1 = "assignment";
         String[] valuesfortable1 = {quizAssignment.getTitle(), quizAssignment.getCourseID() + "", quizAssignment.getMaxPoints() + "", "quiz", quizAssignment.getDueDate()};
-        int lastAssignmentId = -1;
+        final int[] lastAssignmentId = {-1};
         try {
             dfsql.insert(table1, valuesfortable1, rowsfortable1);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
@@ -67,6 +66,7 @@ public class AssignmentQuery  {
                                 }
                                 if (response instanceof JsonObject) {
                                     jsonObject = (JsonObject) response;
+                                    lastAssignmentId[0] = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("LAST_INSERT_ID()").getAsInt();
                                 } else {
                                     runnable.run(null, error1);
                                     return;
@@ -92,16 +92,61 @@ public class AssignmentQuery  {
         {
             e1.printStackTrace();
         }
-
-
-
-
-
-        String[]valuesfortable2 = {lastAssignmentId + "", };
+        ArrayList<Question> questionsToAdd = quizAssignment.getQuestions();
+        String[] rowsfortable2 = {"assignmentid", "question", "correct", "choices", "points"};
         String table2 = "question";
+        for (Question q: questionsToAdd) {
+            String choices = q.getChoices().get(0);
+            for(int i = 1; i < q.getChoices().size(); i++) {
+                choices = choices + "\t" + q.getChoices().get(i);
+            }
+            String[] valuesfortable2 = {lastAssignmentId[0] + "", q.getQuestion(), q.getCorrectChoice(), choices, q.getPoints() + ""};
+            try {
+                dfsql.insert(table2, valuesfortable2, rowsfortable2);
+                DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                    if (error != null)
+                    {
+                        JSONQueryError error1;
+                        if (error.code == 2)
+                        {
+                            error1 = new JSONQueryError(1, "Duplicate ID", null);
+                        }
+                        else if (error.code == 3)
+                        {
+                            error1 = new JSONQueryError(2, "Duplicate Unique Entry", null);
+                        }
+                        else
+                        {
+                            error1 = new JSONQueryError(0, "Internal Error", null);
+                        }
+                        runnable.run(null, error1);
+                        return;
+                    }
+                    if (response instanceof DFDataUploaderReturnStatus)
+                    {
+                        DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
+                        if (returnStatus == DFDataUploaderReturnStatus.success)
+                        {
+                            runnable.run(true, null);
+                        }
+                        else
+                        {
+                            runnable.run(false, null);
+                        }
+                    }
+                    else
+                    {
+                        runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                    }
+                });
+            } catch (DFSQLError dfsqlError) {
+                dfsqlError.printStackTrace();
+            }
+        }
     }
 
     public void removeQuiz(int quizid) {
+
 
     }
 
