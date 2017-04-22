@@ -7,12 +7,14 @@ import java.io.Serializable;
  * Alex Rosenberg
  */
 public class Assignment implements Serializable {
+
     private String title;
     private int assignmentID;
     private int courseID;
     private String openDate;
     private String dueDate;
     private String instructions;
+    private String type;
     private double maxPoints;
 
     public Assignment(int assignmentID) {
@@ -26,6 +28,14 @@ public class Assignment implements Serializable {
         this.openDate = openDate;
         this.dueDate = dueDate;
         this.maxPoints = maxPoints;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Assignment() {

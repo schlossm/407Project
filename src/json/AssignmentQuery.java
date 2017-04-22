@@ -234,28 +234,31 @@ public class AssignmentQuery  {
                 } else {
                     return;
                 }
-                ArrayList<Assignment> allCoursesForInstructor = new ArrayList<Assignment>();
+                ArrayList<Assignment> allQuizAssignmentsInCourse = new ArrayList<Assignment>();
                 int assignmentId, crn;
                 String name, type, deadline;
                 Assignment assignment = null;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
-                        name = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
-                        type = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsString();
-                        deadline = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
-                        assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("").getAsInt();
-                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
+                        name = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                        type = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("type").getAsString();
+                        deadline = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("deadline").getAsString();
+                        assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentId").getAsInt();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsInt();
 
-
-
-                        allCoursesForInstructor.add(assignment);
+                        assignment.setTitle(name);
+                        assignment.setAssignmentID(assignmentId);
+                        assignment.setCourseID(crn);
+                        assignment.setType(type);
+                        assignment.setDueDate(deadline);
+                        allQuizAssignmentsInCourse.add(assignment);
                     }
                 }catch (NullPointerException e2){
                     e2.printStackTrace();
                     runnable.run(null, error1);
                 }
-                runnable.run(allCoursesForInstructor, null);
+                runnable.run(allQuizAssignmentsInCourse, null);
             });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
