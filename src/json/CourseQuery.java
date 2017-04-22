@@ -9,6 +9,7 @@ import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
 import objects.Assignment;
 import objects.Course;
+import objects.Instructor;
 
 import java.util.ArrayList;
 
@@ -438,7 +439,7 @@ public class CourseQuery{
      */
     public void getAllInstructorsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid", "email", "firstname", "lastname", "intructorid"}; //username
+        String selectedRows[] = {"userid", "email", "firstname", "lastname", "intructorid", "roomno", "officehours"}; //username
         String table1 = "courseinstructormembership";
         String table2 = "instructor";
         String table3 = "users";
@@ -453,11 +454,53 @@ public class CourseQuery{
                     .join(DFSQLJoin.left, joins)
                     .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                    System.out.println(response);
+                    System.out.println(error);
+                    if (error != null) {
+                        //Process the error and return appropriate new error to UI.
+                        JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                        runnable.run(null, error1);
+                        return;
+                    }
+                    JsonObject jsonObject;
+                    if (response instanceof JsonObject) {
+                        jsonObject = (JsonObject) response;
+                    } else {
+                        return;
+                    }
+                    ArrayList<Instructor> allCoursesForInstructor = new ArrayList<Instructor>();
+                    int instructorId;
+                    String userId, officeHours, roomNo, email, firstName, lastName;
+                    Instructor instructor = null;
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    try {
+                        for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                            userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[0]).getAsString();
+                            email = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsString();
+                            firstName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
+                            lastName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
+                            instructorId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[4]).getAsInt();
+                            roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[5]).getAsString();
+                            officeHours = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[6]).getAsString();
 
-            });
-        } catch (DFSQLError dfsqlError) {
-            dfsqlError.printStackTrace();
-        }
+                            instructor = new Instructor();
+                            instructor.setRoomNo(roomNo);
+                            instructor.setOfficeHours(officeHours);
+                            instructor.setEmail(email);
+                            instructor.setFirstName(firstName);
+                            instructor.setLastName(lastName);
+                            instructor.setUserID(userId);
+                            instructor.setInstructorId(instructorId);
+                            allCoursesForInstructor.add(instructor);
+                        }
+                    }catch (NullPointerException e2){
+                        runnable.run(null, error1);
+                    }
+                    runnable.run(allCoursesForInstructor, null);
+                });
+            } catch (DFSQLError dfsqlError) {
+                dfsqlError.printStackTrace();
+            }
     }
 
     /**
