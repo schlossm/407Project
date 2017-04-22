@@ -237,12 +237,24 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		{
 			ArrayList<Object>data = (ArrayList<Object>)userData;
 
-			if (Objects.equals((String) data.get(0), "CourseView"))
+			if (Objects.equals(data.get(0), "CourseView"))
 			{
 				if (activePanel instanceof CourseView) { return; }
 				container.remove(activePanel);
 				activePanel = new CourseView((Course)data.get(1));
 			}
+
+			container.add(activePanel);
+
+			container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1.0, 0));
+			container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+			container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+			container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
+
+			container.layoutSubviews();
+			activePanel.layoutSubviews();
+			activePanel.repaint();
+			activePanel.layoutSubviews();
 			return;
 		}
 

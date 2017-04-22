@@ -153,7 +153,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 		ALJTableCell cell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
 		if (table == coursesTable)
 		{
-			cell.titleLabel.setText(courses.get(index.item).getCourseName());
+			cell.titleLabel.setText(courses.get(index.item).getTitle());
 		}
 		else if (table == announcementsTable)
 		{

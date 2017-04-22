@@ -28,9 +28,38 @@ public class CourseList extends ALJTablePanel
 	public CourseList()
 	{
 		System.out.println(UIVariables.current.globalUserData.get("allCourses"));
-		if (!((ArrayList<Course>) UIVariables.current.globalUserData.get("allCourses")).isEmpty())
+		if (UIVariables.current.globalUserData.get("allCourses") != null && !((ArrayList<Course>) UIVariables.current.globalUserData.get("allCourses")).isEmpty())
 		{
 			courses = (ArrayList<Course>) UIVariables.current.globalUserData.get("allCourses");
+			if (UIVariables.current.currentUser.getUserType() == userType.STUDENT)
+			{
+				for (Course course : courses)
+				{
+					new CourseQuery().getAllInstructorsInCourse(course.getCourseID(), (returnedData1, error1) ->
+					{
+						if (error1 != null)
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
+							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.show(Window.current.mainScreen);
+							return;
+						}
+						if (returnedData1 instanceof ArrayList)
+						{
+							//TODO: Change to Instructor upon pull request
+							course.setTeachers((ArrayList<Instructor>) returnedData1);
+							table.clearAndReload();
+							System.out.println("HI");
+						}
+						else
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
+							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.show(Window.current.mainScreen);
+						}
+					});
+				}
+			}
 		}
 		else
 		{
@@ -92,6 +121,7 @@ public class CourseList extends ALJTablePanel
 								{
 									//TODO: Change to Instructor upon pull request
 									course.setTeachers((ArrayList<Instructor>) returnedData1);
+									table.clearAndReload();
 								}
 								else
 								{
