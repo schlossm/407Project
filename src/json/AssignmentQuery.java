@@ -3,11 +3,10 @@ package json;
 import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFDatabaseCallbackDelegate;
+import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.DFSQL;
-import database.DFSQL.DFSQLEquivalence;
 import database.DFSQL.DFSQLError;
-import database.DFSQL.DFSQLJoin;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
 import objects.Question;
@@ -21,8 +20,78 @@ import java.util.ArrayList;
 public class AssignmentQuery  {
 
 
-    public void addQuiz(QuizAssignment quizAssignment, int courseid) {
+    public void addQuiz(QuizAssignment quizAssignment, int courseid, QueryCallbackRunnable runnable) {
+        DFSQL dfsql = new DFSQL();
+        String[] rowsfortable2 = {"assignmentid", "question", "correct", "choices", "points"};
+        String[] rowsfortable1 = {"name", "courseid", "maxpoints", "type", "deadline"};
+        String table1 = "assignment";
+        String[] valuesfortable1 = {quizAssignment.getTitle(), quizAssignment.getCourseID() + "", quizAssignment.getMaxPoints() + "", "quiz", quizAssignment.getDueDate()};
+        try {
+            dfsql.insert(table1, valuesfortable1, rowsfortable1);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+                if (error != null)
+                {
+                    JSONQueryError error1;
+                    if (error.code == 2)
+                    {
+                        error1 = new JSONQueryError(1, "Duplicate ID", null);
+                    }
+                    else if (error.code == 3)
+                    {
+                        error1 = new JSONQueryError(2, "Duplicate Unique Entry", null);
+                    }
+                    else
+                    {
+                        error1 = new JSONQueryError(0, "Internal Error", null);
+                    }
+                    runnable.run(null, error1);
+                    return;
+                }
 
+                if (response instanceof DFDataUploaderReturnStatus)
+                {
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        try {
+                            dfsql.select("LAST_INSERT_ID()", false, null, null);
+                            DFDatabase.defaultDatabase.execute(dfsql, (response1, error12) -> {
+                                if(error != null) {
+
+                                    return;
+                                }
+                                if (response instanceof JsonObject) {
+
+                                }
+
+                            });
+                        } catch (DFSQLError e1)
+                        {
+                            e1.printStackTrace();
+                        }
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
+                }
+                else
+                {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
+            });
+        } catch (DFSQLError e1)
+        {
+            e1.printStackTrace();
+        }
+
+
+        int lastAssignmentId = -1;
+
+
+        String[]valuesfortable2 = {lastAssignmentId + "", };
+        String table2 = "question";
     }
 
     public void removeQuiz(int quizid) {

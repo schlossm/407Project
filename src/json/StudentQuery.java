@@ -21,12 +21,19 @@ public class StudentQuery {
      */
     public void getCourses(String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"courseid", "coursename", "meetingtime"};
+        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.courseID"};
         String table1 = "coursestudentmembership";
         String table2 = "students";
-        getCoursesReturn = true;
+        String table3 = "courses";
+
+        Join[] joins = new Join[] {
+                new Join(table2, table1 + ".studentID", table2 + ".id"),
+                new Join(table3, table3 + ".id", table1 + ".courseid") };
         try {
-            dfsql.select(selectedRows, false, null, null).from(table1).join(DFSQLJoin.left, table2, table1 + ".studentid", table2 + ".id").where(DFSQLEquivalence.equals, table2 + ".userid", "" + userid);
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, joins)
+                    .where(DFSQLEquivalence.equals, table2 + ".userid",  userid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
                 System.out.println(response);
                 System.out.println(error);
@@ -43,7 +50,7 @@ public class StudentQuery {
                     return;
                 }
                 ArrayList<String> allCoursesForInstructor = new ArrayList<String>();
-                String courseId, ;
+                String courseId;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {

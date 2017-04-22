@@ -42,7 +42,7 @@ public class InstructorQuery {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.courseID"};
         String table1 = "courseinstructormembership";
-        String table2 = "students";
+        String table2 = "instructor";
         String table3 = "courses";
 
         Join[] joins = new Join[] {
@@ -63,6 +63,9 @@ public class InstructorQuery {
                     }
                 }
                 if(response instanceof JsonObject) {
+
+                    //TODO
+                } else {
 
                 }
             });
