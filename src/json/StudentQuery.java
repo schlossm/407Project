@@ -43,7 +43,7 @@ public class StudentQuery {
                     return;
                 }
                 ArrayList<String> allCoursesForInstructor = new ArrayList<String>();
-                String courseId = null;
+                String courseId, ;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
