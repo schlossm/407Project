@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
+@SuppressWarnings("unchecked")
 public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 {
 	public static Window current;

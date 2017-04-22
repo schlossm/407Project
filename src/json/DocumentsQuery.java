@@ -2,7 +2,6 @@ package json;
 
 import com.google.gson.JsonObject;
 import database.DFDatabase;
-import database.DFDatabaseCallbackDelegate;
 import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;

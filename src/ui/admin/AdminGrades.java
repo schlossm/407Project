@@ -1,8 +1,6 @@
 package ui.admin;
 
 import json.CourseQuery;
-import json.QueryCallbackRunnable;
-import json.util.JSONQueryError;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -29,6 +27,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Objects;
 
+@SuppressWarnings("unchecked")
 public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegate
 {
 	private final JLabel ninetyPlusLabel;
@@ -104,50 +103,47 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 		final int[] num60To70 = {0};
 		final int[] below60 = {0};
 
-		new CourseQuery().getAllGrades(new QueryCallbackRunnable() {
-			@Override
-			public void run(Object returnedData, JSONQueryError error)
-			{
-				if (error != null)
-				{
-					Alert errorAlert = new Alert("Error", "ABC could not load the grade counts.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-					return;
-				}
-				if (returnedData instanceof ArrayList)
-				{
-					ArrayList<Integer> groups = (ArrayList<Integer>)returnedData;
+		new CourseQuery().getAllGrades((returnedData, error) ->
+		                               {
+			                               if (error != null)
+			                               {
+				                               Alert errorAlert = new Alert("Error", "ABC could not load the grade counts.  Please try again.");
+				                               errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				                               errorAlert.show(Window.current.mainScreen);
+				                               return;
+			                               }
+			                               if (returnedData instanceof ArrayList)
+			                               {
+				                               ArrayList<Integer> groups = (ArrayList<Integer>)returnedData;
 
-					num90Plus[0] = groups.get(0);
-					num80To90[0] = groups.get(1);
-					num70To80[0] = groups.get(2);
-					num60To70[0] = groups.get(3);
-					below60[0] = groups.get(4);
+				                               num90Plus[0] = groups.get(0);
+				                               num80To90[0] = groups.get(1);
+				                               num70To80[0] = groups.get(2);
+				                               num60To70[0] = groups.get(3);
+				                               below60[0] = groups.get(4);
 
-					ninetyPlusLabel.setText(num90Plus[0] + " grades 90+");
-					eightyToNinetyLabel.setText(num80To90[0] + " grades 80-89");
-					seventyToEightyLabel.setText(num70To80[0] + " grades 70-79");
-					sixtyToSeventyLabel.setText(num60To70[0] + " grades 60-69");
-					belowSixtyLabel.setText(below60[0] + " grades <60");
+				                               ninetyPlusLabel.setText(num90Plus[0] + " grades 90+");
+				                               eightyToNinetyLabel.setText(num80To90[0] + " grades 80-89");
+				                               seventyToEightyLabel.setText(num70To80[0] + " grades 70-79");
+				                               sixtyToSeventyLabel.setText(num60To70[0] + " grades 60-69");
+				                               belowSixtyLabel.setText(below60[0] + " grades <60");
 
-					DefaultPieDataset dataset = new DefaultPieDataset();
-					dataset.setValue("Grades 90+", num90Plus[0]);
-					dataset.setValue("Grades 80-90", num80To90[0]);
-					dataset.setValue("Grades 70-80", num70To80[0]);
-					dataset.setValue("Grades 60-70", num60To70[0]);
-					dataset.setValue("Grades <60", below60[0]);
+				                               DefaultPieDataset dataset = new DefaultPieDataset();
+				                               dataset.setValue("Grades 90+", num90Plus[0]);
+				                               dataset.setValue("Grades 80-90", num80To90[0]);
+				                               dataset.setValue("Grades 70-80", num70To80[0]);
+				                               dataset.setValue("Grades 60-70", num60To70[0]);
+				                               dataset.setValue("Grades <60", below60[0]);
 
-					buildPieChart(dataset);
-				}
-				else
-				{
-					Alert errorAlert = new Alert("Error", "ABC could not load the grade counts.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-				}
-			}
-		});
+				                               buildPieChart(dataset);
+			                               }
+			                               else
+			                               {
+				                               Alert errorAlert = new Alert("Error", "ABC could not load the grade counts.  Please try again.");
+				                               errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				                               errorAlert.show(Window.current.mainScreen);
+			                               }
+		                               });
 	}
 
 	private void buildPieChart(PieDataset dataset)

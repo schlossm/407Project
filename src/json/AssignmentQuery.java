@@ -2,13 +2,12 @@ package json;
 
 import com.google.gson.JsonObject;
 import database.DFDatabase;
-import database.DFDatabaseCallbackDelegate;
-import database.DFDatabaseCallbackRunnable;
-import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
-import objects.*;
+import objects.Assignment;
+import objects.Question;
+import objects.QuizAssignment;
 
 import java.util.ArrayList;
 

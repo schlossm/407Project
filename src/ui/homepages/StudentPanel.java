@@ -21,13 +21,13 @@ import java.util.ArrayList;
 @SuppressWarnings("unchecked")
 public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTableDelegate
 {
-	private ALJTable announcementsTable;
-	private ALJTable thingsDueTable;
-	private ALJTable coursesTable;
+	private final ALJTable announcementsTable;
+	private final ALJTable thingsDueTable;
+	private final ALJTable coursesTable;
 
-	private ArrayList<Message> announcements = new ArrayList<>();
+	private final ArrayList<Message> announcements = new ArrayList<>();
 	private ArrayList<Course> courses = new ArrayList<>();
-	private ArrayList<Assignment> thingsDue = new ArrayList<>();
+	private final ArrayList<Assignment> thingsDue = new ArrayList<>();
 
 	public StudentPanel()
 	{
