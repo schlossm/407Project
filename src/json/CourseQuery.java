@@ -7,10 +7,7 @@ import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
-import objects.Assignment;
-import objects.Course;
-import objects.Instructor;
-import objects.userType;
+import objects.*;
 
 import java.util.ArrayList;
 
@@ -621,7 +618,47 @@ public class CourseQuery{
                     .join(DFSQLJoin.left, joins)
                     .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                System.out.println(response);
+                System.out.println(error);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    return;
+                }
+                ArrayList<Student> allStudentsForCourse = new ArrayList<Student>();
+                int studentId;
+                String userId, officeHours, roomNo, email, firstName, lastName;
+                Student student = null;
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                try {
+                    for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                        userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
+                        email = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsString();
+                        firstName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
+                        lastName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
+                        studentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
 
+                        student = new Student();
+                        student.setEmail(email);
+                        student.setFirstName(firstName);
+                        student.setLastName(lastName);
+                        student.setUserID(userId);
+                        student.setUserType(userType.STUDENT);
+                        student.setStudentId(studentId);
+                        allStudentsForCourse.add(student);
+                    }
+                }catch (NullPointerException e2){
+                    e2.printStackTrace();
+                    runnable.run(null, error1);
+                }
+                runnable.run(allStudentsForCourse, null);
             });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
