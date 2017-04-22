@@ -58,8 +58,8 @@ public class StudentQuery {
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
                         title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsString();
-                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsString();
-                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("coursename").getAsInt();
+                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("coursename").getAsString();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
                         meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("meetingtime").getAsString();
                         roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("roomno").getAsString();
 
