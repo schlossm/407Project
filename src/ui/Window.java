@@ -2,12 +2,11 @@ package ui;
 
 import net.sf.plist.NSBoolean;
 import net.sf.plist.NSString;
-import objects.Course;
 import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
-import ui.common.CourseView;
+import ui.common.CourseList;
 import ui.util.ABCTabBar;
 import ui.util.Bounds;
 import ui.util.UIStrings;
@@ -331,12 +330,12 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 			case "My Courses":
 			{
-				if (activePanel instanceof CourseView)
+				if (activePanel instanceof CourseList)
 				{
 					return;
 				}
 				container.remove(activePanel);
-				activePanel = new CourseView(Course.testCourse);
+				activePanel = new CourseList();
 				break;
 			}
 
