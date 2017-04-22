@@ -3,6 +3,7 @@ package json;
 import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFSQL.*;
+import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
 import objects.Grade;
 import objects.Message;
@@ -40,10 +41,17 @@ public class AnnouncementQuery
 					runnable.run(null, error1);
 					return;
 				}
-				if (response instanceof Boolean)
+				if (response instanceof DFDataUploaderReturnStatus)
 				{
-					boolean bool = (Boolean) response;
-					runnable.run(bool, null);
+					DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
+					if (returnStatus == DFDataUploaderReturnStatus.success)
+					{
+						runnable.run(true, null);
+					}
+					else
+					{
+						runnable.run(false, null);
+					}
 				}
 				else
 				{

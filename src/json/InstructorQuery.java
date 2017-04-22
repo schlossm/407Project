@@ -69,6 +69,7 @@ public class InstructorQuery {
                 JsonObject jsonObject;
                 if (response instanceof JsonObject) {
                     jsonObject = (JsonObject) response;
+
                 } else {
                     return;
                 }
