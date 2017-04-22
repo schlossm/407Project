@@ -65,7 +65,7 @@ public class CourseQueryTest
     public void testGetAllGrades()
     {
         CourseQuery courseQuery = new CourseQuery();
-        courseQuery.getAllGrades((returnedData, error) ->
+        courseQuery.getAllInstructorsInCourse(123456, (returnedData, error) ->
         {
             System.out.println("Returned Data: " + returnedData);
             System.out.println("Error: " + error);

@@ -2,11 +2,13 @@ package ui;
 
 import net.sf.plist.NSBoolean;
 import net.sf.plist.NSString;
+import objects.Course;
 import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
 import ui.common.CourseList;
+import ui.common.CourseView;
 import ui.util.ABCTabBar;
 import ui.util.Bounds;
 import ui.util.UIStrings;
@@ -25,6 +27,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 {
@@ -229,7 +233,18 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	@Override
 	public void performActionFor(String notificationName, Object userData)
 	{
-		if (!(userData instanceof String)) { return; }
+		if (!(userData instanceof String))
+		{
+			ArrayList<Object>data = (ArrayList<Object>)userData;
+
+			if (Objects.equals((String) data.get(0), "CourseView"))
+			{
+				if (activePanel instanceof CourseView) { return; }
+				container.remove(activePanel);
+				activePanel = new CourseView((Course)data.get(1));
+			}
+			return;
+		}
 
 		String buttonClicked = (String) userData;
 

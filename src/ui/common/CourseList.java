@@ -13,7 +13,9 @@ import ui.util.ALJTable.ALJTableCellEditingStyle;
 import ui.util.ALJTable.ALJTableIndex;
 import ui.util.Alert;
 import ui.util.ButtonType;
+import ui.util.UIStrings;
 import ui.util.UIVariables;
+import uikit.DFNotificationCenter;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import java.util.ArrayList;
@@ -116,7 +118,10 @@ public class CourseList extends ALJTablePanel
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-
+		ArrayList<Object> data = new ArrayList<>();
+		data.add("CourseView");
+		data.add(courses.get(index.item));
+		DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, data);
 	}
 
 	@Override
