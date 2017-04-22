@@ -11,13 +11,13 @@ public class Question implements Serializable {
     private String question;
     private ArrayList<String> choices;
     private String correctChoice;
-    private String selectedChoice;
+    private double points;
 
-    public Question(String question, ArrayList<String> choices, String correctChoice, String selectedChoice) {
+    public Question(String question, ArrayList<String> choices, String correctChoice, Double points) {
         this.question = question;
         this.choices = choices;
         this.correctChoice = correctChoice;
-        this.selectedChoice = selectedChoice;
+        this.points = points;
     }
 
     public Question() {
@@ -48,18 +48,18 @@ public class Question implements Serializable {
         this.correctChoice = newCorrect;
     }
 
-    public String getSelectedChoice() {
-        return this.selectedChoice;
+    public double getPoints() {
+        return points;
     }
 
-    public void setSelectedChoice(String newSelected) {
-        this.selectedChoice = newSelected;
+    public void setPoints(double points) {
+        this.points = points;
     }
 
     public String toString() {
         return "question: " + this.question
                 + "\nchoices: " + this.choices
                 + "\ncorrectChoice: " + this.correctChoice
-                + "\nselectedChoice: " + this.selectedChoice;
+                + "\nselectedChoice: " + this.points;
     }
 }

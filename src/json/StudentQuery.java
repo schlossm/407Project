@@ -21,7 +21,7 @@ public class StudentQuery {
      */
     public void getCourses(String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"courseid"};
+        String selectedRows[] = {"courseid", "coursename", "meetingtime"};
         String table1 = "coursestudentmembership";
         String table2 = "students";
         getCoursesReturn = true;
