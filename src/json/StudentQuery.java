@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import database.DFDatabase;
 import database.DFSQL.*;
 import json.util.JSONQueryError;
+import objects.Course;
 import objects.Grade;
 import java.util.ArrayList;
 
@@ -21,12 +22,19 @@ public class StudentQuery {
      */
     public void getCourses(String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"courseid"};
+        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.meetingtime"};
         String table1 = "coursestudentmembership";
         String table2 = "students";
-        getCoursesReturn = true;
+        String table3 = "courses";
+
+        Join[] joins = new Join[] {
+                new Join(table2, table1 + ".studentID", table2 + ".id"),
+                new Join(table3, table3 + ".id", table1 + ".courseid") };
         try {
-            dfsql.select(selectedRows, false, null, null).from(table1).join(DFSQLJoin.left, table2, table1 + ".studentid", table2 + ".id").where(DFSQLEquivalence.equals, table2 + ".userid", "" + userid);
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, joins)
+                    .where(DFSQLEquivalence.equals, table2 + ".userid",  userid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
                 System.out.println(response);
                 System.out.println(error);
@@ -43,12 +51,21 @@ public class StudentQuery {
                     return;
                 }
                 ArrayList<String> allCoursesForInstructor = new ArrayList<String>();
-                String courseId = null;
+                int crn;
+                String title, courseName, meetingTime;
+                Course course = null;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
-                        courseId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsString();
-                        allCoursesForInstructor.add(courseId);
+                        title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[0]).getAsString();
+                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsInt();
+                        meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
+
+                        course = new Course();
+                        course.setTitle(title);
+                        course.setMeetingTime(meetingTime);
+                        //allCoursesForInstructor.add(courseId);
                     }
                 }catch (NullPointerException e2){
                     runnable.run(null, error1);
