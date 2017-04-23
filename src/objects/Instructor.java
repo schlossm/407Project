@@ -5,7 +5,16 @@ package objects;
  */
 public class Instructor extends User {
     private String officeHours, roomNo;
+    private int instructorId;
     public Instructor(){super();};
+
+    public int getInstructorId() {
+        return instructorId;
+    }
+
+    public void setInstructorId(int instructorId) {
+        this.instructorId = instructorId;
+    }
 
     public String getOfficeHours() {
         return officeHours;

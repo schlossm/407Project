@@ -5,6 +5,9 @@ import database.DFDatabase;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
+import objects.Course;
+
+import java.util.ArrayList;
 
 /**
  * Created by gauravsrivastava on 3/13/17.
@@ -40,7 +43,7 @@ public class InstructorQuery {
      */
     public void getCourses(String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.courseID"};
+        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.meetingtime", "courses.roomno"};
         String table1 = "courseinstructormembership";
         String table2 = "instructor";
         String table3 = "courses";
@@ -55,19 +58,46 @@ public class InstructorQuery {
                     .join(DFSQLJoin.left, joins)
                     .where(DFSQLEquivalence.equals, table2 + ".userid",  userid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
-                if(error != null) {
-                    JSONQueryError error1;
-                    if(error.code == 1) {
-                        error1 = new JSONQueryError(3, "No data returned", null);
-                        runnable.run(null, error1);
-                    }
+                System.out.println(response);
+                System.out.println(error);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
                 }
-                if(response instanceof JsonObject) {
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
 
-                    //TODO
                 } else {
-
+                    return;
                 }
+                ArrayList<Course> allCourses = new ArrayList<Course>();
+                int crn;
+                String title, courseName, meetingTime, roomNo;
+                Course course = null;
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                try {
+                    for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                        title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("coursename").getAsString();
+                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsString();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
+                        meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("meetingtime").getAsString();
+                        roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("roomno").getAsString();
+
+                        course = new Course();
+                        course.setTitle(title);
+                        course.setMeetingTime(meetingTime);
+                        course.setRoomNo(roomNo);
+                        course.setCourseID(crn);
+                        course.setCourseName(courseName);
+                        allCourses.add(course);
+                    }
+                }catch (NullPointerException e2){
+                    runnable.run(null, error1);
+                }
+                runnable.run(allCourses, null);
             });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();

@@ -22,7 +22,7 @@ public class StudentQuery {
      */
     public void getCourses(String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.meetingtime"};
+        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.meetingtime", "courses.roomno"};
         String table1 = "coursestudentmembership";
         String table2 = "students";
         String table3 = "courses";
@@ -50,27 +50,31 @@ public class StudentQuery {
                 } else {
                     return;
                 }
-                ArrayList<String> allCoursesForInstructor = new ArrayList<String>();
+                ArrayList<Course> allCourses = new ArrayList<Course>();
                 int crn;
-                String title, courseName, meetingTime;
+                String title, courseName, meetingTime, roomNo;
                 Course course = null;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
-                        title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[0]).getAsString();
-                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
-                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsInt();
-                        meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
+                        title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("coursename").getAsString();
+                        courseName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsString();
+                        crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
+                        meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("meetingtime").getAsString();
+                        roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("roomno").getAsString();
 
                         course = new Course();
                         course.setTitle(title);
                         course.setMeetingTime(meetingTime);
-                        //allCoursesForInstructor.add(courseId);
+                        course.setRoomNo(roomNo);
+                        course.setCourseID(crn);
+                        course.setCourseName(courseName);
+                        allCourses.add(course);
                     }
                 }catch (NullPointerException e2){
                     runnable.run(null, error1);
                 }
-                runnable.run(allCoursesForInstructor, null);
+                runnable.run(allCourses, null);
             });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();

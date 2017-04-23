@@ -2,11 +2,13 @@ package ui;
 
 import net.sf.plist.NSBoolean;
 import net.sf.plist.NSString;
+import objects.Course;
 import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
 import ui.common.CourseList;
+import ui.common.CourseView;
 import ui.util.ABCTabBar;
 import ui.util.Bounds;
 import ui.util.UIStrings;
@@ -25,7 +27,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Objects;
 
+@SuppressWarnings("unchecked")
 public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 {
 	public static Window current;
@@ -229,7 +234,30 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	@Override
 	public void performActionFor(String notificationName, Object userData)
 	{
-		if (!(userData instanceof String)) { return; }
+		if (!(userData instanceof String))
+		{
+			ArrayList<Object>data = (ArrayList<Object>)userData;
+
+			if (Objects.equals(data.get(0), "CourseView"))
+			{
+				if (activePanel instanceof CourseView) { return; }
+				container.remove(activePanel);
+				activePanel = new CourseView((Course)data.get(1));
+			}
+
+			container.add(activePanel);
+
+			container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, tabBar, LayoutAttribute.bottom, 1.0, 0));
+			container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+			container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+			container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
+
+			container.layoutSubviews();
+			activePanel.layoutSubviews();
+			activePanel.repaint();
+			activePanel.layoutSubviews();
+			return;
+		}
 
 		String buttonClicked = (String) userData;
 

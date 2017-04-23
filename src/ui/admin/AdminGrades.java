@@ -1,6 +1,6 @@
 package ui.admin;
 
-import objects.Grade;
+import json.CourseQuery;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -9,8 +9,10 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
+import ui.Window;
+import ui.util.Alert;
+import ui.util.ButtonType;
 import ui.util.UIStrings;
-import ui.util.UIVariables;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
@@ -21,14 +23,11 @@ import uikit.autolayout.uiobjects.ALJPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Objects;
 
-import static java.lang.Integer.parseInt;
-
+@SuppressWarnings("unchecked")
 public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegate
 {
 	private final JLabel ninetyPlusLabel;
@@ -97,71 +96,54 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 	private void loadGrades()
 	{
 		//FIXME: Fix me
-		//For now we use the test grades
 
-		int num90Plus = 0;
-		int num80To90 = 0;
-		int num70To80 = 0;
-		int num60To70 = 0;
-		int below60 = 0;
+		final int[] num90Plus = {0};
+		final int[] num80To90 = {0};
+		final int[] num70To80 = {0};
+		final int[] num60To70 = {0};
+		final int[] below60 = {0};
 
-		String filename = UIVariables.current.applicationDirectories.temp + File.separator + "test_grades.abc";
+		new CourseQuery().getAllGrades((returnedData, error) ->
+		                               {
+			                               if (error != null)
+			                               {
+				                               Alert errorAlert = new Alert("Error", "ABC could not load the grade counts.  Please try again.");
+				                               errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				                               errorAlert.show(Window.current.mainScreen);
+				                               return;
+			                               }
+			                               if (returnedData instanceof ArrayList)
+			                               {
+				                               ArrayList<Integer> groups = (ArrayList<Integer>)returnedData;
 
-		// Read the 10 Grade objects back into memory
-		try
-		{
-			FileInputStream fileIn = new FileInputStream(filename);
-			ObjectInputStream objIn = new ObjectInputStream(fileIn);
+				                               num90Plus[0] = groups.get(0);
+				                               num80To90[0] = groups.get(1);
+				                               num70To80[0] = groups.get(2);
+				                               num60To70[0] = groups.get(3);
+				                               below60[0] = groups.get(4);
 
-			for (int i = 0; i < 10; ++i)
-			{
-				Grade g = (Grade) objIn.readObject();
+				                               ninetyPlusLabel.setText(num90Plus[0] + " grades 90+");
+				                               eightyToNinetyLabel.setText(num80To90[0] + " grades 80-89");
+				                               seventyToEightyLabel.setText(num70To80[0] + " grades 70-79");
+				                               sixtyToSeventyLabel.setText(num60To70[0] + " grades 60-69");
+				                               belowSixtyLabel.setText(below60[0] + " grades <60");
 
-				int gradeInt = parseInt(g.getScore());
-				if (gradeInt >= 90)
-				{
-					num90Plus++;
-				}
-				else if (gradeInt >= 80)
-				{
-					num80To90++;
-				}
-				else if (gradeInt >= 70)
-				{
-					num70To80++;
-				}
-				else if (gradeInt >= 60)
-				{
-					num60To70++;
-				}
-				else
-				{
-					below60++;
-				}
-			}
+				                               DefaultPieDataset dataset = new DefaultPieDataset();
+				                               dataset.setValue("Grades 90+", num90Plus[0]);
+				                               dataset.setValue("Grades 80-90", num80To90[0]);
+				                               dataset.setValue("Grades 70-80", num70To80[0]);
+				                               dataset.setValue("Grades 60-70", num60To70[0]);
+				                               dataset.setValue("Grades <60", below60[0]);
 
-			objIn.close();
-			fileIn.close();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-
-		ninetyPlusLabel.setText(num90Plus + " grades 90+");
-		eightyToNinetyLabel.setText(num80To90 + " grades 80-89");
-		seventyToEightyLabel.setText(num70To80 + " grades 70-79");
-		sixtyToSeventyLabel.setText(num60To70 + " grades 60-69");
-		belowSixtyLabel.setText(below60 + " grades <60");
-
-		DefaultPieDataset dataset = new DefaultPieDataset();
-		dataset.setValue("Grades 90+", num90Plus);
-		dataset.setValue("Grades 80-90", num80To90);
-		dataset.setValue("Grades 70-80", num70To80);
-		dataset.setValue("Grades 60-70", num60To70);
-		dataset.setValue("Grades <60", below60);
-
-		buildPieChart(dataset);
+				                               buildPieChart(dataset);
+			                               }
+			                               else
+			                               {
+				                               Alert errorAlert = new Alert("Error", "ABC could not load the grade counts.  Please try again.");
+				                               errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				                               errorAlert.show(Window.current.mainScreen);
+			                               }
+		                               });
 	}
 
 	private void buildPieChart(PieDataset dataset)
