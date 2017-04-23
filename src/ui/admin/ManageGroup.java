@@ -1,7 +1,9 @@
 package ui.admin;
 
 import json.CourseQuery;
+import json.QueryCallbackRunnable;
 import json.UserQuery;
+import json.util.JSONQueryError;
 import objects.Course;
 import objects.Instructor;
 import objects.User;
@@ -17,7 +19,10 @@ import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 enum Process
 {
@@ -33,10 +38,31 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	private Group groupToManage = Group.none;
 	private Process currentProcess = Process.none;
 
-	private Runnable workToDoOnSuccess = null;
-	private Runnable workToDoOnFailure = null;
-
 	private int offset = 0;
+	private ALJTableIndex forRowAt;
+
+	private final QueryCallbackRunnable deleteProcessor = (returnedData, error) ->
+	{
+		boolean shouldReturn = seeIfNeedToShowError(error);
+		if (shouldReturn) { return; }
+		if (returnedData instanceof Boolean)
+		{
+			boolean bool = (Boolean) returnedData;
+			if (bool)
+			{
+				tableData.get(titleForHeaderInSectionInTable(table, 1)).remove(forRowAt.item);
+				if (tableData.get(titleForHeaderInSectionInTable(table, 1)).size() == 0)
+				{
+					tableData.remove(titleForHeaderInSectionInTable(table, 1));
+				}
+				table.reloadData();
+			}
+			else
+			{
+				showCouldNotDeleteError();
+			}
+		}
+	};
 
 	public ManageGroup(Group groupToManage)
 	{
@@ -72,97 +98,49 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		return groupToManage;
 	}
 
+	private final QueryCallbackRunnable processor = (returnedData, error) ->
+	{
+		if (error != null)
+		{
+			if (error.code == 3)
+			{
+				return;
+			}
+			Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
+			errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+			errorAlert.show(Window.current.mainScreen);
+			return;
+		}
+		if (returnedData instanceof ArrayList)
+		{
+			ArrayList<Object> students = (ArrayList<Object>) returnedData;
+			tableData.put(groupToManage + "s", students);
+			table.reloadData();
+		}
+		else
+		{
+			Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
+			errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+			errorAlert.show(Window.current.mainScreen);
+		}
+	};
+
 	private void loadNextGroup()
 	{
 		if (groupToManage == Group.courses)
 		{
 			currentProcess = Process.loadingCourse;
-			courseQuery.getAllCourses(100, offset, (returnedData, error) ->
-			{
-				if (error != null)
-				{
-					if (error.code == 3)
-					{
-						return;
-					}
-					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-					return;
-				}
-				if (returnedData instanceof ArrayList)
-				{
-					ArrayList<Object> courses = (ArrayList<Object>) returnedData;
-					tableData.put(groupToManage + "s", courses);
-					table.reloadData();
-				}
-				else
-				{
-					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-				}
-			});
+			courseQuery.getAllCourses(100, offset, processor);
 		}
 		else if (groupToManage == Group.students)
 		{
 			currentProcess = Process.loadingStudent;
-			userQuery.getAllStudents(100, offset, (returnedData, error) ->
-			{
-				if (error != null)
-				{
-					if (error.code == 3)
-					{
-						return;
-					}
-					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-					return;
-				}
-				if (returnedData instanceof ArrayList)
-				{
-					ArrayList<Object> students = (ArrayList<Object>) returnedData;
-					tableData.put(groupToManage + "s", students);
-					table.reloadData();
-				}
-				else
-				{
-					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-				}
-			});
+			userQuery.getAllStudents(100, offset, processor);
 		}
 		else
 		{
 			currentProcess = Process.loadingTeacher;
-			userQuery.getAllInstructors(100, offset, (returnedData, error) ->
-			{
-				if (error != null)
-				{
-					if (error.code == 3)
-					{
-						return;
-					}
-					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-					return;
-				}
-				if (returnedData instanceof ArrayList)
-				{
-					ArrayList<Object> instructors = (ArrayList<Object>) returnedData;
-					tableData.put(groupToManage + "s", instructors);
-					table.reloadData();
-				}
-				else
-				{
-					Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-				}
-			});
+			userQuery.getAllInstructors(100, offset, processor);
 		}
 		offset += 100;
 	}
@@ -179,6 +157,23 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		alert1.show(Window.current.mainScreen);
 	}
 
+	private boolean checkIfNeedToShowErrorOnUserName(JSONQueryError error, Alert alert)
+	{
+		if (error != null)
+		{
+			if (error.code == 1)
+			{
+				alert.showError("Already Taken", alert.textFieldForIdentifier("username"));
+			}
+			else
+			{
+				this.showGenericError();
+			}
+			return true;
+		}
+		return false;
+	}
+
 	private void add()
 	{
 		Alert alert = new Alert("New " + groupToManage, "");
@@ -190,18 +185,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				{
 					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), alert.textFieldForIdentifier(groupToManage + ".birthday").getText(), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.TEACHER, (returnedData, error) ->
 					{
-						if (error != null)
-						{
-							if (error.code == 1)
-							{
-								alert.showError("Already Taken", alert.textFieldForIdentifier("username"));
-							}
-							else
-							{
-								this.showGenericError();
-							}
-							return;
-						}
+						boolean shouldReturn = checkIfNeedToShowErrorOnUserName(error, alert);
+						if (shouldReturn) return;
 						if (returnedData instanceof Boolean)
 						{
 							boolean bool = (Boolean) returnedData;
@@ -230,16 +215,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 											newUser.setOfficeHours(alert.textFieldForIdentifier(groupToManage + ".officeHours").getText());
 											newUser.setRoomNo(alert.textFieldForIdentifier(groupToManage + ".roomNumber").getText());
 
-											if (tableData.get(groupToManage + "s") != null)
-											{
-												tableData.get(groupToManage + "s").add(newUser);
-											}
-											else
-											{
-												ArrayList<Object> arrayList = new ArrayList<>();
-												arrayList.add(newUser);
-												tableData.put(groupToManage + "s", arrayList);
-											}
+											addNewUserToTable(newUser);
 											updateSavedData();
 											table.reloadData();
 										}
@@ -310,16 +286,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 								courseToAdd.setStartDate(startDate);
 								courseToAdd.setEndDate(endDate);
 								courseToAdd.setRoomNo(roomNum);
-								if (tableData.get(groupToManage + "s") != null)
-								{
-									tableData.get(groupToManage + "s").add(courseToAdd);
-								}
-								else
-								{
-									ArrayList<Object> arrayList = new ArrayList<>();
-									arrayList.add(courseToAdd);
-									tableData.put(groupToManage + "s", arrayList);
-								}
+								addNewCourseToTable(courseToAdd);
 								updateSavedData();
 								table.reloadData();
 							}
@@ -378,16 +345,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 											newUser.setFirstName(alert.textFieldForIdentifier(groupToManage + ".firstName").getText());
 											newUser.setLastName(alert.textFieldForIdentifier(groupToManage + ".lastName").getText());
 
-											if (tableData.get(groupToManage + "s") != null)
-											{
-												tableData.get(groupToManage + "s").add(newUser);
-											}
-											else
-											{
-												ArrayList<Object> arrayList = new ArrayList<>();
-												arrayList.add(newUser);
-												tableData.put(groupToManage + "s", arrayList);
-											}
+											addNewUserToTable(newUser);
 											updateSavedData();
 											table.reloadData();
 										}
@@ -474,6 +432,30 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		alert.show(Window.current.mainScreen);
 	}
 
+	private void addNewUserToTable(User newUser)
+	{
+		addObject(newUser);
+	}
+
+	private void addNewCourseToTable(Course courseToAdd)
+	{
+		addObject(courseToAdd);
+	}
+
+	private void addObject(Object object)
+	{
+		if (tableData.get(groupToManage + "s") != null)
+		{
+			tableData.get(groupToManage + "s").add(object);
+		}
+		else
+		{
+			ArrayList<Object> arrayList = new ArrayList<>();
+			arrayList.add(object);
+			tableData.put(groupToManage + "s", arrayList);
+		}
+	}
+
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
 	{
@@ -552,106 +534,24 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				Alert deleteConfirmation = new Alert("Confirm Delete", null);
 				deleteConfirmation.addButton("Yes", ButtonType.destructive, e ->
 				{
+					this.forRowAt = forRowAt;
 					if (currentProcess == Process.none)
 					{
 						if (groupToManage == Group.courses)
 						{
 							currentProcess = Process.deleteCourse;
 							Course courseToRemove = (Course) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
-							courseQuery.removeCourse(courseToRemove.getCourseID(), (returnedData, error) -> {
-								if (error != null)
-								{
-									Alert alert = new Alert("Error", "ABC could not delete the " + groupToManage + ".  Please try again.");
-									alert.addButton("OK", ButtonType.defaultType, null, false);
-									alert.show(Window.current.mainScreen);
-									return;
-								}
-								if (returnedData instanceof Boolean)
-								{
-									boolean bool = (Boolean) returnedData;
-									if (bool)
-									{
-										tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
-										if (tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).size() == 0)
-										{
-											tableData.remove(titleForHeaderInSectionInTable(tableView, forRowAt.section));
-										}
-										tableView.reloadData();
-									}
-									else
-									{
-										Alert alert = new Alert("Error", "ABC could not delete the " + groupToManage + ".  Please try again.");
-										alert.addButton("OK", ButtonType.defaultType, null, false);
-										alert.show(Window.current.mainScreen);
-									}
-								}
-							});
+							courseQuery.removeCourse(courseToRemove.getCourseID(), deleteProcessor);
 						}
 						else if (groupToManage == Group.students)
 						{
 							User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
-							userQuery.removeUserAsStudent(studentToRemove.getUserID(), (returnedData, error) ->
-							{
-								if (error != null)
-								{
-									Alert alert = new Alert("Error", "ABC could not delete the " + groupToManage + ".  Please try again.");
-									alert.addButton("OK", ButtonType.defaultType, null, false);
-									alert.show(Window.current.mainScreen);
-									return;
-								}
-								if (returnedData instanceof Boolean)
-								{
-									boolean bool = (Boolean) returnedData;
-									if (bool)
-									{
-										tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
-										if (tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).size() == 0)
-										{
-											tableData.remove(titleForHeaderInSectionInTable(tableView, forRowAt.section));
-										}
-										tableView.reloadData();
-									}
-									else
-									{
-										Alert alert = new Alert("Error", "ABC could not delete the " + groupToManage + ".  Please try again.");
-										alert.addButton("OK", ButtonType.defaultType, null, false);
-										alert.show(Window.current.mainScreen);
-									}
-								}
-							});
+							userQuery.removeUserAsStudent(studentToRemove.getUserID(), deleteProcessor);
 						}
 						else if (groupToManage == Group.teachers)
 						{
 							User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
-							userQuery.removeUserAsInstructor(studentToRemove.getUserID(), (returnedData, error) ->
-							{
-								if (error != null)
-								{
-									Alert alert = new Alert("Error", "ABC could not delete the " + groupToManage + ".  Please try again.");
-									alert.addButton("OK", ButtonType.defaultType, null, false);
-									alert.show(Window.current.mainScreen);
-									return;
-								}
-								if (returnedData instanceof Boolean)
-								{
-									boolean bool = (Boolean) returnedData;
-									if (bool)
-									{
-										tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).remove(forRowAt.item);
-										if (tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).size() == 0)
-										{
-											tableData.remove(titleForHeaderInSectionInTable(tableView, forRowAt.section));
-										}
-										tableView.reloadData();
-									}
-									else
-									{
-										Alert alert = new Alert("Error", "ABC could not delete the " + groupToManage + ".  Please try again.");
-										alert.addButton("OK", ButtonType.defaultType, null, false);
-										alert.show(Window.current.mainScreen);
-									}
-								}
-							});
+							userQuery.removeUserAsInstructor(studentToRemove.getUserID(), deleteProcessor);
 						}
 					}
 
@@ -681,42 +581,23 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		if (Objects.equals(notificationName, UIStrings.aLJTablePaneNearEndNotification))
 		{
 			loadNextGroup();
-			return;
 		}
+	}
 
-		if (currentProcess == Process.none)
+	private boolean seeIfNeedToShowError(JSONQueryError error)
+	{
+		if (error != null)
 		{
-			return;
+			showCouldNotDeleteError();
+			return true;
 		}
-		else if (currentProcess == Process.loadingCourse)
-		{
-			if (Objects.equals(notificationName, UIStrings.returned))
-			{
-				Course[] courses = (Course[]) userData;
+		return false;
+	}
 
-				ArrayList<Object> aCourses = new ArrayList<>();
-				aCourses.addAll(Arrays.asList(courses));
-				tableData.put(groupToManage + "s", aCourses);
-			}
-		}
-		else
-		{
-			if (Objects.equals(notificationName, UIStrings.failure))
-			{
-				if (workToDoOnFailure != null)
-				{
-					workToDoOnFailure.run();
-				}
-			}
-			else if (Objects.equals(notificationName, UIStrings.success))
-			{
-				if (workToDoOnSuccess != null)
-				{
-					workToDoOnSuccess.run();
-				}
-			}
-		}
-
-		currentProcess = Process.none;
+	private void showCouldNotDeleteError()
+	{
+		Alert alert = new Alert("Error", "ABC could not delete the " + groupToManage + ".  Please try again.");
+		alert.addButton("OK", ButtonType.defaultType, null, false);
+		alert.show(Window.current.mainScreen);
 	}
 }

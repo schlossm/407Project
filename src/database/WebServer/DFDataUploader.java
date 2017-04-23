@@ -75,6 +75,7 @@ class DFDataUploader
 				           {
 					           queue.add(() -> runnable.run(DFDataUploaderReturnStatus.success, null));
 				           }
+
 				           else
 				           {
 					           Map<String, String> errorInfo = new HashMap<>();
@@ -101,7 +102,16 @@ class DFDataUploader
 						           errorInfo.put(kExpandedDescription, "The table attempting to upload data to does not exist.  Response: " + response);
 						           error = new DFError(4, "The specified table doesn't exist", errorInfo);
 					           }
-
+					           else if (response.contains("You have an error in your SQL syntax"))
+					           {
+						           errorInfo.put(kExpandedDescription, "The SQL statement is malformed.  Response: " + response);
+						           error = new DFError(5, "SQL Syntax Error", errorInfo);
+					           }
+					           else if (response.contains("Unknown column"))
+					           {
+						           errorInfo.put(kExpandedDescription, "Encountered an invalid column name.  Response: " + response);
+						           error = new DFError(6, "Unknown Column", errorInfo);
+					           }
 					           if (error != null) { debugLog(error); }
 
 					           DFError finalError = error;

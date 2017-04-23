@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Course.java
  * Alex Rosenberg
  */
-public class Course extends Object implements Serializable {
+public class Course implements Serializable {
     private int courseID;
     private String title;
     private String courseName;

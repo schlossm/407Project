@@ -11,6 +11,8 @@ import java.util.Map;
  * 2 : Duplicate Primary Key
  * 3 : Duplicate Unique Key
  * 4 : Table doesn't exist
+ * 5 : Malformed SQL Statement
+ * 6 : Unknown column
  * */
 
 /**

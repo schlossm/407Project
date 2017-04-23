@@ -1,14 +1,14 @@
 package ui.homepages;
 
+import json.AnnouncementQuery;
 import json.StudentQuery;
 import objects.Assignment;
 import objects.Course;
 import objects.Message;
 import ui.Window;
+import ui.util.*;
 import ui.util.ALJTable.*;
-import ui.util.Alert;
-import ui.util.ButtonType;
-import ui.util.UIVariables;
+import uikit.DFNotificationCenter;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -21,13 +21,13 @@ import java.util.ArrayList;
 @SuppressWarnings("unchecked")
 public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTableDelegate
 {
-	private ALJTable announcementsTable;
-	private ALJTable thingsDueTable;
-	private ALJTable coursesTable;
+	private final ALJTable announcementsTable;
+	private final ALJTable thingsDueTable;
+	private final ALJTable coursesTable;
 
 	private ArrayList<Message> announcements = new ArrayList<>();
 	private ArrayList<Course> courses = new ArrayList<>();
-	private ArrayList<Assignment> thingsDue = new ArrayList<>();
+	private final ArrayList<Assignment> thingsDue = new ArrayList<>();
 
 	public StudentPanel()
 	{
@@ -84,7 +84,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 		{
 			if (error != null)
 			{
-				if (error.code == 1)
+				if (error.code == 3)
 				{
 					return;
 				}
@@ -106,7 +106,33 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 				errorAlert.show(Window.current.mainScreen);
 			}
 		});
-		//TODO: Get the other stuff
+
+		new AnnouncementQuery().getAllAnnouncementForStudent(UIVariables.current.currentUser.getUserID(), (returnedData, error) -> {
+			if (error != null)
+			{
+				if (error.code == 3)
+				{
+					return;
+				}
+				Alert errorAlert = new Alert("Error", "ABC could not load your announcements.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+				return;
+			}
+			if (returnedData instanceof ArrayList)
+			{
+				announcements = (ArrayList<Message>)returnedData;
+				UIVariables.current.globalUserData.put("allAnnouncements", returnedData);
+				announcementsTable.reloadData();
+			}
+			else
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.show(Window.current.mainScreen);
+			}
+		});
+		//TODO: Get the last thing
 	}
 
 	@Override
@@ -114,7 +140,11 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 	{
 		if (table == coursesTable)
 		{
-
+			ArrayList<Object> objects = new ArrayList<>();
+			objects.add("CourseView");
+			objects.add(courses.get(index.item));
+			DFNotificationCenter.defaultCenter.post(UIStrings.ABCTabBarButtonClickedNotification, objects);
+			ABCTabBar.currentTabBar.forceSelectButton("My Courses");
 		}
 	}
 
@@ -153,7 +183,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 		ALJTableCell cell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
 		if (table == coursesTable)
 		{
-			cell.titleLabel.setText(courses.get(index.item).getCourseName());
+			cell.titleLabel.setText(courses.get(index.item).getTitle());
 		}
 		else if (table == announcementsTable)
 		{

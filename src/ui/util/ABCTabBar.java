@@ -21,8 +21,12 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 	private int activePos = -1;
 	private JLabel selectedLabel;
 	private boolean isPressingDown = false;
+
+	public static ABCTabBar currentTabBar;
+
 	public ABCTabBar()
 	{
+		currentTabBar = this;
 		addComponentListener(this);
 		setBackground(Color.WHITE);
 
@@ -46,6 +50,19 @@ public class ABCTabBar extends JPanel implements MLMDelegate, ComponentListener
 		add(lastName);
 
 		addCorrectButtons();
+	}
+
+	public void forceSelectButton(String text)
+	{
+		for (JLabel button : buttons)
+		{
+			if (button.getText() == text)
+			{
+				button.setBorder(new LineBorder(Color.black, 1, true));
+				activeLabel.setBorder(new LineBorder(Color.white, 1, true));
+				activeLabel = button;
+			}
+		}
 	}
 
 	private void addCorrectButtons()

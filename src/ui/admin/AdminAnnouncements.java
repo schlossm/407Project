@@ -2,9 +2,11 @@ package ui.admin;
 
 import json.AnnouncementQuery;
 import objects.Message;
+import ui.ErrorMessage;
 import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
+import ui.util.AnnouncementCell;
 import ui.util.ButtonType;
 import ui.util.UIVariables;
 import uikit.autolayout.uiobjects.ALJTablePanel;
@@ -54,45 +56,36 @@ public class AdminAnnouncements extends ALJTablePanel
 	{
 		Alert alert = new Alert("New Announcement", "");
 		alert.addButton("Submit", ButtonType.defaultType, e ->
-		{
-			String timestamp = new Date().toString();
+			                                                  announcementQuery.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), UIVariables.current.currentUser.getUserID(), -1, (returnedData, error) ->
+			                                                  {
+				                                                  boolean shouldReturn = ErrorMessage.defaultMessageManager.checkIfNeedToShowErrorForLoadingAnnouncements(error);
+				                                                  if (shouldReturn) { return; }
 
-			announcementQuery.addAnnouncement(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1, (returnedData, error) ->
-			{
-				if (error != null)
-				{
-					Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-					errorAlert.show(Window.current.mainScreen);
-					return;
-				}
-				if (returnedData instanceof Boolean)
-				{
-					boolean bool = (Boolean) returnedData;
-					if (bool)
-					{
-						if (announcementData.get("Announcements") != null)
-						{ announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1)); }
-						else
-						{
-							ArrayList<Object> data = new ArrayList<>();
-							Message message = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), timestamp, UIVariables.current.currentUser.getUserID(), -1);
-							data.add(message);
-							announcementData.put("Announcements", data);
-						}
-						table.reloadData();
-						alert.dispose();
-					}
-					else
-					{
-						Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
-						errorAlert.addButton("OK", ButtonType.defaultType, null, false);
-						errorAlert.show(Window.current.mainScreen);
-					}
-				}
-			});
-
-		}, true);
+				                                                  if (returnedData instanceof Boolean)
+				                                                  {
+					                                                  boolean bool = (Boolean) returnedData;
+					                                                  if (bool)
+					                                                  {
+						                                                  if (announcementData.get("Announcements") != null)
+						                                                  { announcementData.get("Announcements").add(new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), new Date().toString(), UIVariables.current.currentUser.getUserID(), -1)); }
+						                                                  else
+						                                                  {
+							                                                  ArrayList<Object> data = new ArrayList<>();
+							                                                  Message message = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), new Date().toString(), UIVariables.current.currentUser.getUserID(), -1);
+							                                                  data.add(message);
+							                                                  announcementData.put("Announcements", data);
+						                                                  }
+						                                                  table.reloadData();
+						                                                  alert.dispose();
+					                                                  }
+					                                                  else
+					                                                  {
+						                                                  Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
+						                                                  errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+						                                                  errorAlert.show(Window.current.mainScreen);
+					                                                  }
+				                                                  }
+			                                                  }), true);
 		alert.addButton("Cancel", ButtonType.cancel, null, false);
 
 		alert.addTextField("Title", "title", false);
@@ -136,18 +129,16 @@ public class AdminAnnouncements extends ALJTablePanel
 	@Override
 	public ALJTableCell cellForRowAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-		ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
-
 		if (index.section == 1)
 		{
-			newCell.titleLabel.setText(((Message) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).getTitle());
+			return new AnnouncementCell(((Message) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)));
 		}
 		else
 		{
+			ALJTableCell newCell = new ALJTableCell(ALJTableCellAccessoryViewType.none);
 			newCell.titleLabel.setText((String) announcementData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+			return newCell;
 		}
-
-		return newCell;
 	}
 
 	@Override

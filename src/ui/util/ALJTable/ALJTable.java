@@ -79,7 +79,7 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 		tableView.setBounds(0, 0, getBounds().width, tableView.calculatedHeight());
 	}
 
-	private void clearAndReload()
+	public void clearAndReload()
 	{
 		for (Component component : tableView.getComponents())
 		{
