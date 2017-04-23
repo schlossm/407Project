@@ -90,7 +90,7 @@ class Main
 
 		// Set up (and print) test static Course object
 		ArrayList<objects.User> students = new ArrayList<>();
-		ArrayList<objects.User> teachers = new ArrayList<>();
+		ArrayList<objects.Instructor> teachers = new ArrayList<>();
 
 		Course.testCourse = new Course();
 		Course.testCourse.setCourseID(384053);

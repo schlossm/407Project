@@ -28,11 +28,49 @@ public class CourseQuery{
     private boolean verifyUserLoginReturn;
 
 
-    /**
-     * get all courses
-     * @param limit
-     * @param offset
-     */
+    public void getAllGrades(QueryCallbackRunnable runnable){
+        DFSQL dfsql = new DFSQL();
+        String[] selectRows = {"(SELECT COUNT(grade) FROM `grades` WHERE grade >= 90.00) AS 90UP",
+                "(SELECT COUNT(grade) FROM `grades` WHERE grade >= 80.00 AND grade < 90.00) AS 80UP",
+                "(SELECT COUNT(grade) FROM `grades` WHERE grade >= 70.00 AND grade < 80.00) AS 70UP",
+                "(SELECT COUNT(grade) FROM `grades` WHERE grade >= 60.00 AND grade < 70.00) AS 60UP",
+                "(SELECT COUNT(grade) FROM `grades` WHERE grade < 60.00) AS 60BE"};
+        String table = "grades";
+        try {
+            dfsql.select(selectRows, false, null, null).from(table).limit(1);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    runnable.run(null, error1);
+                    return;
+                }
+                ArrayList<Integer> allGrades = new ArrayList<Integer>();
+                String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
+                int courseId = 0, capacity = 0;
+                Course course;
+                try {
+                        allGrades.add(jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("90UP").getAsInt());
+                    allGrades.add(jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("80UP").getAsInt());
+                    allGrades.add(jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("70UP").getAsInt());
+                    allGrades.add(jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("60UP").getAsInt());
+                    allGrades.add(jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("60BE").getAsInt());
+
+                }catch (NullPointerException e2){runnable.run(null, error1);}
+                runnable.run(allGrades, null);
+            });
+        } catch (DFSQLError e1){
+            e1.printStackTrace();
+        }
+    }
+
     public void getAllCourses(int limit, int offset, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] selectRows = {"id", "courseid", "coursename", "capacity", "description", "roomno", "meetingtime", "startdate", "enddate"};
@@ -271,7 +309,7 @@ public class CourseQuery{
      * @param courseid courseid of the course such as 11111
      * @param userid userid of the instructor given that the user is already an instructor
      */
-    public boolean addInstructorToCourse(int courseid, String userid, QueryCallbackRunnable runnable) {
+    public void addInstructorToCourse(int courseid, String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"id"};
         courseidForInsertionInstrutor = courseid;
@@ -294,15 +332,13 @@ public class CourseQuery{
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
-        return uploadSuccess == DFDataUploaderReturnStatus.success;
-
     }
 
-    private boolean addInstructorToCourseGiven(int courseid, int instructorid, QueryCallbackRunnable runnable) {
+    private void addInstructorToCourseGiven(int courseid, int instructorid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String[] rows = {"courseid", "instructorid"};
         String[] values = {"" + courseid, "" + instructorid};
-        String table = "courseintructormembership";
+        String table = "courseinstructormembership";
         try {
             dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
@@ -330,8 +366,6 @@ public class CourseQuery{
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
         }
-        return uploadSuccess == DFDataUploaderReturnStatus.success;
-
     }
 
     /**
@@ -364,7 +398,7 @@ public class CourseQuery{
 
     private void removeInstructorFromCourseGiven(int courseid, int instructorid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String table = "courseintructormembership";
+        String table = "courseinstructormembership";
         Where[] where = new Where[2];
         where[0] = new Where(DFSQLConjunction.and, DFSQLEquivalence.equals, new DFSQLClause("instructorid", "" + instructorid));
         where[1] = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("courseid", "" + courseid));

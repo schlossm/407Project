@@ -14,7 +14,7 @@ public class Course extends Object implements Serializable {
     private String description;
     private String roomNo;
     private int capacity;
-    private ArrayList<User> teachers;
+    private ArrayList<Instructor> teachers;
     private ArrayList<User> students;
     private String meetingTime;
     private String startDate;
@@ -83,7 +83,7 @@ public class Course extends Object implements Serializable {
         this.meetingTime = newMeetingTime;
     }
 
-    public ArrayList<User> getTeachers() {
+    public ArrayList<Instructor> getTeachers() {
         return this.teachers;
     }
 
@@ -95,11 +95,11 @@ public class Course extends Object implements Serializable {
         this.roomNo = newRoomNo;
     }
 
-    public void setTeachers(ArrayList<User> newTeachers) {
+    public void setTeachers(ArrayList<Instructor> newTeachers) {
         this.teachers = newTeachers;
     }
 
-    public void addTeacher(User teacher) {
+    public void addTeacher(Instructor teacher) {
         this.teachers.add(teacher);
     }
 

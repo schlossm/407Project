@@ -16,7 +16,7 @@ import java.util.ArrayList;
 /**
  * Created by gauravsrivastava on 3/30/17.
  */
-public class DocumentsQuery implements DFDatabaseCallbackDelegate {
+public class DocumentsQuery {
     private JsonObject jsonObject;
     private boolean getAllDocumentsIdsInCourseReturn, getGradeReturn, getCourseGradeReturn;
 
@@ -94,7 +94,6 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
             e1.printStackTrace();
         }
     }
-    @Override
     public void returnedData(JsonObject jsonObject, DFError error) {
         System.out.println("triggered returnedData");
         this.jsonObject = null;
@@ -156,7 +155,6 @@ public class DocumentsQuery implements DFDatabaseCallbackDelegate {
         }
     }
 
-    @Override
     public void uploadStatus(DFDataUploaderReturnStatus success, DFError error) {
 
     }

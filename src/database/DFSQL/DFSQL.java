@@ -348,6 +348,7 @@ public class DFSQL
 
 	private void check(String attribute) throws DFSQLError
 	{
+		if (attribute.startsWith("(") && attribute.contains(") AS")) { return; }
 		if (attribute.contains("*")) { throw DFSQLError.cannotUseWildcardSpecifier; }
 		if (Objects.equals(attribute, "")) { throw DFSQLError.cannotUseEmptyValue; }
 

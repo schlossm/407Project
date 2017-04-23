@@ -62,7 +62,8 @@ public class UserQueryTest
 	public void testGetUser()
 	{
 		UserQuery userQuery = new UserQuery();
-		userQuery.getAllStudents(100, 0, (returnedData, error) ->
+
+		new InstructorQuery().enterGrade(1, "mschlos", 50, (returnedData, error) ->
 		{
 			System.out.println("Returned Data: " + returnedData);
 			System.out.println("Error: " + error);
