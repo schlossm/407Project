@@ -479,6 +479,4 @@ public class AssignmentQuery  {
             dfsqlError.printStackTrace();
         }
     }
-
-
 }
