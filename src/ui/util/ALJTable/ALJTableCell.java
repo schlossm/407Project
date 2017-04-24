@@ -86,7 +86,7 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 					remove(accessoryView);
 					accessoryView = null;
 				}
-				accessoryView = new JLabel(new ImageIcon(new ALJTableCellAccessoryViewImage("info").image));
+				accessoryView = new JLabel(new ImageIcon(new ALJTableCellAccessoryViewImage("menu").image));
 				accessoryView.addMouseListener(new MouseListenerManager(this));
 				add(accessoryView);
 				break;

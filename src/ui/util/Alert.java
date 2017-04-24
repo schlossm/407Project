@@ -57,8 +57,6 @@ public class Alert implements KeyListener, MLMDelegate
 	private JPanel buttonPanel;
 	private JFrame dimView;
 	private int numButtons;
-	private boolean hasCancelAction = false;
-	private boolean hasDefaultAction = false;
 	private JTextField activeTextField;
 
 	public Alert(String title, String message)
@@ -167,8 +165,15 @@ public class Alert implements KeyListener, MLMDelegate
 		dropDowns.put(identifier, dropDown);
 	}
 
-	public void addButton(String text, ButtonType type, ActionListener handler, boolean customEnterAction)
+	@Deprecated
+	public void addButton(String text, ButtonType type, ActionListener handler, boolean e)
 	{
+		addButton(text, type, handler);
+	}
+
+	public void addButton(String text, ButtonType type, ActionListener handler)
+	{
+		//Make sure the button panel is done properly
 		if (buttonPanel == null)
 		{
 			buttonPanel = new JPanel();
@@ -185,16 +190,29 @@ public class Alert implements KeyListener, MLMDelegate
 			{
 				button.setAlignmentX(Component.CENTER_ALIGNMENT);
 			}
+
+			buttonPanel.setMinimumSize(new Dimension(320, 44 * buttons.size()));
 		}
 
+		//Initialize the button
 		JButton button = new JButton(text);
 		button.setFont(UIFont.textLight.deriveFont(9.0f));
+		button.setMinimumSize(new Dimension(44, 44));
 		button.setMaximumSize(new Dimension(400, 44));
-		if (customEnterAction) { hasDefaultAction = true; }
-		if (type == ButtonType.defaultType && !customEnterAction)
+
+		//Add the handler (if there's one)
+		if (handler != null)
+		{
+			button.addActionListener(handler);
+		}
+
+		//Add the dismiss handler.  Every button will do this
+		button.addActionListener(e -> dispose());
+
+		//Default type button
+		if (type == ButtonType.defaultType)
 		{
 			button.setFont(UIFont.textBold.deriveFont(9.0f));
-			hasDefaultAction = true;
 			Action action = new AbstractAction("complete")
 			{
 				@Override
@@ -212,16 +230,18 @@ public class Alert implements KeyListener, MLMDelegate
 			button.getActionMap().put("complete", action);
 			button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "complete");
 		}
-		else if (type == ButtonType.cancel)
+		else if (type == ButtonType.cancel) //Cancel type button
 		{
 			button.setFont(UIFont.textRegular.deriveFont(9.0f));
-			hasCancelAction = true;
 			Action action = new AbstractAction("escape")
 			{
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					dispose();
+					for (ActionListener listener : button.getActionListeners())
+					{
+						listener.actionPerformed(e);
+					}
 				}
 			};
 
@@ -233,16 +253,12 @@ public class Alert implements KeyListener, MLMDelegate
 		{
 			button.setForeground(Color.RED);
 		}
+
+		//Align the buttons
 		if (numButtons < 3) { button.setAlignmentY(Component.CENTER_ALIGNMENT); }
 		else { button.setAlignmentX(Component.CENTER_ALIGNMENT); }
-		button.addActionListener(e ->
-		                         {
-			                         if (handler != null) { handler.actionPerformed(e); }
-			                         if (!customEnterAction)
-			                         {
-				                         dispose();
-			                         }
-		                         });
+
+		//Add the button to the proper lists
 		buttonPanel.add(button);
 		buttons.add(button);
 	}
@@ -277,43 +293,6 @@ public class Alert implements KeyListener, MLMDelegate
 		if (buttonPanel != null)
 		{
 			alert.add(buttonPanel);
-			if (!hasCancelAction)
-			{
-				JButton button = buttons.get(0);
-				Action action = new AbstractAction("escape")
-				{
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						dimView.dispose();
-						dialog.dispose();
-					}
-				};
-
-				action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ESCAPE"));
-				button.getActionMap().put("escape", action);
-				button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "escape");
-			}
-			if (!hasDefaultAction)
-			{
-				JButton button = buttons.get(0);
-				Action action = new AbstractAction("complete")
-				{
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						for (ActionListener listener : button.getActionListeners())
-						{
-							listener.actionPerformed(e);
-						}
-					}
-				};
-
-				action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ENTER"));
-
-				button.getActionMap().put("complete", action);
-				button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put((KeyStroke) action.getValue(Action.ACCELERATOR_KEY), "complete");
-			}
 		}
 
 		dialog.setFocusTraversalPolicy(new FocusTraversalPolicy()

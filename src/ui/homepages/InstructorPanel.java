@@ -78,7 +78,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 			if (error != null)
 			{
 				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 				return;
 			}
@@ -94,7 +94,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 						if (error1 != null)
 						{
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
 							return;
 						}
@@ -106,7 +106,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 						else
 						{
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
 						}
 					});
@@ -116,7 +116,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 			else
 			{
 				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 			}
 		});

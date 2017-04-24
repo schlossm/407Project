@@ -39,30 +39,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	private Process currentProcess = Process.none;
 
 	private int offset = 0;
-	private ALJTableIndex forRowAt;
 
-	private final QueryCallbackRunnable deleteProcessor = (returnedData, error) ->
-	{
-		boolean shouldReturn = seeIfNeedToShowError(error);
-		if (shouldReturn) { return; }
-		if (returnedData instanceof Boolean)
-		{
-			boolean bool = (Boolean) returnedData;
-			if (bool)
-			{
-				tableData.get(titleForHeaderInSectionInTable(table, 1)).remove(forRowAt.item);
-				if (tableData.get(titleForHeaderInSectionInTable(table, 1)).size() == 0)
-				{
-					tableData.remove(titleForHeaderInSectionInTable(table, 1));
-				}
-				table.reloadData();
-			}
-			else
-			{
-				showCouldNotDeleteError();
-			}
-		}
-	};
+	private QueryCallbackRunnable deleteProcessor;
 
 	public ManageGroup(Group groupToManage)
 	{
@@ -107,7 +85,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				return;
 			}
 			Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
-			errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+			errorAlert.addButton("OK", ButtonType.defaultType, null);
 			errorAlert.show(Window.current.mainScreen);
 			return;
 		}
@@ -120,7 +98,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		else
 		{
 			Alert errorAlert = new Alert("Error", "ABC could not load " + groupToManage + "s.  Please try again.");
-			errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+			errorAlert.addButton("OK", ButtonType.defaultType, null);
 			errorAlert.show(Window.current.mainScreen);
 		}
 	};
@@ -153,7 +131,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	private void showGenericError()
 	{
 		Alert alert1 = new Alert("Error", "ABC could add the " + groupToManage + ".  Please try again.");
-		alert1.addButton("OK", ButtonType.defaultType, null, false);
+		alert1.addButton("OK", ButtonType.defaultType, null);
 		alert1.show(Window.current.mainScreen);
 	}
 
@@ -186,7 +164,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), alert.textFieldForIdentifier(groupToManage + ".birthday").getText(), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.TEACHER, (returnedData, error) ->
 					{
 						boolean shouldReturn = checkIfNeedToShowErrorOnUserName(error, alert);
-						if (shouldReturn) return;
+						if (shouldReturn) { return; }
 						if (returnedData instanceof Boolean)
 						{
 							boolean bool = (Boolean) returnedData;
@@ -257,7 +235,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 
 					currentProcess = Process.addCourse;
 
-					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate, Integer.parseInt(capacity), (returnedData, error) -> {
+					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate, Integer.parseInt(capacity), (returnedData, error) ->
+					{
 						if (error != null)
 						{
 							if (error.code == 1)
@@ -376,8 +355,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				default:
 					break;
 			}
-		}, true);
-		alert.addButton("Cancel", ButtonType.cancel, null, false);
+		});
+		alert.addButton("Cancel", ButtonType.cancel, null);
 
 		switch (groupToManage)
 		{
@@ -493,7 +472,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		}
 		else
 		{
-			ALJTableCell newCell = new ALJTableCell(!Objects.equals(tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item), "New " + groupToManage) ? ALJTableCellAccessoryViewType.delete : ALJTableCellAccessoryViewType.none);
+			ALJTableCell newCell = new ALJTableCell(!Objects.equals(tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item), "New " + groupToManage) ? ALJTableCellAccessoryViewType.info : ALJTableCellAccessoryViewType.none);
 			if (index.section == 0)
 			{
 				newCell.titleLabel.setText((String) (tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)));
@@ -529,36 +508,88 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	{
 		switch (commit)
 		{
-			case delete:
+			case info:
 			{
-				Alert deleteConfirmation = new Alert("Confirm Delete", null);
-				deleteConfirmation.addButton("Yes", ButtonType.destructive, e ->
+				String title;
+				if (groupToManage == Group.courses)
 				{
-					this.forRowAt = forRowAt;
-					if (currentProcess == Process.none)
-					{
-						if (groupToManage == Group.courses)
-						{
-							currentProcess = Process.deleteCourse;
-							Course courseToRemove = (Course) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
-							courseQuery.removeCourse(courseToRemove.getCourseID(), deleteProcessor);
-						}
-						else if (groupToManage == Group.students)
-						{
-							User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
-							userQuery.removeUserAsStudent(studentToRemove.getUserID(), deleteProcessor);
-						}
-						else if (groupToManage == Group.teachers)
-						{
-							User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
-							userQuery.removeUserAsInstructor(studentToRemove.getUserID(), deleteProcessor);
-						}
-					}
+					title = ((Course) tableData.get(groupToManage + "s").get(forRowAt.item)).getTitle();
+				}
+				else if (groupToManage == Group.teachers)
+				{
+					title = ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getFirstName() + ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getLastName();
+				}
+				else
+				{
+					title = ((User) tableData.get(groupToManage + "s").get(forRowAt.item)).getFirstName() + ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getLastName();
+				}
 
-				}, false);
-				deleteConfirmation.addButton("No", ButtonType.cancel, null, false);
-				deleteConfirmation.show(Window.current.mainScreen);
-				break;
+				Alert more = new Alert(title, "");
+				more.addButton("Delete", ButtonType.destructive, e ->
+				{
+					Alert deleteConfirmation;
+					deleteConfirmation = new Alert("Confirm Delete", null);
+					deleteConfirmation.addButton("Yes", ButtonType.destructive, e2 ->
+					{
+						if (currentProcess == Process.none)
+						{
+							if (groupToManage == Group.courses)
+							{
+								currentProcess = Process.deleteCourse;
+								Course courseToRemove = (Course) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
+								courseQuery.removeCourse(courseToRemove.getCourseID(), deleteProcessor);
+							}
+							else if (groupToManage == Group.students)
+							{
+								User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
+								userQuery.removeUserAsStudent(studentToRemove.getUserID(), deleteProcessor);
+							}
+							else if (groupToManage == Group.teachers)
+							{
+								User studentToRemove = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
+								userQuery.removeUserAsInstructor(studentToRemove.getUserID(), deleteProcessor);
+							}
+						}
+
+					});
+					deleteConfirmation.addButton("No", ButtonType.cancel, null);
+					deleteConfirmation.show(Window.current.mainScreen);
+
+					if (deleteProcessor == null)
+					{
+						deleteProcessor = (returnedData, error) ->
+						{
+							boolean shouldReturn = seeIfNeedToShowError(error);
+							if (shouldReturn) { return; }
+							if (returnedData instanceof Boolean)
+							{
+								boolean bool = (Boolean) returnedData;
+								if (bool)
+								{
+									tableData.get(titleForHeaderInSectionInTable(table, 1)).remove(forRowAt.item);
+									if (tableData.get(titleForHeaderInSectionInTable(table, 1)).size() == 0)
+									{
+										tableData.remove(titleForHeaderInSectionInTable(table, 1));
+									}
+									table.reloadData();
+									deleteConfirmation.dispose();
+									more.dispose();
+								}
+								else
+								{
+									showCouldNotDeleteError();
+								}
+							}
+						};
+					}
+				});
+				if (groupToManage != Group.courses)
+				{
+					more.addButton("Modify User Information", ButtonType.plain, null);
+					more.addButton("Modify Course(s)", ButtonType.plain, null);
+				}
+				more.addButton("Cancel", ButtonType.cancel, null);
+				more.show(Window.current.mainScreen);
 			}
 
 			default:
@@ -597,7 +628,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	private void showCouldNotDeleteError()
 	{
 		Alert alert = new Alert("Error", "ABC could not delete the " + groupToManage + ".  Please try again.");
-		alert.addButton("OK", ButtonType.defaultType, null, false);
+		alert.addButton("OK", ButtonType.defaultType, null);
 		alert.show(Window.current.mainScreen);
 	}
 }

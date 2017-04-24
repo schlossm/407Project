@@ -13,7 +13,7 @@ public class ErrorMessage
 		if (error != null)
 		{
 			Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
-			errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+			errorAlert.addButton("OK", ButtonType.defaultType, null);
 			errorAlert.show(Window.current.mainScreen);
 			return true;
 		}

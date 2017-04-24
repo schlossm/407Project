@@ -70,8 +70,8 @@ class FileList extends ALJTablePanel
 				alert.textFieldForIdentifier("fileName").setText(file.getName());
 				tempFile = file;
 			}
-		}, true);
-		alert.addButton("Cancel", ButtonType.cancel, null, false);
+		});
+		alert.addButton("Cancel", ButtonType.cancel, null);
 		alert.addButton("Upload", ButtonType.defaultType, e ->
 		{
 			//FIXME: implement method after it's updated
@@ -111,7 +111,7 @@ class FileList extends ALJTablePanel
 				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
 				errorAlert.show(Window.current.mainScreen);
 			};*/
-		}, true);
+		});
 		alert.show(Window.current.mainScreen);
 	}
 
