@@ -27,7 +27,7 @@ public class ClassCell extends ALJTableCell
 
 	public ClassCell()
 	{
-		super(ALJTableCellAccessoryViewType.delete);
+		super(ALJTableCellAccessoryViewType.info);
 
 		removeConstraintsFor(titleLabel);
 
@@ -98,8 +98,8 @@ public class ClassCell extends ALJTableCell
 				{
 					changeQuota.textFieldForIdentifier("ClassCell.quota").setBackground(Color.red);
 				}
-			}, true);
-			changeQuota.addButton("Cancel", ButtonType.defaultType, null, false);
+			});
+			changeQuota.addButton("Cancel", ButtonType.defaultType, null);
 			changeQuota.show(Window.current.mainScreen);
 		}
 	}

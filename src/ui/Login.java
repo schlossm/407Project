@@ -292,7 +292,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 				{
 					usernameField.requestFocus();
 					usernameField.selectAll();
-				}, false);
+				});
 				incorrectPassword.show(presentingFrame);
 				return;
 			}
@@ -310,7 +310,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 								Taskbar.getTaskbar().requestUserAttention(true, true);
 							}
 							Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
-							incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+							incorrectPassword.addButton("OK", ButtonType.defaultType, null);
 							incorrectPassword.show(presentingFrame);
 							return;
 						}
@@ -327,7 +327,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 								Taskbar.getTaskbar().requestUserAttention(true, true);
 							}
 							Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
-							incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+							incorrectPassword.addButton("OK", ButtonType.defaultType, null);
 							incorrectPassword.show(presentingFrame);
 						}
 					});
@@ -343,7 +343,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 					{
 						usernameField.requestFocus();
 						usernameField.selectAll();
-					}, false);
+					});
 					incorrectPassword.show(presentingFrame);
 				}
 			}
@@ -519,7 +519,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 				{
 					usernameField.requestFocus();
 					usernameField.selectAll();
-				}, false);
+				});
 				incorrectPassword.show(presentingFrame);
 			}
 			else if (stage == Stage.loadUser)
@@ -529,7 +529,7 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 					Taskbar.getTaskbar().requestUserAttention(true, true);
 				}
 				Alert incorrectPassword = new Alert("Error", "There was an issue loading your account.\n\nPlease try again.");
-				incorrectPassword.addButton("OK", ButtonType.defaultType, null, false);
+				incorrectPassword.addButton("OK", ButtonType.defaultType, null);
 				incorrectPassword.show(presentingFrame);
 			}
 		}

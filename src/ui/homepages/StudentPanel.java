@@ -89,7 +89,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 					return;
 				}
 				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 				return;
 			}
@@ -102,7 +102,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 			else
 			{
 				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 			}
 		});
@@ -115,7 +115,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 					return;
 				}
 				Alert errorAlert = new Alert("Error", "ABC could not load your announcements.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 				return;
 			}
@@ -128,7 +128,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 			else
 			{
 				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 			}
 		});

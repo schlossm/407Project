@@ -250,7 +250,7 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 
 			case info:
 			{
-				if (delegate != null) { delegate.didSelectItemAtIndexInTable(this, atIndex); }
+				dataSource.tableView(this, ALJTableCellEditingStyle.info, atIndex);
 				break;
 			}
 
