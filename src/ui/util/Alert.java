@@ -190,8 +190,6 @@ public class Alert implements KeyListener, MLMDelegate
 			{
 				button.setAlignmentX(Component.CENTER_ALIGNMENT);
 			}
-
-			buttonPanel.setMinimumSize(new Dimension(320, 44 * buttons.size()));
 		}
 
 		//Initialize the button
@@ -261,6 +259,14 @@ public class Alert implements KeyListener, MLMDelegate
 		//Add the button to the proper lists
 		buttonPanel.add(button);
 		buttons.add(button);
+
+		if (numButtons >= 3)
+		{
+			buttonPanel.setMinimumSize(new Dimension(320, 44 * buttons.size() + ((buttons.size() + 1))));
+			buttonPanel.setPreferredSize(new Dimension(320, 44 * buttons.size() + ((buttons.size() + 1))));
+			buttonPanel.setMaximumSize(new Dimension(320, 44 * buttons.size() + ((buttons.size() + 1))));
+			System.out.println((44 * buttons.size()) + (8 * (buttons.size() + 1)));
+		}
 	}
 
 	public void show(JFrame aboveFrame)
@@ -276,7 +282,6 @@ public class Alert implements KeyListener, MLMDelegate
 			//Show a Dim View
 
 			dimView = new JFrame("ABC");
-
 			dimView.setBounds(aboveFrame.getBounds());
 			dimView.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 			dimView.setUndecorated(true);

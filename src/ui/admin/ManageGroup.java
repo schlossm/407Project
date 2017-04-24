@@ -517,11 +517,11 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				}
 				else if (groupToManage == Group.teachers)
 				{
-					title = ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getFirstName() + ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getLastName();
+					title = ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getFirstName() + " " + ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getLastName();
 				}
 				else
 				{
-					title = ((User) tableData.get(groupToManage + "s").get(forRowAt.item)).getFirstName() + ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getLastName();
+					title = ((User) tableData.get(groupToManage + "s").get(forRowAt.item)).getFirstName() + " " + ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getLastName();
 				}
 
 				Alert more = new Alert(title, "");
