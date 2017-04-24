@@ -54,7 +54,7 @@ class Main
 					Desktop.getDesktop().setAboutHandler(e ->
 					                                     {
 						                                     Alert alert = new Alert("About", "ABC is a collaborative project designed to aid in school communications.");
-						                                     alert.addButton("OK", ButtonType.defaultType, null, false);
+						                                     alert.addButton("OK", ButtonType.defaultType, null);
 						                                     alert.show(Window.current.mainScreen != null ? Window.current.mainScreen : Window.current.loginFrame);
 					                                     });
 				}

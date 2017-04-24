@@ -40,7 +40,7 @@ public class AdminAnnouncements extends ALJTablePanel
 					return;
 				}
 				Alert errorAlert = new Alert("Error", "ABC could not load the announcements.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 				return;
 			}
@@ -81,12 +81,12 @@ public class AdminAnnouncements extends ALJTablePanel
 					                                                  else
 					                                                  {
 						                                                  Alert errorAlert = new Alert("Error", "ABC could not add the announcement.  Please try again.");
-						                                                  errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+						                                                  errorAlert.addButton("OK", ButtonType.defaultType, null);
 						                                                  errorAlert.show(Window.current.mainScreen);
 					                                                  }
 				                                                  }
-			                                                  }), true);
-		alert.addButton("Cancel", ButtonType.cancel, null, false);
+			                                                  }));
+		alert.addButton("Cancel", ButtonType.cancel, null);
 
 		alert.addTextField("Title", "title", false);
 		alert.addTextField("Body", "body", false);

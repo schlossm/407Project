@@ -41,7 +41,7 @@ public class CourseList extends ALJTablePanel
 						if (error1 != null)
 						{
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
 							return;
 						}
@@ -53,7 +53,7 @@ public class CourseList extends ALJTablePanel
 						else
 						{
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
 						}
 					});
@@ -69,7 +69,7 @@ public class CourseList extends ALJTablePanel
 						if (error1 != null)
 						{
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
 							return;
 						}
@@ -81,7 +81,7 @@ public class CourseList extends ALJTablePanel
 						else
 						{
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
 						}
 					});
@@ -97,7 +97,7 @@ public class CourseList extends ALJTablePanel
 					if (error != null)
 					{
 						Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-						errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
 						errorAlert.show(Window.current.mainScreen);
 						return;
 					}
@@ -112,7 +112,7 @@ public class CourseList extends ALJTablePanel
 								if (error1 != null)
 								{
 									Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-									errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+									errorAlert.addButton("OK", ButtonType.defaultType, null);
 									errorAlert.show(Window.current.mainScreen);
 									return;
 								}
@@ -124,7 +124,7 @@ public class CourseList extends ALJTablePanel
 								else
 								{
 									Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-									errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+									errorAlert.addButton("OK", ButtonType.defaultType, null);
 									errorAlert.show(Window.current.mainScreen);
 								}
 							});
@@ -134,7 +134,7 @@ public class CourseList extends ALJTablePanel
 					else
 					{
 						Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-						errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
 						errorAlert.show(Window.current.mainScreen);
 					}
 				});
@@ -150,7 +150,7 @@ public class CourseList extends ALJTablePanel
 							return;
 						}
 						Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-						errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
 						errorAlert.show(Window.current.mainScreen);
 						return;
 					}
@@ -164,7 +164,7 @@ public class CourseList extends ALJTablePanel
 								if (error1 != null)
 								{
 									Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-									errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+									errorAlert.addButton("OK", ButtonType.defaultType, null);
 									errorAlert.show(Window.current.mainScreen);
 									return;
 								}
@@ -176,7 +176,7 @@ public class CourseList extends ALJTablePanel
 								else
 								{
 									Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-									errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+									errorAlert.addButton("OK", ButtonType.defaultType, null);
 									errorAlert.show(Window.current.mainScreen);
 								}
 							});
@@ -187,7 +187,7 @@ public class CourseList extends ALJTablePanel
 					else
 					{
 						Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
-						errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
 						errorAlert.show(Window.current.mainScreen);
 					}
 				});
