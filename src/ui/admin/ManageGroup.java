@@ -235,7 +235,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 
 					currentProcess = Process.addCourse;
 
-					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate, Integer.parseInt(capacity), (returnedData, error) ->
+					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate, Integer.parseInt(capacity), 500*1024*1024, (returnedData, error) ->
 					{
 						if (error != null)
 						{
@@ -529,9 +529,37 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				{
 					Alert deleteConfirmation;
 					deleteConfirmation = new Alert("Confirm Delete", null);
+
+					if (deleteProcessor == null)
+					{
+						deleteProcessor = (returnedData, error) ->
+						{
+							boolean shouldReturn = seeIfNeedToShowError(error);
+							if (shouldReturn) { return; }
+							if (returnedData instanceof Boolean)
+							{
+								boolean bool = (Boolean) returnedData;
+								if (bool)
+								{
+									System.out.println(tableData.get(titleForHeaderInSectionInTable(table, 1)).get(forRowAt.item));
+									tableData.get(titleForHeaderInSectionInTable(table, 1)).remove(forRowAt.item);
+									if (tableData.get(titleForHeaderInSectionInTable(table, 1)).size() == 0)
+									{
+										tableData.remove(titleForHeaderInSectionInTable(table, 1));
+									}
+									table.reloadData();
+								}
+								else
+								{
+									showCouldNotDeleteError();
+								}
+							}
+						};
+					}
+
 					deleteConfirmation.addButton("Yes", ButtonType.destructive, e2 ->
 					{
-						if (currentProcess == Process.none)
+						if (currentProcess != Process.none)
 						{
 							if (groupToManage == Group.courses)
 							{
@@ -555,33 +583,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 					deleteConfirmation.addButton("No", ButtonType.cancel, null);
 					deleteConfirmation.show(Window.current.mainScreen);
 
-					if (deleteProcessor == null)
-					{
-						deleteProcessor = (returnedData, error) ->
-						{
-							boolean shouldReturn = seeIfNeedToShowError(error);
-							if (shouldReturn) { return; }
-							if (returnedData instanceof Boolean)
-							{
-								boolean bool = (Boolean) returnedData;
-								if (bool)
-								{
-									tableData.get(titleForHeaderInSectionInTable(table, 1)).remove(forRowAt.item);
-									if (tableData.get(titleForHeaderInSectionInTable(table, 1)).size() == 0)
-									{
-										tableData.remove(titleForHeaderInSectionInTable(table, 1));
-									}
-									table.reloadData();
-									deleteConfirmation.dispose();
-									more.dispose();
-								}
-								else
-								{
-									showCouldNotDeleteError();
-								}
-							}
-						};
-					}
+
 				});
 				if (groupToManage != Group.courses)
 				{
