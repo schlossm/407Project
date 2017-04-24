@@ -75,6 +75,10 @@ public class CourseQuery{
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 if (error != null) {
                     //Process the error and return appropriate new error to UI.
+                    if (error.code == 1)
+                    {
+                        error1 = new JSONQueryError(3, "No Data", null);
+                    }
                     runnable.run(null, error1);
                     return;
                 }
@@ -135,9 +139,13 @@ public class CourseQuery{
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
                 System.out.println(response);
                 System.out.println(error);
-                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                JSONQueryError error1 = new JSONQueryError(0, "No Data", null);
                 if (error != null) {
                     //Process the error and return appropriate new error to UI.
+                    if (error.code == 1)
+                    {
+                        error1 = new JSONQueryError(3, "No Data", null);
+                    }
                     runnable.run(null, error1);
                     return;
                 }
