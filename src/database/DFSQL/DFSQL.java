@@ -9,7 +9,7 @@ import static java.lang.Integer.parseInt;
 /**
  * The main SQL class.  DFDatabase uses a custom built SQL wrapper to add a layer of security and overload safety
  */
-@SuppressWarnings({"unused", "WeakerAccess", "ResultOfMethodCallIgnored"})
+@SuppressWarnings({"unused", "WeakerAccess", "ResultOfMethodCallIgnored", "ConstantConditions", "resultUnused"})
 public class DFSQL
 {
 	private static String WhereStatementComparesNullString = "Where Statement is comparing a null statement.";

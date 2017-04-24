@@ -95,6 +95,36 @@ class DFDataDownloader
 						                     runnable.run(null, error);
 					                     });
 				           }
+				           else if (response.contains("You have an error in your SQL syntax"))
+				           {
+					           Map<String, String> errorInfo = new HashMap<>();
+					           errorInfo.put(kMethodName, calleeMethod);
+					           errorInfo.put(kExpandedDescription, "The SQL statement is malformed.  Response: " + response);
+					           errorInfo.put(kURL, website + "/" + readFile);
+					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
+					           DFError error = new DFError(5, "SQL Syntax Error", errorInfo);
+					           debugLog(error);
+					           queue.add(() ->
+					                     {
+						                     debugLog("Queue Executed");
+						                     runnable.run(null, error);
+					                     });
+				           }
+				           else if (response.contains("Unknown column"))
+				           {
+					           Map<String, String> errorInfo = new HashMap<>();
+					           errorInfo.put(kMethodName, calleeMethod);
+					           errorInfo.put(kExpandedDescription, "Encountered an invalid column name.  Response: " + response);
+					           errorInfo.put(kURL, website + "/" + readFile);
+					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
+					           DFError error = new DFError(6, "Unknown Column", errorInfo);
+					           debugLog(error);
+					           queue.add(() ->
+					                     {
+						                     debugLog("Queue Executed");
+						                     runnable.run(null, error);
+					                     });
+				           }
 				           else
 				           {
 					           Gson gsonConverter = new Gson();

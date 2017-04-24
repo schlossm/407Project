@@ -84,7 +84,7 @@ public class CourseView extends ALJPanel
 							URI mailURI;
 							try
 							{
-								mailURI = new URI("mailto:teacher@abc.com?subject=" + course.getCourseName().replace(" ", "%20") + "%20[[INSERT%20QUESTION%20HERE]]");
+								mailURI = new URI("mailto:" + course.getTeachers().get(0).getEmail() +"?subject=" + course.getCourseName().replace(" ", "%20") + "%20[[INSERT%20QUESTION%20HERE]]");
 							}
 							catch (URISyntaxException e1)
 							{
@@ -158,6 +158,16 @@ public class CourseView extends ALJPanel
 				if (!(activePanel instanceof FileList))
 				{
 					newPanel = new FileList(courseToView);
+				}
+				else { return; }
+				break;
+			}
+
+			case "Assignments":
+			{
+				if (!(activePanel instanceof AssignmentsList))
+				{
+					newPanel = new AssignmentsList(courseToView);
 				}
 				else { return; }
 				break;

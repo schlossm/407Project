@@ -65,7 +65,7 @@ class Home extends ALJPanel
 		addConstraint(new LayoutConstraint(currentPanel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
 		addConstraint(new LayoutConstraint(currentPanel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 
-		//loadAnnouncements();
+		loadAnnouncements();
 	}
 
 	private void loadAnnouncements()

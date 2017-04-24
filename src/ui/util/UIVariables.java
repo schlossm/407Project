@@ -172,4 +172,41 @@ public class UIVariables implements DFNotificationCenterDelegate
 			synchronize();
 		}
 	}
+
+	public static String delimitSQLDATETIME(String t)
+	{
+		String timestamp = t;
+		if (timestamp.contains("-"))    //We are working with SQL DATETIME
+		{
+			String[] components = timestamp.split("\\s+");
+			String date = components[0];
+			String time = components[1];
+
+			//Process Date
+			String[] dateComponents = date.split("-");
+			date = dateComponents[1] + "/" + dateComponents[2] + "/" + dateComponents[0].substring(2);
+
+			String[] timeComponents = time.split(":");
+			String amPM;
+			if (Integer.parseInt(timeComponents[0]) - 12 >= 0)
+			{
+				timeComponents[0] = String.valueOf(Integer.parseInt(timeComponents[0]) - 12);
+				amPM = "PM";
+			}
+			else if (Objects.equals(timeComponents[0], "00") || Objects.equals(timeComponents[0], "0"))
+			{
+				timeComponents[0] = "12";
+				amPM = "AM";
+			}
+			else
+			{
+				amPM = "AM";
+			}
+
+			time = timeComponents[0] + ":" + timeComponents[1] + " " + amPM;
+
+			timestamp = date + " " + time;
+		}
+		return timestamp;
+	}
 }

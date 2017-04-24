@@ -7,8 +7,7 @@ import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
-import objects.Assignment;
-import objects.Course;
+import objects.*;
 
 import java.util.ArrayList;
 
@@ -438,20 +437,72 @@ public class CourseQuery{
      */
     public void getAllInstructorsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid"}; //username
-        String tables[] = {"courseinstructormembership", "instructor"};
-        getAllStudentsInCourseReturn = true;
+
+        String selectedRows[] = {"users.userid", "email", "firstname", "lastname", "instructor.id", "roomno", "officehours"}; //username
+
+        String table1 = "courseinstructormembership";
+        String table2 = "instructor";
+        String table3 = "users";
+
+        Join[] joins = new Join[] {
+                new Join(table2, table1 + ".instructorid", table2 + ".id"),
+                new Join(table3, table3 + ".userid", table2 + ".userid") };
+
         try {
             dfsql.select(selectedRows, false, null, null)
-                    .from(tables[0])
-                    .join(DFSQLJoin.left, tables[1], tables[0] + ".instructorid", tables[1] + ".instructorid")
+                    .from(table1)
+                    .join(DFSQLJoin.left, joins)
                     .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                    System.out.println(response);
+                    System.out.println(error);
+                    if (error != null) {
+                        //Process the error and return appropriate new error to UI.
+                        JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                        runnable.run(null, error1);
+                        return;
+                    }
+                    JsonObject jsonObject;
+                    if (response instanceof JsonObject) {
+                        jsonObject = (JsonObject) response;
+                    } else {
+                        return;
+                    }
+                    ArrayList<Instructor> allCoursesForInstructor = new ArrayList<Instructor>();
+                    int instructorId;
+                    String userId, officeHours, roomNo, email, firstName, lastName;
+                    Instructor instructor = null;
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    try {
+                        for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                            userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
+                            email = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsString();
+                            firstName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
+                            lastName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
+                            instructorId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
+                            roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[5]).getAsString();
+                            officeHours = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[6]).getAsString();
 
-            });
-        } catch (DFSQLError dfsqlError) {
-            dfsqlError.printStackTrace();
-        }
+                            instructor = new Instructor();
+                            instructor.setRoomNo(roomNo);
+                            instructor.setOfficeHours(officeHours);
+                            instructor.setEmail(email);
+                            instructor.setFirstName(firstName);
+                            instructor.setLastName(lastName);
+                            instructor.setUserID(userId);
+                            instructor.setUserType(userType.TEACHER);
+                            instructor.setInstructorId(instructorId);
+                            allCoursesForInstructor.add(instructor);
+                        }
+                    }catch (NullPointerException e2){
+                        e2.printStackTrace();
+                        runnable.run(null, error1);
+                    }
+                    runnable.run(allCoursesForInstructor, null);
+                });
+            } catch (DFSQLError dfsqlError) {
+                dfsqlError.printStackTrace();
+            }
     }
 
     /**
@@ -473,6 +524,8 @@ public class CourseQuery{
                 }
                 if(response instanceof JsonObject) {
                     jsonObject = (JsonObject) response;
+                    int studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
+                    addStudentToCourseGiven(courseid, studentid, runnable);
                 } else {
                     return;
                 }
@@ -490,7 +543,26 @@ public class CourseQuery{
         try {
             dfsql.insert(table, values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null)  {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                    return;
+                }
+                if(response instanceof DFDataUploaderReturnStatus){
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        runnable.run(true, null);
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
 
+                }
+                else {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
             });
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -510,7 +582,17 @@ public class CourseQuery{
         try {
             dfsql.select(selectedRows, false, null, null).from("students").where(DFSQLEquivalence.equals, "userid", userid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
-
+                if(error != null) {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                    return;
+                }
+                if(response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                    int studentid = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsInt();
+                    removeStudentFromCourseGiven(courseid, studentid, runnable);
+                } else {
+                    return;
+                }
             });
         } catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -526,7 +608,26 @@ public class CourseQuery{
         try {
             dfsql.delete(table, where);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                if(error != null)  {
+                    JSONQueryError error1 = new JSONQueryError(0, "Internal Error", null);
+                    runnable.run(null, error1);
+                    return;
+                }
+                if(response instanceof DFDataUploaderReturnStatus){
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        runnable.run(true, null);
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
 
+                }
+                else {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
             });
         }catch (DFSQLError dfsqlError) {
             dfsqlError.printStackTrace();
@@ -540,163 +641,26 @@ public class CourseQuery{
      */
     public void getAllStudentsInCourse(int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"userid"};
-        String tables[] = {"coursestudentmembership", "students"};
-        getAllStudentsInCourseReturn = true;
+        String selectedRows[] = {"users.userid", "email", "firstname", "lastname", "students.id"}; //username
+        String table1 = "coursestudentmembership";
+        String table2 = "students";
+        String table3 = "users";
+
+        Join[] joins = new Join[] {
+                new Join(table2, table1 + ".studentid", table2 + ".id"),
+                new Join(table3, table3 + ".userid", table2 + ".userid") };
+
         try {
-            dfsql.select(selectedRows, false, null, null).from(tables).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
-            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
-
-            });
-        } catch (DFSQLError dfsqlError) {
-            dfsqlError.printStackTrace();
-        }
-    }
-
-    /**
-     * Returns all info of an assignment given the assignment id
-     * @param assignmentid
-     */
-    public void getAssignmentInfo(int assignmentid, QueryCallbackRunnable runnable) {
-        DFSQL dfsql = new DFSQL();
-        String[] selectedRows = {"assignmentid, name, courseid", "maxpoints", "type", "deadline"};
-        String table = "assignment";
-        getAssignmentInfoReturn = true;
-        try {
-            dfsql.select(selectedRows, false, null, null).from(table).where(DFSQLEquivalence.equals, "assignmentid", "" + assignmentid);
-            DFDatabase.defaultDatabase.execute(dfsql, new DFDatabaseCallbackRunnable() {
-                @Override
-                public void run(Object response, DFError error) {
-
-                }
-            });
-        } catch (DFSQLError e1) {
-            e1.printStackTrace();
-        }
-    }
-
-    public void addAssignment(int courseid, String name, String deadline, double maxPoints, String type, QueryCallbackRunnable runnable) {
-        DFSQL dfsql = new DFSQL();
-        String[] rows = {"name", "courseid", "maxpoints", "type", "deadline"};
-        String[] values = {name, courseid + "","" + maxPoints, type, deadline};
-        String table = "assignment";
-        try {
-            dfsql.insert(table, values, rows);
-            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
-            {
-                if (error != null)
-                {
-                    JSONQueryError error1;
-                    if (error.code == 2)
-                    {
-                        error1 = new JSONQueryError(1, "Duplicate ID", null);
-                    }
-                    else if (error.code == 3)
-                    {
-                        error1 = new JSONQueryError(2, "Duplicate Unique Entry", null);
-                    }
-                    else
-                    {
-                        error1 = new JSONQueryError(0, "Internal Error", null);
-                    }
-                    runnable.run(null, error1);
-                    return;
-                }
-
-                if (response instanceof DFDataUploaderReturnStatus)
-                {
-                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
-                    if (returnStatus == DFDataUploaderReturnStatus.success)
-                    {
-                        runnable.run(true, null);
-                    }
-                    else
-                    {
-                        runnable.run(false, null);
-                    }
-                }
-                else
-                {
-                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
-                }
-            });
-        } catch (DFSQLError e1)
-        {
-            e1.printStackTrace();
-        }
-    }
-
-    /**
-     * remove an assignment from a course
-     * @param assignmentid remove assignment given assignment
-     */
-    public void removeAssignment(int assignmentid, QueryCallbackRunnable runnable) {
-        DFSQL dfsql = new DFSQL();
-        String table = "assignment";
-        try {
-            dfsql.delete(table, new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("assignmentid", "" + assignmentid)));
-            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
-            {
-                if (error != null)
-                {
-                    JSONQueryError error1;
-                    if (error.code == 2)
-                    {
-                        error1 = new JSONQueryError(1, "Duplicate ID", null);
-                    }
-                    else if (error.code == 3)
-                    {
-                        error1 = new JSONQueryError(2, "Duplicate Unique Entry", null);
-                    }
-                    else
-                    {
-                        error1 = new JSONQueryError(0, "Internal Error", null);
-                    }
-                    runnable.run(null, error1);
-                    return;
-                }
-
-                if (response instanceof DFDataUploaderReturnStatus)
-                {
-                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus)response;
-                    if (returnStatus == DFDataUploaderReturnStatus.success)
-                    {
-                        runnable.run(true, null);
-                    }
-                    else
-                    {
-                        runnable.run(false, null);
-                    }
-                }
-                else
-                {
-                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
-                }
-            });
-        } catch (DFSQLError e1)
-        {
-            e1.printStackTrace();
-        }
-    }
-
-    /**
-     * Get all the assignments of a course
-     * Return a list of all ids of an assignment
-     * @param courseid courseid such as 1111 of the course
-     */
-    public void getAllAssignmentsInCourse(int courseid, QueryCallbackRunnable runnable) {
-        DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"assignmentid", "name"};
-        String table = "assignment";
-        getAllAssignmentsReturn = true;
-        try {
-            dfsql.select(selectedRows, false, null, null).from(table).where(DFSQLEquivalence.equals, "courseid", "" + courseid);
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, joins)
+                    .where(DFSQLEquivalence.equals, "courseid", "" + courseid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
                 System.out.println(response);
                 System.out.println(error);
-                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 if (error != null) {
                     //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                     runnable.run(null, error1);
                     return;
                 }
@@ -706,27 +670,38 @@ public class CourseQuery{
                 } else {
                     return;
                 }
-                ArrayList<Assignment> allAssignmentsInCourse = new ArrayList<Assignment>();
-                String name = null;
-                int assignmentId = 0;
-                Assignment assignment;
+                ArrayList<Student> allStudentsForCourse = new ArrayList<Student>();
+                int studentId;
+                String userId, officeHours, roomNo, email, firstName, lastName;
+                Student student = null;
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
-                        assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsInt();
-                        name = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+                        userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
+                        email = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[1]).getAsString();
+                        firstName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[2]).getAsString();
+                        lastName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get(selectedRows[3]).getAsString();
+                        studentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
 
-
-                        assignment = new Assignment();
-
-                        assignment.setAssignmentID(assignmentId);
-                        assignment.setTitle(name);
-                        allAssignmentsInCourse.add(assignment);
+                        student = new Student();
+                        student.setEmail(email);
+                        student.setFirstName(firstName);
+                        student.setLastName(lastName);
+                        student.setUserID(userId);
+                        student.setUserType(userType.STUDENT);
+                        student.setStudentId(studentId);
+                        allStudentsForCourse.add(student);
                     }
-                }catch (NullPointerException e2){runnable.run(null, error1);}
-                runnable.run(allAssignmentsInCourse, null);
+                }catch (NullPointerException e2){
+                    e2.printStackTrace();
+                    runnable.run(null, error1);
+                }
+                runnable.run(allStudentsForCourse, null);
             });
-        } catch (DFSQLError e1) {
-            e1.printStackTrace();
+        } catch (DFSQLError dfsqlError) {
+            dfsqlError.printStackTrace();
         }
     }
+
+
 }

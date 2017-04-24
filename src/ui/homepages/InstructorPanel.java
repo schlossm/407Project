@@ -1,9 +1,11 @@
 package ui.homepages;
 
+import json.CourseQuery;
 import json.InstructorQuery;
 import objects.Course;
+import objects.User;
 import ui.Window;
-import ui.admin.ClassCell;
+import ui.common.CourseListClassCell;
 import ui.util.ALJTable.*;
 import ui.util.*;
 import uikit.DFNotificationCenter;
@@ -72,6 +74,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 		InstructorQuery instructorQuery = new InstructorQuery();
 		instructorQuery.getCourses(UIVariables.current.currentUser.getUserID(), (returnedData, error) ->
 		{
+			System.out.println("Hello");
 			if (error != null)
 			{
 				Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
@@ -83,6 +86,32 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 			{
 				courses = (ArrayList<Course>) returnedData;
 				UIVariables.current.globalUserData.put("allCourses", courses);
+				for (Course course: courses)
+				{
+					new CourseQuery().getAllStudentsInCourse(course.getCourseID(), (returnedData1, error1) ->
+					{
+						System.out.println(returnedData1);
+						if (error1 != null)
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
+							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.show(Window.current.mainScreen);
+							return;
+						}
+						if (returnedData1 instanceof ArrayList)
+						{
+							course.setStudents((ArrayList<User>) returnedData1);
+							courseList.clearAndReload();
+						}
+						else
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
+							errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+							errorAlert.show(Window.current.mainScreen);
+						}
+					});
+				}
+				courseList.clearAndReload();
 			}
 			else
 			{
@@ -137,7 +166,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 		}
 		else if (table == courseList)
 		{
-			ClassCell cell = new ClassCell();
+			CourseListClassCell cell = new CourseListClassCell();
 			cell.setCourse(courses.get(index.item));
 			return cell;
 		}

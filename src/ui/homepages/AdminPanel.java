@@ -1,8 +1,5 @@
 package ui.homepages;
 
-import ui.util.UIStrings;
-import uikit.DFNotificationCenter;
-import uikit.DFNotificationCenterDelegate;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
@@ -10,16 +7,13 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJPanel;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.Objects;
 
-public class AdminPanel extends ALJPanel implements DFNotificationCenterDelegate
+public class AdminPanel extends ALJPanel
 {
 	private final JLabel numStudentsLabel;
 	private final JLabel numTeachersLabel;
 	private final JLabel numClassesLabel;
-	private final JScrollPane scrollPane;
 
 	public AdminPanel()
 	{
@@ -55,36 +49,7 @@ public class AdminPanel extends ALJPanel implements DFNotificationCenterDelegate
 		addConstraint(new LayoutConstraint(numClassesLabel, LayoutAttribute.top, LayoutRelation.equal, numTeachersLabel, LayoutAttribute.bottom, 1.0, 40));
 		addConstraint(new LayoutConstraint(numClassesLabel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, -1));
 
-		DFNotificationCenter.defaultCenter.register(this, UIStrings.oneHourHasPassedNotification);
-
-		scrollPane = new JScrollPane();
-		initializeAnnouncements();
-
 		loadNumbers();
-	}
-
-	private void initializeAnnouncements()
-	{
-		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-		ScrollPaneLayout layout = (ScrollPaneLayout) (scrollPane.getLayout());
-		layout.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		layout.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
-		scrollPane.getVerticalScrollBar().setVisible(false);
-		scrollPane.setWheelScrollingEnabled(true);
-		add(scrollPane);
-
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.centerX, 1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
-		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
-
-		loadAnnouncements();
-	}
-
-	private void loadAnnouncements()
-	{
-		//FIXME: Actually load announcements
 	}
 
 	private void loadNumbers()
@@ -93,15 +58,5 @@ public class AdminPanel extends ALJPanel implements DFNotificationCenterDelegate
 		numStudentsLabel.setText("0 Students");
 		numTeachersLabel.setText("0 Teachers");
 		numClassesLabel.setText("0 Classes");
-	}
-
-	@Override
-	public void performActionFor(String notificationName, Object userData)
-	{
-		if (Objects.equals(notificationName, UIStrings.oneHourHasPassedNotification))
-		{
-			loadNumbers();
-			loadAnnouncements();
-		}
 	}
 }

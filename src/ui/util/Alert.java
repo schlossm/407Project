@@ -397,6 +397,24 @@ public class Alert implements KeyListener, MLMDelegate
 				return null;
 			}
 
+			private void checkEmpty(int i)
+			{
+				if (Objects.equals(textFields.get(i).textField.getText(), ""))
+				{
+					if (textFields.get(i).textField instanceof JPasswordField)
+					{
+						((JPasswordField) textFields.get(i).textField).setEchoChar((char) 0);
+						textFields.get(i).textField.setText(((AlertPasswordField) textFields.get(i).textField).placeholder);
+					}
+					else
+					{
+						textFields.get(i).textField.setText(((AlertTextField) textFields.get(i).textField).placeholder);
+					}
+
+					textFields.get(i).textField.setForeground(Color.lightGray);
+				}
+			}
+
 			@Override
 			public Component getComponentBefore(Container aContainer, Component aComponent)
 			{
@@ -413,36 +431,10 @@ public class Alert implements KeyListener, MLMDelegate
 						{
 							if (i == 0)
 							{
-								if (Objects.equals(textFields.get(i).textField.getText(), ""))
-								{
-									if (textFields.get(i).textField instanceof JPasswordField)
-									{
-										((JPasswordField) textFields.get(i).textField).setEchoChar((char) 0);
-										textFields.get(i).textField.setText(((AlertPasswordField) textFields.get(i).textField).placeholder);
-									}
-									else
-									{
-										textFields.get(i).textField.setText(((AlertTextField) textFields.get(i).textField).placeholder);
-									}
-
-									textFields.get(i).textField.setForeground(Color.lightGray);
-								}
+								checkEmpty(i);
 								return buttons.get(buttons.size() - 1);
 							}
-							if (Objects.equals(textFields.get(i).textField.getText(), ""))
-							{
-								if (textFields.get(i).textField instanceof JPasswordField)
-								{
-									((JPasswordField) textFields.get(i).textField).setEchoChar((char) 0);
-									textFields.get(i).textField.setText(((AlertPasswordField) textFields.get(i).textField).placeholder);
-								}
-								else
-								{
-									textFields.get(i).textField.setText(((AlertTextField) textFields.get(i).textField).placeholder);
-								}
-
-								textFields.get(i).textField.setForeground(Color.lightGray);
-							}
+							checkEmpty(i);
 							shouldReturnPrevious = true;
 							i -= 2;
 
