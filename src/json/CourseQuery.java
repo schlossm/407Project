@@ -64,7 +64,7 @@ public class CourseQuery{
 
     public void getAllCourses(int limit, int offset, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String[] selectRows = {"id", "courseid", "coursename", "capacity", "description", "roomno", "meetingtime", "startdate", "enddate"};
+        String[] selectRows = {"id", "courseid", "coursename", "capacity", "description", "roomno", "meetingtime", "startdate", "enddate", "maxStorage"};
         String table = "courses";
         try {
             dfsql.select(selectRows, false, null, null)
@@ -87,7 +87,7 @@ public class CourseQuery{
                 }
                 ArrayList<Course> allCourses = new ArrayList<Course>();
                 String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
-                int courseId = 0, capacity = 0;
+                int courseId = 0, capacity = 0, maxStorage = 0;
                 Course course;
                 try {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
@@ -100,7 +100,7 @@ public class CourseQuery{
                         capacity = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("capacity").getAsInt();
                         endDate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("startdate").getAsString();
                         startDate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("enddate").getAsString();
-
+                        maxStorage = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("maxStorage").getAsInt();
                         course = new Course();
 
                         course.setCourseID(courseId);
@@ -112,6 +112,7 @@ public class CourseQuery{
                         course.setMeetingTime(meetingTime);
                         course.setRoomNo(roomNo);
                         course.setTitle(courseTitle);
+                        course.setMaxStorage(maxStorage);
                         allCourses.add(course);
                     }
                 }catch (NullPointerException e2){runnable.run(null, error1);}
@@ -127,7 +128,8 @@ public class CourseQuery{
      */
     public void getCourse(String courseID, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String[] selectedRows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate", "capacity"};
+
+        String[] selectedRows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate", "capacity", "maxStorage"};
         try {
             dfsql.select(selectedRows, false, null, null).from("courses").where(DFSQLEquivalence.equals, "courseID", courseID);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
@@ -146,7 +148,7 @@ public class CourseQuery{
                     return;
                 }
                 String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
-                int courseId = 0, capacity = 0;
+                int courseId = 0, capacity = 0, maxStorage = 0;
                 Course course = null;
                 try {
                         int i = 0;
@@ -159,6 +161,7 @@ public class CourseQuery{
                         capacity = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("capacity").getAsInt();
                         endDate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("startdate").getAsString();
                         startDate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("enddate").getAsString();
+                        maxStorage = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("maxStorage").getAsInt();
 
                         course = new Course();
 
@@ -171,6 +174,7 @@ public class CourseQuery{
                         course.setMeetingTime(meetingTime);
                         course.setRoomNo(roomNo);
                         course.setTitle(courseTitle);
+                        course.setMaxStorage(maxStorage);
                 }catch (NullPointerException e2){runnable.run(null, error1);}
                 runnable.run(course, null);
             });
@@ -191,10 +195,10 @@ public class CourseQuery{
      * @param enddate end date of the course in the format of YYYY/MM/DD
      */
 
-    public void addCourse(int id, String courseID, String courseName, String description, String roomno, String meetingtime, String startdate, String enddate, int capacity, QueryCallbackRunnable runnable) {
+    public void addCourse(int id, String courseID, String courseName, String description, String roomno, String meetingtime, String startdate, String enddate, int capacity, int maxStorage, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String[] rows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate", "capacity"};
-        String[] values = {"" + id, courseID, courseName, description, roomno, meetingtime, startdate, enddate, "" + capacity};
+        String[] rows = {"id", "courseID", "coursename", "description", "roomno", "meetingtime", "startdate", "enddate", "capacity", "maxStorage"};
+        String[] values = {"" + id, courseID, courseName, description, roomno, meetingtime, startdate, enddate, "" + capacity, maxStorage + ""};
         try {
             dfsql.insert("courses", values, rows);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->

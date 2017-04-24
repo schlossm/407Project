@@ -135,6 +135,8 @@ public class StudentQuery {
         }
     }
 
+
+
     /**
      * get the total sum of the grades and the percentage
      * returns two fields
