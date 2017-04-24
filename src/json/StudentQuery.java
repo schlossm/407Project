@@ -22,7 +22,7 @@ public class StudentQuery {
      */
     public void getCourses(String userid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.meetingtime", "courses.roomno"};
+        String selectedRows[] = {"courses.courseid", "courses.id", "courses.coursename", "courses.meetingtime", "courses.roomno", "courses.maxStorage"};
         String table1 = "coursestudentmembership";
         String table2 = "students";
         String table3 = "courses";
@@ -51,7 +51,7 @@ public class StudentQuery {
                     return;
                 }
                 ArrayList<Course> allCourses = new ArrayList<Course>();
-                int crn;
+                int crn, maxStorage;
                 String title, courseName, meetingTime, roomNo;
                 Course course = null;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
@@ -62,13 +62,14 @@ public class StudentQuery {
                         crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
                         meetingTime = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("meetingtime").getAsString();
                         roomNo = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("roomno").getAsString();
-
+                        maxStorage = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("maxStorage").getAsInt();
                         course = new Course();
                         course.setTitle(title);
                         course.setMeetingTime(meetingTime);
                         course.setRoomNo(roomNo);
                         course.setCourseID(crn);
                         course.setCourseName(courseName);
+                        course.setMaxStorage(maxStorage);
                         allCourses.add(course);
                     }
                 }catch (NullPointerException e2){
