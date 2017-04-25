@@ -192,18 +192,23 @@ public class StudentQuery {
         }
     }
 
-    public void getAllGradeInCourse(String userid, QueryCallbackRunnable runnable) {
+    public void getAllGradeInCourse(String userid, int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String selectedRows[] = {"grade", "assignmentid", "userid"}; //username
         String table1 = "grades";
         String table2 = "students";
-        String attribute = "userid";
-        String value = "" + userid;
+        String table3 = "assignment";
+        String[] attributes = {"students.userid", "assignment."};
+        String[] values = {userid, courseid + ""};
+        Join[] joins = new Join[] {
+                new Join(table2, table1 + ".studentID", table2 + ".id"),
+                new Join(table3, table3 + ".assignmentid", table1 + ".assignmentid") };
+
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table1)
-                    .join(DFSQLJoin.left, table2, "grade.studentid", "students.id")
-                    .where(DFSQLEquivalence.equals, attribute, value);
+                    .join(DFSQLJoin.left, joins)
+                    .where(DFSQLConjunction.and, DFSQLEquivalence.equals, attributes, values);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
                 System.out.println(response);
                 System.out.println(error);
