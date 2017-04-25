@@ -369,6 +369,7 @@ public class DFSQL
 		else
 		{
 			String[] components = attribute.split(Pattern.quote("."));
+			if (components.length != 2) { throw DFSQLError.malformedColumnNameWithPeriod; }
 			String table = components[0];
 			String row = components[1];
 

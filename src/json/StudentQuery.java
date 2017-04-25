@@ -200,7 +200,7 @@ public class StudentQuery {
 
     public void getAllGradeInCourse(String userid, int courseid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String selectedRows[] = {"grade", "assignmentid", "userid"}; //username
+        String selectedRows[] = {"grade", "assignment.assignmentid", "userid"}; //username
         String table1 = "grades";
         String table2 = "students";
         String table3 = "assignment";
