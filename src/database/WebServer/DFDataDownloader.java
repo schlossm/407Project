@@ -125,6 +125,21 @@ class DFDataDownloader
 						                     runnable.run(null, error);
 					                     });
 				           }
+				           else if (response.contains("ambiguous"))
+				           {
+					           Map<String, String> errorInfo = new HashMap<>();
+					           errorInfo.put(kMethodName, calleeMethod);
+					           errorInfo.put(kExpandedDescription, "Encountered an Ambiguous column.  Response: " + response);
+					           errorInfo.put(kURL, website + "/" + readFile);
+					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
+					           DFError error = new DFError(7, "Ambiguous column", errorInfo);
+					           debugLog(error);
+					           queue.add(() ->
+					                     {
+						                     debugLog("Queue Executed");
+						                     runnable.run(null, error);
+					                     });
+				           }
 				           else
 				           {
 					           Gson gsonConverter = new Gson();

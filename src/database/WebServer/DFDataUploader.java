@@ -112,6 +112,11 @@ class DFDataUploader
 						           errorInfo.put(kExpandedDescription, "Encountered an invalid column name.  Response: " + response);
 						           error = new DFError(6, "Unknown Column", errorInfo);
 					           }
+					           else if (response.contains("ambiguous"))
+					           {
+						           errorInfo.put(kExpandedDescription, "Encountered an Ambiguous column.  Response: " + response);
+						           error = new DFError(7, "Ambiguous column", errorInfo);
+					           }
 					           if (error != null) { debugLog(error); }
 
 					           DFError finalError = error;
