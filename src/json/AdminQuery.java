@@ -14,9 +14,9 @@ import java.util.ArrayList;
  */
 public class AdminQuery {
     private JsonObject jsonObject;
-    public void getAllCourses(QueryCallbackRunnable runnable) {
+    public void getAllCoursesCount(QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
-        String[] selectRows = {"COUNT(coursename)"};
+        String[] selectRows = {"COUNT(coursename) AS courseCount"};
         String table = "courses";
         try {
             dfsql.select(selectRows, false, null, null).from(table).limit(1);
@@ -35,15 +35,80 @@ public class AdminQuery {
                     return;
                 }
                 int allCourseCount= 0;
-                String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
-                int courseId = 0, capacity = 0;
-                Course course;
                 try {
-                    allCourseCount = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("90UP").getAsInt();
+                    allCourseCount = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("courseCount").getAsInt();
                 } catch (NullPointerException e2) {
                     runnable.run(null, error1);
                 }
                 runnable.run(allCourseCount, null);
+            });
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public void getAllStudentsCount(QueryCallbackRunnable runnable) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectRows = {"COUNT(id) AS studentsCount"};
+        String table = "students";
+        try {
+            dfsql.select(selectRows, false, null, null).from(table).limit(1);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    runnable.run(null, error1);
+                    return;
+                }
+                int allStudentsCount= 0;
+
+                try {
+                    allStudentsCount = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("studentsCount").getAsInt();
+                } catch (NullPointerException e2) {
+                    runnable.run(null, error1);
+                }
+                runnable.run(allStudentsCount, null);
+            });
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public void getAllInstructorsCount(QueryCallbackRunnable runnable) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectRows = {"COUNT(id) AS instructorCount"};
+        String table = "instructor";
+        try {
+            dfsql.select(selectRows, false, null, null).from(table).limit(1);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    runnable.run(null, error1);
+                    return;
+                }
+                int allInstructorCount= 0;
+
+                try {
+                    allInstructorCount = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("instructorCount").getAsInt();
+                } catch (NullPointerException e2) {
+                    runnable.run(null, error1);
+                }
+                runnable.run(allInstructorCount, null);
             });
         } catch (DFSQLError e1) {
             e1.printStackTrace();

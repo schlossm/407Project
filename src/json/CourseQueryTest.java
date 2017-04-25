@@ -20,7 +20,7 @@ public class CourseQueryTest
     {
         DFDatabase.defaultDatabase.enableDebug();
         CourseQueryTest test = new CourseQueryTest();
-        test.testGetAllGrades();
+        test.testCount();
 
         while (true)
         {
@@ -66,6 +66,16 @@ public class CourseQueryTest
     {
         CourseQuery courseQuery = new CourseQuery();
         courseQuery.getAllInstructorsInCourse(123456, (returnedData, error) ->
+        {
+            System.out.println("Returned Data: " + returnedData);
+            System.out.println("Error: " + error);
+        });
+    }
+
+    @Test
+    public void testCount(){
+        AdminQuery adminQuery = new AdminQuery();
+        adminQuery.getAllStudentsCount((returnedData, error) ->
         {
             System.out.println("Returned Data: " + returnedData);
             System.out.println("Error: " + error);
