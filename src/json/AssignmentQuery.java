@@ -451,6 +451,7 @@ public class AssignmentQuery  {
                 }
                 ArrayList<Assignment> allQuizAssignmentsInCourse = new ArrayList<Assignment>();
                 int assignmentId, crn;
+                double maxPoints;
                 String name, type, deadline;
                 Assignment assignment = null;
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
@@ -461,12 +462,14 @@ public class AssignmentQuery  {
                         deadline = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("deadline").getAsString();
                         assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentId").getAsInt();
                         crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsInt();
+                        maxPoints = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("maxpoints").getAsDouble();
 
                         assignment.setTitle(name);
                         assignment.setAssignmentID(assignmentId);
                         assignment.setCourseID(crn);
                         assignment.setType(type);
                         assignment.setDueDate(deadline);
+                        assignment.setMaxPoints(maxPoints);
                         allQuizAssignmentsInCourse.add(assignment);
                     }
                 }catch (NullPointerException e2){
