@@ -89,6 +89,7 @@ public class CourseQueryTest
         {
             System.out.println("Returned Data: " + returnedData);
             System.out.println("Error: " + error);
+            System.exit(0);
         });
     }
 }
