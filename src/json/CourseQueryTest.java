@@ -85,7 +85,7 @@ public class CourseQueryTest
     @Test
     public  void testListOfStudentGrades(){
         StudentQuery studentQuery = new StudentQuery();
-        studentQuery.getAllGradeInCourse("mshlos", 123456, (returnedData, error) ->
+        studentQuery.getAllGradeInCourse("mschlos", 123456, (returnedData, error) ->
         {
             System.out.println("Returned Data: " + returnedData);
             System.out.println("Error: " + error);
