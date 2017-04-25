@@ -36,8 +36,6 @@ public class StudentQuery {
                     .join(DFSQLJoin.left, joins)
                     .where(DFSQLEquivalence.equals, table2 + ".userid",  userid);
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
-                System.out.println(response);
-                System.out.println(error);
                 if (error != null) {
                     //Process the error and return appropriate new error to UI.
                     JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
@@ -51,6 +49,8 @@ public class StudentQuery {
                 if (response instanceof JsonObject) {
                     jsonObject = (JsonObject) response;
                 } else {
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
                     return;
                 }
                 ArrayList<Course> allCourses = new ArrayList<Course>();

@@ -144,11 +144,13 @@ class DFDataDownloader
 				           {
 					           Gson gsonConverter = new Gson();
 					           JsonObject object = gsonConverter.fromJson(response, JsonObject.class);
+					           debugLog("Inserting Into Queue: " + object + ",: " + runnable);
 					           queue.add(() ->
 					                     {
 						                     debugLog("Queue Executed");
 						                     runnable.run(object, null);
 					                     });
+					           debugLog("Queue Size: " + queue.size());
 				           }
 			           }
 			           catch (Exception e)

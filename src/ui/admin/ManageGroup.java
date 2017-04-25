@@ -20,10 +20,13 @@ import uikit.DFNotificationCenterDelegate;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static database.DFDatabase.queue;
 
 enum Process
 {
@@ -646,13 +649,13 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	private void expandModifyAlert(Alert modifyCourses, User user)
 	{
 		modifyCourses.addTextField("CRN", "crn", false);
-		modifyCourses.addButton("Add Course", ButtonType.plain, e -> {
+		modifyCourses.addButton("Add Course", ButtonType.plain, (ActionEvent e) -> {
 			int crn = Integer.valueOf(modifyCourses.textFieldForIdentifier("crn").getText());
 			new CourseQuery().addStudentToCourse(crn, user.getUserID(), (returnedData1, error1) -> {
 				if (error1 != null)
 				{
 					Alert alert1 = new Alert("Error", "ABC could not add the student to the course.  Please try again.");
-					alert1.addButton("OK", ButtonType.defaultType, null);
+					alert1.addButton("OK", ButtonType.defaultType, e1 -> showCourseModificationListFor(user));
 					alert1.show(Window.current.mainScreen);
 					return;
 				}
@@ -661,19 +664,19 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 					boolean bool = (Boolean)returnedData1;
 					if (bool)
 					{
-						showCourseModificationListFor(user);
+						queue.add(() -> showCourseModificationListFor(user));
 					}
 					else
 					{
 						Alert alert1 = new Alert("Error", "ABC could not add the student to the course.  Please try again.");
-						alert1.addButton("OK", ButtonType.defaultType, null);
+						alert1.addButton("OK", ButtonType.defaultType, e1 -> showCourseModificationListFor(user));
 						alert1.show(Window.current.mainScreen);
 					}
 				}
 				else
 				{
 					Alert alert1 = new Alert("Error", "ABC could not add the student to the course.  Please try again.");
-					alert1.addButton("OK", ButtonType.defaultType, null);
+					alert1.addButton("OK", ButtonType.defaultType, e1 -> showCourseModificationListFor(user));
 					alert1.show(Window.current.mainScreen);
 				}
 			});

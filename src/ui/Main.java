@@ -19,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static database.DFDatabase.debugLog;
 import static database.DFDatabase.queue;
 
 //Loader
@@ -144,9 +145,9 @@ class Main
 		{
 			try
 			{
-				if (queue.size() != 0) { queue.take().run(); }
+				if (queue.size() != 0) { debugLog("Queue Size has changed!"); queue.take().run(); }
 			}
-			catch (InterruptedException e)
+			catch (Exception e)
 			{
 				System.err.print("The application queue has encountered an error");
 				e.printStackTrace();
