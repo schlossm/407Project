@@ -192,4 +192,52 @@ public class StudentQuery {
         }
     }
 
+    public void getAllGradeInCourse(String userid, QueryCallbackRunnable runnable) {
+        DFSQL dfsql = new DFSQL();
+        String selectedRows[] = {"grade", "assignmentid", "userid"}; //username
+        String table1 = "grades";
+        String table2 = "students";
+        String attribute = "userid";
+        String value = "" + userid;
+        try {
+            dfsql.select(selectedRows, false, null, null)
+                    .from(table1)
+                    .join(DFSQLJoin.left, table2, "grade.studentid", "students.id")
+                    .where(DFSQLEquivalence.equals, attribute, value);
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+                System.out.println(response);
+                System.out.println(error);
+                if (error != null) {
+                    //Process the error and return appropriate new error to UI.
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+                JsonObject jsonObject;
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                if (response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                } else {
+                    return;
+                }
+                int points = 0;
+                int assignmentId = 0;
+                String userId = "";
+                try {
+                    points = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("grade").getAsInt();
+                    assignmentId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("assignmentid").getAsInt();
+                    userId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
+                }catch (NullPointerException e2){
+                    runnable.run(null, error1);
+                }
+                Grade grade = new Grade(userId, assignmentId, String.valueOf(points));
+            /* Wait for Alex to implement the rest of the fields */
+                runnable.run(grade, null);
+                System.out.println("getUser posting user to returned");
+            });
+        } catch (DFSQLError dfsqlError) {
+            dfsqlError.printStackTrace();
+        }
+    }
+
 }

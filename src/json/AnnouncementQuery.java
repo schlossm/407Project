@@ -210,6 +210,7 @@ public class AnnouncementQuery
 		}
 	}
 
+
 	private void returnHandler()
 	{
 		if (getAllAnnouncementInCourseReturn)
