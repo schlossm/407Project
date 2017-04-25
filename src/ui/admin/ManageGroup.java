@@ -2,6 +2,7 @@ package ui.admin;
 
 import json.CourseQuery;
 import json.QueryCallbackRunnable;
+import json.StudentQuery;
 import json.UserQuery;
 import json.util.JSONQueryError;
 import objects.Course;
@@ -93,7 +94,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		{
 			ArrayList<Object> students = (ArrayList<Object>) returnedData;
 			tableData.put(groupToManage + "s", students);
-			table.reloadData();
+			table.clearAndReload();
+			updateSavedData();
 		}
 		else
 		{
@@ -130,7 +132,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 
 	private void showGenericError()
 	{
-		Alert alert1 = new Alert("Error", "ABC could add the " + groupToManage + ".  Please try again.");
+		Alert alert1 = new Alert("Error", "ABC could not add the " + groupToManage + ".  Please try again.");
 		alert1.addButton("OK", ButtonType.defaultType, null);
 		alert1.show(Window.current.mainScreen);
 	}
@@ -261,13 +263,13 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 								courseToAdd.setTitle(courseTitle);
 								courseToAdd.setDescription(description);
 								courseToAdd.setMeetingTime(meetingTimes);
-								courseToAdd.setMaxStorage(10000000);
+								courseToAdd.setMaxStorage(500*1024*1024);
 								courseToAdd.setStartDate(startDate);
 								courseToAdd.setEndDate(endDate);
 								courseToAdd.setRoomNo(roomNum);
 								addNewCourseToTable(courseToAdd);
 								updateSavedData();
-								table.reloadData();
+								table.clearAndReload();
 							}
 							else
 							{
@@ -477,15 +479,10 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 			{
 				newCell.titleLabel.setText((String) (tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)));
 			}
-			else if (groupToManage == Group.teachers)
+			else if (groupToManage == Group.teachers || groupToManage == Group.students)
 			{
-				Instructor instructor = (Instructor) tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item);
-				newCell.titleLabel.setText(instructor.getFirstName() + " " + instructor.getLastName());
-			}
-			else if (groupToManage == Group.students)
-			{
-				User student = (User) tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item);
-				newCell.titleLabel.setText(student.getFirstName() + " " + student.getLastName());
+				User user = (User) tableData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item);
+				newCell.titleLabel.setText(user.getFirstName() + " " + user.getLastName());
 			}
 			return newCell;
 		}
@@ -521,7 +518,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				}
 				else
 				{
-					title = ((User) tableData.get(groupToManage + "s").get(forRowAt.item)).getFirstName() + " " + ((Instructor) tableData.get(groupToManage + "s").get(forRowAt.item)).getLastName();
+					title = ((User) tableData.get(groupToManage + "s").get(forRowAt.item)).getFirstName() + " " + ((User) tableData.get(groupToManage + "s").get(forRowAt.item)).getLastName();
 				}
 
 				Alert more = new Alert(title, "");
@@ -541,13 +538,12 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 								boolean bool = (Boolean) returnedData;
 								if (bool)
 								{
-									System.out.println(tableData.get(titleForHeaderInSectionInTable(table, 1)).get(forRowAt.item));
 									tableData.get(titleForHeaderInSectionInTable(table, 1)).remove(forRowAt.item);
 									if (tableData.get(titleForHeaderInSectionInTable(table, 1)).size() == 0)
 									{
 										tableData.remove(titleForHeaderInSectionInTable(table, 1));
 									}
-									table.reloadData();
+									table.clearAndReload();
 								}
 								else
 								{
@@ -587,8 +583,13 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				});
 				if (groupToManage != Group.courses)
 				{
-					more.addButton("Modify User Information", ButtonType.plain, null);
-					more.addButton("Modify Course(s)", ButtonType.plain, null);
+					more.addButton("Modify User Information", ButtonType.plain,  e -> {
+
+					});
+					more.addButton("Modify Course(s)", ButtonType.plain,  e -> {
+						User user = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
+						showCourseModificationListFor(user);
+					});
 				}
 				more.addButton("Cancel", ButtonType.cancel, null);
 				more.show(Window.current.mainScreen);
@@ -597,6 +598,121 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 			default:
 				break;
 		}
+	}
+
+	private void showCourseModificationListFor(User user)
+	{
+		Alert modifyCourses = new Alert("Courses for " + user.getFirstName() + " " + user.getLastName(), "Loading Current Courses...");
+		if (user.getUserType() == userType.STUDENT)
+		{
+			StudentQuery query = new StudentQuery();
+			query.getCourses(user.getUserID(), (returnedData, error) -> {
+				if (error != null)
+				{
+					if (error.code == 3)
+					{
+						modifyCourses.setMessage("No Courses Yet!");
+						expandModifyAlert(modifyCourses, user);
+						return;
+					}
+					Alert alert1 = new Alert("Error", "ABC could not load the courses.  Please try again.");
+					alert1.addButton("OK", ButtonType.defaultType, null);
+					alert1.show(Window.current.mainScreen);
+
+					return;
+				}
+				if (returnedData instanceof ArrayList)
+				{
+					ArrayList<Course> courses = (ArrayList<Course>) returnedData;
+					StringBuilder stringBuilder = new StringBuilder();
+					for (Course course : courses)
+					{
+						stringBuilder.append("<b>").append(course.getTitle()).append(":</b> ").append(course.getCourseID()).append("\n");
+					}
+					modifyCourses.setMessage(stringBuilder.toString());
+					expandModifyAlert(modifyCourses, user);
+				}
+				else
+				{
+					Alert alert1 = new Alert("Error", "ABC could not load the courses.  Please try again.");
+					alert1.addButton("OK", ButtonType.defaultType, null);
+					alert1.show(Window.current.mainScreen);
+				}
+			});
+		}
+		modifyCourses.show(Window.current.mainScreen);
+	}
+
+	private void expandModifyAlert(Alert modifyCourses, User user)
+	{
+		modifyCourses.addTextField("CRN", "crn", false);
+		modifyCourses.addButton("Add Course", ButtonType.plain, e -> {
+			int crn = Integer.valueOf(modifyCourses.textFieldForIdentifier("crn").getText());
+			new CourseQuery().addStudentToCourse(crn, user.getUserID(), (returnedData1, error1) -> {
+				if (error1 != null)
+				{
+					Alert alert1 = new Alert("Error", "ABC could not add the student to the course.  Please try again.");
+					alert1.addButton("OK", ButtonType.defaultType, null);
+					alert1.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData1 instanceof Boolean)
+				{
+					boolean bool = (Boolean)returnedData1;
+					if (bool)
+					{
+						showCourseModificationListFor(user);
+					}
+					else
+					{
+						Alert alert1 = new Alert("Error", "ABC could not add the student to the course.  Please try again.");
+						alert1.addButton("OK", ButtonType.defaultType, null);
+						alert1.show(Window.current.mainScreen);
+					}
+				}
+				else
+				{
+					Alert alert1 = new Alert("Error", "ABC could not add the student to the course.  Please try again.");
+					alert1.addButton("OK", ButtonType.defaultType, null);
+					alert1.show(Window.current.mainScreen);
+				}
+			});
+		});
+		modifyCourses.addButton("Remove Course", ButtonType.plain, e -> {
+			int crn = Integer.valueOf(modifyCourses.textFieldForIdentifier("crn").getText());
+			new CourseQuery().removeStudentInCourse(crn, user.getUserID(), (returnedData1, error1) -> {
+				if (error1 != null)
+				{
+					Alert alert1 = new Alert("Error", "ABC could not remove the student from the course.  Please try again.");
+					alert1.addButton("OK", ButtonType.defaultType, null);
+					alert1.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData1 instanceof Boolean)
+				{
+					boolean bool = (Boolean)returnedData1;
+					if (bool)
+					{
+						showCourseModificationListFor(user);
+					}
+					else
+					{
+						Alert alert1 = new Alert("Error", "ABC could not remove the student from the course.  Please try again.");
+						alert1.addButton("OK", ButtonType.defaultType, null);
+						alert1.show(Window.current.mainScreen);
+					}
+				}
+				else
+				{
+					Alert alert1 = new Alert("Error", "ABC could not remove the student from the course.  Please try again.");
+					alert1.addButton("OK", ButtonType.defaultType, null);
+					alert1.show(Window.current.mainScreen);
+				}
+			});
+		});
+		modifyCourses.addButton("Cancel", ButtonType.cancel, null);
+		modifyCourses.dispose();
+		modifyCourses.show(Window.current.mainScreen);
 	}
 
 	@Override

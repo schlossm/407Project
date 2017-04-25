@@ -79,7 +79,7 @@ public class DFSQL
 					right = "'" + right + "'";
 				}
 
-				returnStringBuilder.append(" ").append(left).append(whereStatement.equivalence).append(right);
+				returnStringBuilder.append(" ").append(left).append(whereStatement.equivalence).append(right).append(whereStatement.conjunction);
 			}
 			else
 			{
@@ -841,7 +841,7 @@ public class DFSQL
 
 		wheres.add(new Where(DFSQLConjunction.none, equivalence, new DFSQLClause(attributes[attributes.length - 1], values[attributes.length - 1])));
 
-		whereStatements = (Where[]) wheres.toArray();
+		whereStatements = wheres.toArray(new Where[] { });
 
 		return this;
 	}

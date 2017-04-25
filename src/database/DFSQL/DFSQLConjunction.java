@@ -8,7 +8,7 @@ package database.DFSQL;
 @SuppressWarnings("unused")
 public enum DFSQLConjunction
 {
-	and(" AND"), or(" OR"), none(" NONE"), andNot(" AND NOT"), orNot(" OR NOT");
+	and(" AND"), or(" OR"), none(""), andNot(" AND NOT"), orNot(" OR NOT");
 
 	private final String text;
 

@@ -41,6 +41,9 @@ public class StudentQuery {
                 if (error != null) {
                     //Process the error and return appropriate new error to UI.
                     JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    if(error.code == 1) {
+                        error1 = new JSONQueryError(3, "No Data", null);
+                    }
                     runnable.run(null, error1);
                     return;
                 }

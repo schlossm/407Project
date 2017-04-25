@@ -59,6 +59,8 @@ public class Alert implements KeyListener, MLMDelegate
 	private int numButtons;
 	private JTextField activeTextField;
 
+	private JLabel messageLabel;
+
 	public Alert(String title, String message)
 	{
 		alert = new JPanel();
@@ -77,11 +79,30 @@ public class Alert implements KeyListener, MLMDelegate
 		}
 		if (message != null && !Objects.equals(message, ""))
 		{
-			JLabel messageLabel = new JLabel(convertToMultiline(message), JLabel.CENTER);
+			messageLabel = new JLabel(convertToMultiline(message), JLabel.CENTER);
 			messageLabel.setFont(UIFont.textRegular.deriveFont(12.0f));
 			messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			alert.add(messageLabel);
 			alert.add(Box.createRigidArea(new Dimension(0, 20)));
+		}
+	}
+
+	public void setMessage(String message)
+	{
+		if (message != null && !Objects.equals(message, ""))
+		{
+			if (messageLabel == null)
+			{
+				messageLabel = new JLabel(convertToMultiline(message), JLabel.CENTER);
+				messageLabel.setFont(UIFont.textRegular.deriveFont(12.0f));
+				messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+				alert.add(messageLabel);
+				alert.add(Box.createRigidArea(new Dimension(0, 20)));
+			}
+			else
+			{
+				messageLabel.setText(convertToMultiline(message));
+			}
 		}
 	}
 
@@ -265,7 +286,6 @@ public class Alert implements KeyListener, MLMDelegate
 			buttonPanel.setMinimumSize(new Dimension(320, 44 * buttons.size() + ((buttons.size() + 1))));
 			buttonPanel.setPreferredSize(new Dimension(320, 44 * buttons.size() + ((buttons.size() + 1))));
 			buttonPanel.setMaximumSize(new Dimension(320, 44 * buttons.size() + ((buttons.size() + 1))));
-			System.out.println((44 * buttons.size()) + (8 * (buttons.size() + 1)));
 		}
 	}
 
