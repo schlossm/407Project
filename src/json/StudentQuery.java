@@ -201,11 +201,11 @@ public class StudentQuery {
         String table1 = "grades";
         String table2 = "students";
         String table3 = "assignment";
-        String[] attributes = {"students.userid", "assignment."};
+        String[] attributes = {"students.userid", "assignment.courseid"};
         String[] values = {userid, courseid + ""};
         Join[] joins = new Join[] {
-                new Join(table2, table1 + ".studentID", table2 + ".id"),
-                new Join(table3, table3 + ".assignmentid", table1 + ".assignmentid") };
+                new Join(table2, table1 + ".studentid", table2 + ".id"),
+                new Join(table3, table1 + ".assignmentid", table3 + ".assignmentid") };
 
         try {
             dfsql.select(selectedRows, false, null, null)
@@ -228,19 +228,24 @@ public class StudentQuery {
                 } else {
                     return;
                 }
-                int points = 0;
+                ArrayList<Grade> gradesReturned = new ArrayList<Grade>();
+                double points = 0;
                 int assignmentId = 0;
                 String userId = "";
-                try {
-                    points = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("grade").getAsInt();
-                    assignmentId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("assignmentid").getAsInt();
-                    userId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
-                }catch (NullPointerException e2){
-                    runnable.run(null, error1);
+                Grade grade;
+                for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
+                    try {
+                        points = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("grade").getAsDouble();
+                        assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsInt();
+                        userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
+                    } catch (NullPointerException e2) {
+                        runnable.run(null, error1);
+                    }
+                    grade = new Grade(userId, assignmentId, String.valueOf(points));
+                    gradesReturned.add(grade);
                 }
-                Grade grade = new Grade(userId, assignmentId, String.valueOf(points));
             /* Wait for Alex to implement the rest of the fields */
-                runnable.run(grade, null);
+                runnable.run(gradesReturned, null);
                 System.out.println("getUser posting user to returned");
             });
         } catch (DFSQLError dfsqlError) {
