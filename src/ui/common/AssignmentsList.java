@@ -50,7 +50,7 @@ class AssignmentsList extends ALJTablePanel
 					return;
 				}
 				Alert errorAlert = new Alert("Error", "ABC could not load the assignments for this course.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 				return;
 			}
@@ -63,7 +63,7 @@ class AssignmentsList extends ALJTablePanel
 			else
 			{
 				Alert errorAlert = new Alert("Error", "ABC could not load the assignments for this course.  Please try again.");
-				errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
 			}
 		});
@@ -72,7 +72,7 @@ class AssignmentsList extends ALJTablePanel
 	private void add()
 	{
 		Alert alert = new Alert("Add New Assignment", null);
-		alert.addButton("Cancel", ButtonType.defaultType, null, false);
+		alert.addButton("Cancel", ButtonType.defaultType, null);
 		alert.addTextField("Title", "assignment.title", false);
 		alert.addTextField("Due Date (MM/DD/YYYY HH:MMA/P", "assignment.dueDate", false);
 		alert.addDropDown(new String[] {"Loading Files"}, 0, "assignments.fileChooser");

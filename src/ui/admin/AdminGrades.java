@@ -108,7 +108,7 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 			                               if (error != null)
 			                               {
 				                               Alert errorAlert = new Alert("Error", "ABC could not load the grade counts.  Please try again.");
-				                               errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				                               errorAlert.addButton("OK", ButtonType.defaultType, null);
 				                               errorAlert.show(Window.current.mainScreen);
 				                               return;
 			                               }
@@ -140,7 +140,7 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 			                               else
 			                               {
 				                               Alert errorAlert = new Alert("Error", "ABC could not load the grade counts.  Please try again.");
-				                               errorAlert.addButton("OK", ButtonType.defaultType, null, false);
+				                               errorAlert.addButton("OK", ButtonType.defaultType, null);
 				                               errorAlert.show(Window.current.mainScreen);
 			                               }
 		                               });
