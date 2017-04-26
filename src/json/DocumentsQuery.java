@@ -81,7 +81,6 @@ public class DocumentsQuery {
         DFSQL dfsql = new DFSQL();
         String[] selectedRows = {"id", "title", "description", "path", "authoruserid", "courseid"};
         String table = "Documents";
-        getAllDocumentsIdsInCourseReturn = true;
         try {
             dfsql.select(selectedRows, false, null, null)
                     .from(table)
