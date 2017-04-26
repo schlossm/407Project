@@ -6,7 +6,6 @@ import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.Grade;
-import sun.net.www.http.HttpClient;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
