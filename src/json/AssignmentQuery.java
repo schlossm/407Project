@@ -29,7 +29,7 @@ public class AssignmentQuery
 		{
 			dfsql.insert(table1, valuesfortable1, rowsfortable1);
 			DFSQL dfsqlLastInsert = new DFSQL();
-			dfsqlLastInsert.select("LAST_INSERT_ID()", false, null, null);
+			dfsqlLastInsert.select("max(assignmentid)", false, null, null).from(table1);
 			dfsql.append(dfsqlLastInsert);
 			DFDatabase.defaultDatabase.execute(dfsql, (response1, error12) ->
 			{
@@ -43,7 +43,7 @@ public class AssignmentQuery
 				if (response1 instanceof JsonObject)
 				{
 					jsonObject = (JsonObject) response1;
-					lastAssignmentId[0] = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("LAST_INSERT_ID()").getAsInt();
+					lastAssignmentId[0] = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("max(assignmentid)").getAsInt();
 					ArrayList<Question> questionsToAdd = quizAssignment.getQuestions();
 					String[] rowsfortable2 = {"assignmentid", "question", "correct", "choices", "points"};
 					String table2 = "question";
