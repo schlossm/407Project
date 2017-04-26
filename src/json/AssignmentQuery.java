@@ -105,6 +105,7 @@ public class AssignmentQuery
 		String table2 = "question";
 		for (Question q : questionsToAdd)
 		{
+			DFSQL dfsqlQuestion = new DFSQL();
 			String choices = q.getChoices().get(0);
 			for (int i = 1; i < q.getChoices().size(); i++)
 			{
@@ -113,7 +114,7 @@ public class AssignmentQuery
 			String[] valuesfortable2 = {lastAssignmentId[0] + "", q.getQuestion(), q.getCorrectChoice(), choices, q.getPoints() + ""};
 			try
 			{
-				dfsql.insert(table2, valuesfortable2, rowsfortable2);
+				dfsqlQuestion.insert(table2, valuesfortable2, rowsfortable2);
 				DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
 				{
 					if (error != null)
