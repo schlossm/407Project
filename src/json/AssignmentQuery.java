@@ -16,7 +16,6 @@ import java.util.ArrayList;
  */
 public class AssignmentQuery
 {
-
 	private JsonObject jsonObject;
 
 	public void addQuiz(QuizAssignment quizAssignment, int courseid, QueryCallbackRunnable runnable)
@@ -500,7 +499,7 @@ public class AssignmentQuery
 				if (error != null)
 				{
 					//Process the error and return appropriate new error to UI.
-					JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+					JSONQueryError error1 = new JSONQueryError(3, "Some Error", null/*User info if needed*/);
 					runnable.run(null, error1);
 					return;
 				}
@@ -518,7 +517,7 @@ public class AssignmentQuery
 				double maxPoints;
 				String name, type, deadline;
 				Assignment assignment = null;
-				JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+				JSONQueryError error1 = new JSONQueryError(3, "Some Error", null/*User info if needed*/);
 				try
 				{
 					for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i)
