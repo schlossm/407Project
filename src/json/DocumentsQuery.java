@@ -6,6 +6,7 @@ import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import objects.Grade;
+import sun.net.www.http.HttpClient;
 import ui.util.UIStrings;
 import uikit.DFNotificationCenter;
 
@@ -17,8 +18,6 @@ import java.util.ArrayList;
  */
 public class DocumentsQuery {
     private JsonObject jsonObject;
-    private boolean getAllDocumentsIdsInCourseReturn, getGradeReturn, getCourseGradeReturn;
-
 
     private void getDocumentOfPath(String path) {
 
@@ -27,17 +26,26 @@ public class DocumentsQuery {
     public void addDocument(File documentFile, String title, String description, String authoruserid, String assignmentid, String courseid, boolean isPrivate) {
         DFSQL dfsql = new DFSQL();
         String table = "Documents";
-        String path = doc;
-        String[] rows = {"title", "description", "authouserid", "assignmentid", "courseid", "private", "path"};
+        String path = documentFile.getName() + "_" + authoruserid + "_" + assignmentid;
+        String[] rows = {"title", "description", "authoruserid", "assignmentid", "courseid", "private", "path"};
         String[] values = {title, description, authoruserid, assignmentid, courseid, isPrivate + "", path};
+        uploadDocument(documentFile, path);
         try {
+			dfsql.insert(table, values, rows);
+			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+			{
 
+			});
         } catch (DFSQLError e1) {
             e1.printStackTrace();
         }
     }
 
-    public void deleteDocument(int documentid) {
+	private void uploadDocument(File documentFile, String path) {
+
+	}
+
+	public void deleteDocument(int documentid) {
         DFSQL dfsql = new DFSQL();
         String table = "Documents";
         Where where = new Where(DFSQLConjunction.none, DFSQLEquivalence.equals, new DFSQLClause("id", documentid + ""));
@@ -102,54 +110,4 @@ public class DocumentsQuery {
             e1.printStackTrace();
         }
     }
-    public void returnedData(JsonObject jsonObject, DFError error) {
-        System.out.println("triggered returnedData");
-        this.jsonObject = null;
-        if(error != null){
-            DFDatabase.print(error.toString());
-            this.jsonObject = null;
-        } else {
-            this.jsonObject = jsonObject;
-        }
-        returnHandler();
-    }
-
-    private void returnHandler() {
-        if(getAllDocumentsIdsInCourseReturn){
-            ArrayList<Integer> allCoursesForInstructor = new ArrayList<Integer>();
-            int documentId = 0;
-            try {
-                for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i) {
-                    documentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
-                    allCoursesForInstructor.add(documentId);
-                }
-            }catch (NullPointerException e2){
-                DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
-            }
-            DFNotificationCenter.defaultCenter.post(UIStrings.returned, allCoursesForInstructor);
-            getAllDocumentsIdsInCourseReturn = false;
-        } else if(getGradeReturn){
-            int points = 0;
-            int assignmentId = 0;
-            String userId = "";
-            try {
-                points = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("grade").getAsInt();
-                assignmentId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("assignmentid").getAsInt();
-                userId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
-            }catch (NullPointerException e2){
-                DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
-            }
-            Grade grade = new Grade(userId, assignmentId, String.valueOf(points));
->>>>>>> Stashed changes
-            /* Wait for Alex to implement the rest of the fields */
-			DFNotificationCenter.defaultCenter.post(UIStrings.returned, grade);
-			System.out.println("getUser posting user to returned");
-			getGradeReturn = false;
-		}
-	}
-
-	public void uploadStatus(DFDataUploaderReturnStatus success, DFError error)
-	{
-
-	}
 }

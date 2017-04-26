@@ -114,7 +114,7 @@ public class AssignmentQuery
 			try
 			{
 				dfsqlQuestion.insert(table2, valuesfortable2, rowsfortable2);
-				DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+				DFDatabase.defaultDatabase.execute(dfsqlQuestion, (response, error) ->
 				{
 					if (error != null)
 					{
@@ -167,7 +167,8 @@ public class AssignmentQuery
 
 		try
 		{
-			dfsql.select(selectRows, false, null, null);
+			dfsql.select(selectRows, false, null, null).from(table)
+					.where(DFSQLEquivalence.equals, "assignmentid", assignmentId + "");
 			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
 			{
 				if (error != null)
