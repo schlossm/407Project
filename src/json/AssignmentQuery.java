@@ -31,7 +31,7 @@ public class AssignmentQuery
 			DFSQL dfsqlLastInsert = new DFSQL();
 			dfsqlLastInsert.select("LAST_INSERT_ID()", false, null, null);
 			dfsql.append(dfsqlLastInsert);
-			DFDatabase.defaultDatabase.execute(dfsqlLastInsert, (response1, error12) ->
+			DFDatabase.defaultDatabase.execute(dfsql, (response1, error12) ->
 			{
 				JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
 				if (error12 != null)
