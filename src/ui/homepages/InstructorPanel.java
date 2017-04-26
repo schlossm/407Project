@@ -101,7 +101,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 						if (returnedData1 instanceof ArrayList)
 						{
 							course.setStudents((ArrayList<User>) returnedData1);
-							courseList.clearAndReload();
+							courseList.reloadData();
 						}
 						else
 						{
@@ -111,7 +111,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 						}
 					});
 				}
-				courseList.clearAndReload();
+				courseList.reloadData();
 			}
 			else
 			{

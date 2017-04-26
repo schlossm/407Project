@@ -39,14 +39,14 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		titleLabel.setFont(UIFont.textSemibold.deriveFont(14f));
 		titleLabel.setFocusable(false);
 		titleLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+		setAccessoryType(accessoryViewType);
+		_accessoryViewType = accessoryViewType;
 		add(titleLabel);
 
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, -8));
-
-		setAccessoryType(accessoryViewType);
-		_accessoryViewType = accessoryViewType;
 	}
 
 	public void setAccessoryType(ALJTableCellAccessoryViewType accessoryViewType)
@@ -119,11 +119,11 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 
 		if (accessoryView != null)
 		{
-			addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
 			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
 			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
 			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1.0, 44));
+			addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
 		}
 	}
 

@@ -35,13 +35,14 @@ class AssignmentsList extends ALJTablePanel
 		loadingLabel = new JLabel("Loading");
 		loadingLabel.setFont(UIFont.textLight.deriveFont(30f));
 		loadingLabel.setHorizontalTextPosition(JLabel.CENTER);
-		add(loadingLabel, 2);
+		add(loadingLabel);
 		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
 		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
 		addConstraint(new LayoutConstraint(loadingLabel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
 
-		new AssignmentQuery().getAllAssignmentsInCourse(course.getCourseID(), (returnedData, error) -> {
+		new AssignmentQuery().getAllAssignmentsInCourse(course.getCourseID(), (returnedData, error) ->
+		{
 			if (error != null)
 			{
 				if (error.code == 3)
@@ -56,7 +57,7 @@ class AssignmentsList extends ALJTablePanel
 			}
 			if (returnedData instanceof ArrayList)
 			{
-				assignments = (ArrayList<Assignment>)returnedData;
+				assignments = (ArrayList<Assignment>) returnedData;
 				remove(loadingLabel);
 				table.reloadData();
 			}
@@ -71,14 +72,22 @@ class AssignmentsList extends ALJTablePanel
 
 	private void add()
 	{
-		Alert alert = new Alert("Add New Assignment", null);
-		alert.addButton("Cancel", ButtonType.defaultType, null);
-		alert.addTextField("Title", "assignment.title", false);
-		alert.addTextField("Due Date (MM/DD/YYYY HH:MMA/P", "assignment.dueDate", false);
-		alert.addDropDown(new String[] {"Loading Files"}, 0, "assignments.fileChooser");
-		alert.show(Window.current.mainScreen);
+		Alert assignmentType = new Alert("", "");
+		assignmentType.addButton("Quiz / Test", ButtonType.plain, e -> Window.current.openQuizCreationFor(course));
+		assignmentType.addButton("File Submission", ButtonType.plain, e ->
+		{
+			Alert alert = new Alert("Add New Assignment", null);
+			alert.addButton("Cancel", ButtonType.defaultType, null);
+			alert.addTextField("Title", "assignment.title", false);
+			alert.addTextField("Due Date (MM/DD/YYYY HH:MMA/P)", "assignment.dueDate", false);
+			alert.addDropDown(new String[]{"Loading Files"}, 0, "assignments.fileChooser");
+			alert.show(Window.current.mainScreen);
 
-		new DocumentsQuery().getAllDocumentsIdsInCourse(course.getCourseID());
+			//TODO: Do something
+			new DocumentsQuery().getAllDocumentsIdsInCourse(course.getCourseID());
+		});
+		assignmentType.addButton("Cancel", ButtonType.cancel, null);
+		assignmentType.show(Window.current.mainScreen);
 	}
 
 	@Override
@@ -86,7 +95,7 @@ class AssignmentsList extends ALJTablePanel
 	{
 		if (isInstructor())
 		{
-			if (index.section == 1)
+			if (index.section == 0)
 			{
 				add();
 			}
@@ -97,7 +106,7 @@ class AssignmentsList extends ALJTablePanel
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
 	{
-		if (isInstructor()) return 2;
+		if (isInstructor()) { return 2; }
 		return 1;
 	}
 
@@ -144,7 +153,11 @@ class AssignmentsList extends ALJTablePanel
 			{
 				return "";
 			}
-			return "Assignments";
+			else if (assignments.size() > 0)
+			{
+				return "Assignments";
+			}
+			return null;
 		}
 		return null;
 	}

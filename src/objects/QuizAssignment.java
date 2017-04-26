@@ -8,8 +8,8 @@ import java.util.ArrayList;
  * Alex Rosenberg
  */
 public class QuizAssignment extends Assignment implements Serializable {
-    private ArrayList<Question> questions;
-    private int assignmentId;
+    private ArrayList<Question> questions = new ArrayList<>();
+    private int assignmentId = -1;
 
     public QuizAssignment(int assignmentId, ArrayList<Question> questions) {
         this.assignmentId = assignmentId;

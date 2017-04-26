@@ -94,7 +94,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		{
 			ArrayList<Object> students = (ArrayList<Object>) returnedData;
 			tableData.put(groupToManage + "s", students);
-			table.clearAndReload();
+			table.reloadData();
 			updateSavedData();
 		}
 		else
@@ -269,7 +269,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 								courseToAdd.setRoomNo(roomNum);
 								addNewCourseToTable(courseToAdd);
 								updateSavedData();
-								table.clearAndReload();
+								table.reloadData();
 							}
 							else
 							{
@@ -543,7 +543,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 									{
 										tableData.remove(titleForHeaderInSectionInTable(table, 1));
 									}
-									table.clearAndReload();
+									table.reloadData();
 								}
 								else
 								{

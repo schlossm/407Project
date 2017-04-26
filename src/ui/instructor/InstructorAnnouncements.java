@@ -70,7 +70,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
 				announcementData.put("Announcements", messages);
 				UIVariables.current.globalUserData.put("announcements" + course.getCourseID(), messages);
-				table.clearAndReload();
+				table.reloadData();
 			}
 		});
 	}

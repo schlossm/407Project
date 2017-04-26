@@ -48,7 +48,7 @@ public class CourseList extends ALJTablePanel
 						if (returnedData1 instanceof ArrayList)
 						{
 							course.setTeachers((ArrayList<Instructor>) returnedData1);
-							table.clearAndReload();
+							table.reloadData();
 						}
 						else
 						{
@@ -76,7 +76,7 @@ public class CourseList extends ALJTablePanel
 						if (returnedData1 instanceof ArrayList)
 						{
 							course.setStudents((ArrayList<User>) returnedData1);
-							table.clearAndReload();
+							table.reloadData();
 						}
 						else
 						{
@@ -119,7 +119,7 @@ public class CourseList extends ALJTablePanel
 								if (returnedData1 instanceof ArrayList)
 								{
 									course.setStudents((ArrayList<User>) returnedData1);
-									table.clearAndReload();
+									table.reloadData();
 								}
 								else
 								{
@@ -129,7 +129,7 @@ public class CourseList extends ALJTablePanel
 								}
 							});
 						}
-						table.clearAndReload();
+						table.reloadData();
 					}
 					else
 					{
@@ -171,7 +171,7 @@ public class CourseList extends ALJTablePanel
 								if (returnedData1 instanceof ArrayList)
 								{
 									course.setTeachers((ArrayList<Instructor>) returnedData1);
-									table.clearAndReload();
+									table.reloadData();
 								}
 								else
 								{
