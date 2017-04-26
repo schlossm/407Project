@@ -139,10 +139,11 @@ public class DFDatabase
 
 		int indexOfUpdate = SQLStatement.formattedStatement().indexOf("UPDATE");
 		int indexOfInsert = SQLStatement.formattedStatement().indexOf("INSERT");
+		int indexOfFunctionInsert = SQLStatement.formattedStatement().indexOf("_INSERT");
 		int indexOfDelete = SQLStatement.formattedStatement().indexOf("DELETE");
 		int indexOfSelect = SQLStatement.formattedStatement().indexOf("SELECT");
 
-		DFWebServerDispatch.current.add(indexOfUpdate > indexOfSelect || indexOfInsert > indexOfSelect || indexOfDelete > indexOfSelect ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
+		DFWebServerDispatch.current.add(indexOfFunctionInsert == -1 && (indexOfUpdate > indexOfSelect || indexOfInsert > indexOfSelect || indexOfDelete > indexOfSelect) ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
 	}
 
 	public String hashString(String decryptedString)

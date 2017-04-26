@@ -67,9 +67,9 @@ public class AssignmentQuery
 									runnable.run(null, error1);
 									return;
 								}
-								if (response instanceof JsonObject)
+								if (response1 instanceof JsonObject)
 								{
-									jsonObject = (JsonObject) response;
+									jsonObject = (JsonObject) response1;
 									lastAssignmentId[0] = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("LAST_INSERT_ID()").getAsInt();
 									ArrayList<Question> questionsToAdd = quizAssignment.getQuestions();
 									String[] rowsfortable2 = {"assignmentid", "question", "correct", "choices", "points"};
@@ -106,10 +106,10 @@ public class AssignmentQuery
 													runnable.run(null, error2);
 													return;
 												}
-												if (response instanceof DFDataUploaderReturnStatus)
+												if (response2 instanceof DFDataUploaderReturnStatus)
 												{
-													DFDataUploaderReturnStatus returnStatus1 = (DFDataUploaderReturnStatus) response;
-													if (returnStatus1 == DFDataUploaderReturnStatus.success)
+													DFDataUploaderReturnStatus returnStatus2 = (DFDataUploaderReturnStatus) response;
+													if (returnStatus2 == DFDataUploaderReturnStatus.success)
 													{
 														runnable.run(true, null);
 													}
@@ -528,7 +528,7 @@ public class AssignmentQuery
 						name = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
 						type = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("type").getAsString();
 						deadline = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("deadline").getAsString();
-						assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentId").getAsInt();
+						assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsInt();
 						crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsInt();
 						maxPoints = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("maxpoints").getAsDouble();
 

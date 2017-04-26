@@ -316,14 +316,21 @@ public class DFSQL
 		}
 		returnString = returnStringBuilder.toString();
 
-		returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + " FROM ");
-		for (String table : fromTables)
-		{
-			returnStringBuilder.append("`").append(table).append("`,");
-		}
-		returnString = returnStringBuilder.toString();
 
-		returnString = returnString.substring(0, returnString.length() - 1);
+		if (fromTables.length != 0)
+		{
+			returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + " FROM ");
+			for (String table : fromTables)
+			{
+				returnStringBuilder.append("`").append(table).append("`,");
+			}
+			returnString = returnStringBuilder.toString();
+			returnString = returnString.substring(0, returnString.length() - 1);
+		}
+		else
+		{
+			returnString = returnString.substring(0, returnString.length() - 1);
+		}
 
 		if (joinStatements.length != 0)
 		{
