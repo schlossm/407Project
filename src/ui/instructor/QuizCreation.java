@@ -7,6 +7,7 @@ import objects.QuizAssignment;
 import ui.Window;
 import ui.util.*;
 import ui.util.ALJTable.*;
+import uikit.DFNotificationCenter;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
 import uikit.autolayout.LayoutRelation;
@@ -26,12 +27,10 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 	private QuizAssignment quizAssignment = new QuizAssignment();
 
 	private JTextField quizName;
-	private Course course;
 	private ALJTable quizTable;
 
 	public QuizCreation(Course course)
 	{
-		this.course = course;
 		quizAssignment.setCourseID(course.getCourseID());
 
 		addMouseListener(new MouseListenerManager(this));
@@ -110,6 +109,7 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 			                       quizAssignment.setMaxPoints(100);
 			                       for (Question question : quizAssignment.getQuestions())
 			                       {
+			                       	question.setPoints(100);
 			                       	question.setCorrectChoice("CS 407");
 			                       }
 
@@ -125,7 +125,11 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 				                       }
 				                       if (returnedData instanceof Boolean)
 				                       {
-					                       System.out.println(returnedData);
+					                       if ((Boolean) returnedData)
+					                       {
+						                       DFNotificationCenter.defaultCenter.post(UIStrings.reloadDataNotification, null);
+					                       	    Window.current.closeQuizCreation();
+					                       }
 				                       }
 			                       }));
 		                       });

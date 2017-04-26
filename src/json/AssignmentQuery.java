@@ -490,6 +490,7 @@ public class AssignmentQuery
 						crn = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsInt();
 						maxPoints = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("maxpoints").getAsDouble();
 
+						assignment = new Assignment();
 						assignment.setTitle(name);
 						assignment.setAssignmentID(assignmentId);
 						assignment.setCourseID(crn);
