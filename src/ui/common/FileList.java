@@ -75,7 +75,7 @@ class FileList extends ALJTablePanel
 		alert.addButton("Upload", ButtonType.defaultType, e ->
 		{
 			//FIXME: implement method after it's updated
-			query.addDocument(tempFile);
+			//query.addDocument(tempFile);
 			/*
 			workToDoOnSuccess = () ->
 			{

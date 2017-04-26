@@ -1,5 +1,6 @@
 package ui.instructor;
 
+import json.AssignmentQuery;
 import objects.Course;
 import objects.Question;
 import objects.QuizAssignment;
@@ -31,6 +32,7 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 	public QuizCreation(Course course)
 	{
 		this.course = course;
+		quizAssignment.setCourseID(course.getCourseID());
 
 		addMouseListener(new MouseListenerManager(this));
 		setFocusTraversalPolicy(new FocusTraversalPolicy()
@@ -67,7 +69,8 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 		});
 
 		quizName = new ABCTextField("Quiz Title", "");
-		quizName.addKeyListener(new KeyListener() {
+		quizName.addKeyListener(new KeyListener()
+		{
 			@Override
 			public void keyTyped(KeyEvent e)
 			{
@@ -101,7 +104,31 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 		addConstraint(new LayoutConstraint(cancel, LayoutAttribute.width, LayoutRelation.greaterThanOrEqual, null, LayoutAttribute.width, 1.0, 44));
 
 		ABCButton save = new ABCButton("Save");
-		save.addActionListener(e -> System.out.println(quizAssignment));
+		save.addActionListener(e ->
+		                       {
+			                       quizAssignment.setDueDate("2017-05-01 12:30:00");
+			                       quizAssignment.setMaxPoints(100);
+			                       for (Question question : quizAssignment.getQuestions())
+			                       {
+			                       	question.setCorrectChoice("CS 407");
+			                       }
+
+			                       new AssignmentQuery().addQuiz(quizAssignment, course.getCourseID(), ((returnedData, error) ->
+			                       {
+				                       if (error != null)
+				                       {
+				                       	System.out.println(error);
+				                       	new Throwable("Error").printStackTrace();
+					                       Alert errorAlert = new Alert("Error", "ABC could not upload this quiz.  Please try again.");
+					                       errorAlert.addButton("OK", ButtonType.defaultType, null);
+					                       errorAlert.show(Window.current.mainScreen);
+				                       }
+				                       if (returnedData instanceof Boolean)
+				                       {
+					                       System.out.println(returnedData);
+				                       }
+			                       }));
+		                       });
 		add(save);
 		addConstraint(new LayoutConstraint(save, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 		addConstraint(new LayoutConstraint(save, LayoutAttribute.leading, LayoutRelation.equal, quizName, LayoutAttribute.trailing, 1.0, 8));
@@ -267,7 +294,8 @@ class QuestionTitleCell extends ALJTableCell
 		super(ALJTableCellAccessoryViewType.delete);
 
 		textField = new ABCTextField("Question Title", text);
-		textField.addKeyListener(new KeyListener() {
+		textField.addKeyListener(new KeyListener()
+		{
 			@Override
 			public void keyTyped(KeyEvent e)
 			{
@@ -303,7 +331,8 @@ class QuestionChoiceCell extends ALJTableCell
 		super(ALJTableCellAccessoryViewType.delete);
 
 		textField = new ABCTextField("Choice Text", text);
-		textField.addKeyListener(new KeyListener() {
+		textField.addKeyListener(new KeyListener()
+		{
 			@Override
 			public void keyTyped(KeyEvent e)
 			{
