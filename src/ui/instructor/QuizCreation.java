@@ -26,11 +26,7 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 
 	private JTextField quizName;
 	private Course course;
-	ALJTable quizTable;
-
-	private ActionListener saveListener = e -> {
-		System.out.println(quizAssignment);
-	};
+	private ALJTable quizTable;
 
 	public QuizCreation(Course course)
 	{
@@ -105,7 +101,7 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 		addConstraint(new LayoutConstraint(cancel, LayoutAttribute.width, LayoutRelation.greaterThanOrEqual, null, LayoutAttribute.width, 1.0, 44));
 
 		ABCButton save = new ABCButton("Save");
-		save.addActionListener(saveListener);
+		save.addActionListener(e -> System.out.println(quizAssignment));
 		add(save);
 		addConstraint(new LayoutConstraint(save, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 		addConstraint(new LayoutConstraint(save, LayoutAttribute.leading, LayoutRelation.equal, quizName, LayoutAttribute.trailing, 1.0, 8));

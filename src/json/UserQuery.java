@@ -39,8 +39,8 @@ public class UserQuery
 			     .offset(offset);
 			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
 			{
-				System.out.println(response);
-				System.out.println(error);
+
+
 				if (error != null)
 				{
 					//Process the error and return appropriate new error to UI.
@@ -112,8 +112,8 @@ public class UserQuery
 			     .offset(offset);
 			DFDatabase.defaultDatabase.execute(dfsql, (Object response, DFError error) ->
 			{
-				System.out.println(response);
-				System.out.println(error);
+
+
 				if (error != null)
 				{
 					//Process the error and return appropriate new error to UI.
@@ -180,8 +180,8 @@ public class UserQuery
 			dfsql.select(selectedRows, false, null, null).from("users").where(DFSQLEquivalence.equals, "userID", username);
 			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
 			{
-				System.out.println(response);
-				System.out.println(error);
+
+
 				if (error != null)
 				{
 					//Process the error and return appropriate new error to UI.

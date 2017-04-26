@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static database.DFDatabase.queue;
-
 enum Process
 {
 	none, loadingCourse, loadingTeacher, loadingStudent, deleteCourse, addCourse
@@ -237,7 +235,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 
 					currentProcess = Process.addCourse;
 
-					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate, Integer.parseInt(capacity), 500*1024*1024, (returnedData, error) ->
+					courseQuery.addCourse(Integer.parseInt(courseID), courseName, courseTitle, description, roomNum, meetingTimes, startDate, endDate, Integer.parseInt(capacity), 500 * 1024 * 1024, (returnedData, error) ->
 					{
 						if (error != null)
 						{
@@ -263,7 +261,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 								courseToAdd.setTitle(courseTitle);
 								courseToAdd.setDescription(description);
 								courseToAdd.setMeetingTime(meetingTimes);
-								courseToAdd.setMaxStorage(500*1024*1024);
+								courseToAdd.setMaxStorage(500 * 1024 * 1024);
 								courseToAdd.setStartDate(startDate);
 								courseToAdd.setEndDate(endDate);
 								courseToAdd.setRoomNo(roomNum);
@@ -583,10 +581,12 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				});
 				if (groupToManage != Group.courses)
 				{
-					more.addButton("Modify User Information", ButtonType.plain,  e -> {
+					more.addButton("Modify User Information", ButtonType.plain, e ->
+					{
 
 					});
-					more.addButton("Modify Course(s)", ButtonType.plain,  e -> {
+					more.addButton("Modify Course(s)", ButtonType.plain, e ->
+					{
 						User user = (User) tableData.get(titleForHeaderInSectionInTable(tableView, forRowAt.section)).get(forRowAt.item);
 						showCourseModificationListFor(user);
 					});
@@ -606,7 +606,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		if (user.getUserType() == userType.STUDENT)
 		{
 			StudentQuery query = new StudentQuery();
-			query.getCourses(user.getUserID(), (returnedData, error) -> {
+			query.getCourses(user.getUserID(), (returnedData, error) ->
+			{
 				if (error != null)
 				{
 					if (error.code == 3)
@@ -643,7 +644,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 		else
 		{
 			InstructorQuery query = new InstructorQuery();
-			query.getCourses(user.getUserID(), (returnedData, error) -> {
+			query.getCourses(user.getUserID(), (returnedData, error) ->
+			{
 				if (error != null)
 				{
 					if (error.code == 3)
@@ -683,7 +685,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 	private void expandModifyAlert(Alert modifyCourses, User user)
 	{
 		modifyCourses.addTextField("CRN", "crn", false);
-		modifyCourses.addButton("Add Course", ButtonType.plain, (ActionEvent e) -> {
+		modifyCourses.addButton("Add Course", ButtonType.plain, (ActionEvent e) ->
+		{
 			int crn = Integer.valueOf(modifyCourses.textFieldForIdentifier("crn").getText());
 			if (user.getUserType() == userType.STUDENT)
 			{
@@ -701,7 +704,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 						boolean bool = (Boolean) returnedData1;
 						if (bool)
 						{
-							queue.add(() -> showCourseModificationListFor(user));
+							showCourseModificationListFor(user);
 						}
 						else
 						{
@@ -734,7 +737,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 						boolean bool = (Boolean) returnedData1;
 						if (bool)
 						{
-							queue.add(() -> showCourseModificationListFor(user));
+							showCourseModificationListFor(user);
 						}
 						else
 						{
@@ -752,7 +755,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				});
 			}
 		});
-		modifyCourses.addButton("Remove Course", ButtonType.plain, e -> {
+		modifyCourses.addButton("Remove Course", ButtonType.plain, e ->
+		{
 			int crn = Integer.valueOf(modifyCourses.textFieldForIdentifier("crn").getText());
 			if (user.getUserType() == userType.STUDENT)
 			{

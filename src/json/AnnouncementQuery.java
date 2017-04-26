@@ -89,7 +89,8 @@ public class AnnouncementQuery
 					{
 						error1 = new JSONQueryError(3, "No Data", null);
 					}
-					else {
+					else
+					{
 						error1 = new JSONQueryError(0, "Internal Error", null);
 					}
 					runnable.run(null, error1);
@@ -137,26 +138,29 @@ public class AnnouncementQuery
 		}
 	}
 
-	public void getAllAnnouncementForStudent(String userid, QueryCallbackRunnable runnable) {
+	public void getAllAnnouncementForStudent(String userid, QueryCallbackRunnable runnable)
+	{
 		DFSQL dfsql = new DFSQL();
 		DFSQL dfsql1 = new DFSQL();
 		String[] selectedRows = {"Announcement.id", "title", "content", "timestamp", "authoruserid", "Announcement.courseid"};
 		String table1 = "Announcement";
 		String table2 = "coursestudentmembership";
 		String table3 = "users";
-		Join[] joins = new Join[] {
-				new Join(table2, table1 + ".courseid", table2 + ".courseid"),
-				new Join(table3, table3 + ".userid", table2 + ".userid")};
-		try {
+		Join[] joins = new Join[]{
+			new Join(table2, table1 + ".courseid", table2 + ".courseid"),
+			new Join(table3, table3 + ".userid", table2 + ".userid")};
+		try
+		{
 			dfsql.select(selectedRows, false, null, null)
-					.from(table1)
-					.join(DFSQLJoin.left, joins)
-					.where(DFSQLEquivalence.equals, "userid", "" + userid);
+			     .from(table1)
+			     .join(DFSQLJoin.left, joins)
+			     .where(DFSQLEquivalence.equals, "userid", "" + userid);
 			dfsql1.select(selectedRows, false, null, null)
-					.from(table1)
-					.where(DFSQLEquivalence.equals, "courseid", "-1");
+			      .from(table1)
+			      .where(DFSQLEquivalence.equals, "courseid", "-1");
 			dfsql.append(dfsql1);
-			DFDatabase.defaultDatabase.execute(dfsql, (response, error) -> {
+			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+			{
 				if (error != null)
 				{
 					JSONQueryError error1;
@@ -164,7 +168,8 @@ public class AnnouncementQuery
 					{
 						error1 = new JSONQueryError(3, "No Data", null);
 					}
-					else {
+					else
+					{
 						error1 = new JSONQueryError(0, "Internal Error", null);
 					}
 					runnable.run(null, error1);
@@ -205,7 +210,9 @@ public class AnnouncementQuery
 					runnable.run(null, error1);
 				}
 			});
-		} catch (DFSQLError dfsqlError) {
+		}
+		catch (DFSQLError dfsqlError)
+		{
 			dfsqlError.printStackTrace();
 		}
 	}
@@ -256,7 +263,7 @@ public class AnnouncementQuery
 				DFNotificationCenter.defaultCenter.post(UIStrings.returned, null);
 			}
 			Grade grade = new Grade(userId, assignmentId, String.valueOf(points));
-	        /* Wait for Alex to implement the rest of the fields */
+		    /* Wait for Alex to implement the rest of the fields */
 			DFNotificationCenter.defaultCenter.post(UIStrings.returned, grade);
 			System.out.println("getUser posting user to returned");
 			getGradeReturn = false;

@@ -4,6 +4,7 @@ import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.DFSQL;
 
+import java.awt.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -67,15 +68,14 @@ class DFDataUploader
 					           errorInfo.put(kURL, website + "/" + writeFile);
 					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 					           DFError error = new DFError(1, "No data was returned", errorInfo);
-					           queue.add(() -> runnable.run(DFDataUploaderReturnStatus.error, error));
+					           EventQueue.invokeLater(() -> runnable.run(DFDataUploaderReturnStatus.failure, error));
 					           return;
 				           }
 
 				           if (response.contains("Success"))
 				           {
-					           queue.add(() -> runnable.run(DFDataUploaderReturnStatus.success, null));
+					           EventQueue.invokeLater(() -> runnable.run(DFDataUploaderReturnStatus.success, null));
 				           }
-
 				           else
 				           {
 					           Map<String, String> errorInfo = new HashMap<>();
@@ -120,7 +120,7 @@ class DFDataUploader
 					           if (error != null) { debugLog(error); }
 
 					           DFError finalError = error;
-					           queue.add(() -> runnable.run(DFDataUploaderReturnStatus.failure, finalError));
+					           EventQueue.invokeLater(() -> runnable.run(DFDataUploaderReturnStatus.failure, finalError));
 				           }
 			           }
 			           catch (NullPointerException | IOException e)
@@ -136,7 +136,7 @@ class DFDataUploader
 				           errorInfo.put(kURL, website + "/" + writeFile);
 				           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 				           DFError error = new DFError(0, "There was a(n) " + e.getCause() + " error", errorInfo);
-				           queue.add(() -> runnable.run(DFDataUploaderReturnStatus.error, error));
+				           EventQueue.invokeLater(() -> runnable.run(DFDataUploaderReturnStatus.failure, error));
 			           }
 		           }).start();
 	}

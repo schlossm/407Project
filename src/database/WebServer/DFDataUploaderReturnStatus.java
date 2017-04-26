@@ -5,5 +5,5 @@ package database.WebServer;
  */
 public enum DFDataUploaderReturnStatus
 {
-	error, success, failure
+	success, failure
 }

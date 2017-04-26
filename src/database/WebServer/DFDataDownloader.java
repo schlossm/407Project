@@ -6,6 +6,7 @@ import database.DFDatabaseCallbackRunnable;
 import database.DFError;
 import database.DFSQL.DFSQL;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -53,12 +54,18 @@ class DFDataDownloader
 				           Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 				           StringBuilder sb = new StringBuilder();
 				           for (int c; (c = in.read()) >= 0; )
-				           { sb.append((char) c); }
+				           {
+					           sb.append((char) c);
+				           }
 				           String response = sb.toString();
 				           if (!(Objects.equals(response, "") || response.contains("No Data")))
-				           { DFWebServerDispatch.current.dataSizePrinter.printDataSize(response.length()); }
+				           {
+					           DFWebServerDispatch.current.dataSizePrinter.printDataSize(response.length());
+				           }
 				           else
-				           { DFWebServerDispatch.current.dataSizePrinter.printDataSize(0); }
+				           {
+					           DFWebServerDispatch.current.dataSizePrinter.printDataSize(0);
+				           }
 
 				           debugLog("Data Downloaded!");
 				           debugLog(response);
@@ -74,11 +81,7 @@ class DFDataDownloader
 					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 					           DFError error = new DFError(1, "No data was returned", errorInfo);
 					           debugLog(error);
-					           queue.add(() ->
-					                     {
-						                     debugLog("Queue Executed");
-						                     runnable.run(null, error);
-					                     });
+					           EventQueue.invokeLater(() -> runnable.run(null, error));
 				           }
 				           else if (response.contains("Table") && response.contains("doesn't exist"))
 				           {
@@ -89,11 +92,7 @@ class DFDataDownloader
 					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 					           DFError error = new DFError(4, "The specified table doesn't exist", errorInfo);
 					           debugLog(error);
-					           queue.add(() ->
-					                     {
-						                     debugLog("Queue Executed");
-						                     runnable.run(null, error);
-					                     });
+					           EventQueue.invokeLater(() -> runnable.run(null, error));
 				           }
 				           else if (response.contains("You have an error in your SQL syntax"))
 				           {
@@ -104,11 +103,7 @@ class DFDataDownloader
 					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 					           DFError error = new DFError(5, "SQL Syntax Error", errorInfo);
 					           debugLog(error);
-					           queue.add(() ->
-					                     {
-						                     debugLog("Queue Executed");
-						                     runnable.run(null, error);
-					                     });
+					           EventQueue.invokeLater(() -> runnable.run(null, error));
 				           }
 				           else if (response.contains("Unknown column"))
 				           {
@@ -119,11 +114,7 @@ class DFDataDownloader
 					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 					           DFError error = new DFError(6, "Unknown Column", errorInfo);
 					           debugLog(error);
-					           queue.add(() ->
-					                     {
-						                     debugLog("Queue Executed");
-						                     runnable.run(null, error);
-					                     });
+					           EventQueue.invokeLater(() -> runnable.run(null, error));
 				           }
 				           else if (response.contains("ambiguous"))
 				           {
@@ -134,23 +125,14 @@ class DFDataDownloader
 					           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 					           DFError error = new DFError(7, "Ambiguous column", errorInfo);
 					           debugLog(error);
-					           queue.add(() ->
-					                     {
-						                     debugLog("Queue Executed");
-						                     runnable.run(null, error);
-					                     });
+					           EventQueue.invokeLater(() -> runnable.run(null, error));
 				           }
 				           else
 				           {
 					           Gson gsonConverter = new Gson();
 					           JsonObject object = gsonConverter.fromJson(response, JsonObject.class);
 					           debugLog("Inserting Into Queue: " + object + ",: " + runnable);
-					           queue.add(() ->
-					                     {
-						                     debugLog("Queue Executed");
-						                     runnable.run(object, null);
-					                     });
-					           debugLog("Queue Size: " + queue.size());
+					           EventQueue.invokeLater(() -> runnable.run(object, null));
 				           }
 			           }
 			           catch (Exception e)
@@ -166,7 +148,7 @@ class DFDataDownloader
 				           errorInfo.put(kURL, website + "/" + readFile);
 				           errorInfo.put(kSQLStatement, SQLStatement.formattedStatement());
 				           DFError error = new DFError(0, "There was a(n) " + e.getCause() + " error", errorInfo);
-				           queue.add(() -> runnable.run(null, error));
+				           EventQueue.invokeLater(() -> runnable.run(null, error));
 			           }
 
 		           }).start();
