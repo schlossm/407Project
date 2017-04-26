@@ -28,131 +28,89 @@ public class AssignmentQuery
 		try
 		{
 			dfsql.insert(table1, valuesfortable1, rowsfortable1);
-			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+			DFSQL dfsqlLastInsert = new DFSQL();
+			dfsqlLastInsert.select("LAST_INSERT_ID()", false, null, null);
+			dfsql.append(dfsqlLastInsert);
+			DFDatabase.defaultDatabase.execute(dfsqlLastInsert, (response1, error12) ->
 			{
-				if (error != null)
+				JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+				if (error12 != null)
 				{
-					JSONQueryError error1;
-					if (error.code == 2)
-					{
-						error1 = new JSONQueryError(1, "Duplicate ID", null);
-					}
-					else if (error.code == 3)
-					{
-						error1 = new JSONQueryError(2, "Duplicate Unique Entry", null);
-					}
-					else
-					{
-						error1 = new JSONQueryError(0, "Internal Error", null);
-					}
+					//Process the error and return appropriate new error to UI.
 					runnable.run(null, error1);
 					return;
 				}
-
-				if (response instanceof DFDataUploaderReturnStatus)
+				if (response1 instanceof JsonObject)
 				{
-					DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
-					if (returnStatus == DFDataUploaderReturnStatus.success)
+					jsonObject = (JsonObject) response1;
+					lastAssignmentId[0] = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("LAST_INSERT_ID()").getAsInt();
+					ArrayList<Question> questionsToAdd = quizAssignment.getQuestions();
+					String[] rowsfortable2 = {"assignmentid", "question", "correct", "choices", "points"};
+					String table2 = "question";
+					for (Question q : questionsToAdd)
 					{
+						DFSQL dfsqlQuestion = new DFSQL();
+						String choices = q.getChoices().get(0);
+						for (int i = 1; i < q.getChoices().size(); i++)
+						{
+							choices = choices + "\t" + q.getChoices().get(i);
+						}
+						String[] valuesfortable2 = {lastAssignmentId[0] + "", q.getQuestion(), q.getCorrectChoice(), choices, q.getPoints() + ""};
 						try
 						{
-							DFSQL dfsqlLastInsert = new DFSQL();
-							dfsqlLastInsert.select("LAST_INSERT_ID()", false, null, null);
-							DFDatabase.defaultDatabase.execute(dfsqlLastInsert, (response1, error12) ->
+							dfsqlQuestion.insert(table2, valuesfortable2, rowsfortable2);
+							DFDatabase.defaultDatabase.execute(dfsqlQuestion, (response2, error3) ->
 							{
-								JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
-								if (error != null)
+								if (error3 != null)
 								{
-									//Process the error and return appropriate new error to UI.
-									runnable.run(null, error1);
+									JSONQueryError error2;
+									if (error3.code == 2)
+									{
+										error2 = new JSONQueryError(1, "Duplicate ID", null);
+									}
+									else if (error3.code == 3)
+									{
+										error2 = new JSONQueryError(2, "Duplicate Unique Entry", null);
+									}
+									else
+									{
+										error2 = new JSONQueryError(0, "Internal Error", null);
+									}
+									runnable.run(null, error2);
 									return;
 								}
-								if (response1 instanceof JsonObject)
+								if (response2 instanceof DFDataUploaderReturnStatus)
 								{
-									jsonObject = (JsonObject) response1;
-									lastAssignmentId[0] = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("LAST_INSERT_ID()").getAsInt();
-									ArrayList<Question> questionsToAdd = quizAssignment.getQuestions();
-									String[] rowsfortable2 = {"assignmentid", "question", "correct", "choices", "points"};
-									String table2 = "question";
-									for (Question q : questionsToAdd)
+									DFDataUploaderReturnStatus returnStatus2 = (DFDataUploaderReturnStatus) response2;
+									if (returnStatus2 == DFDataUploaderReturnStatus.success)
 									{
-										DFSQL dfsqlQuestion = new DFSQL();
-										String choices = q.getChoices().get(0);
-										for (int i = 1; i < q.getChoices().size(); i++)
-										{
-											choices = choices + "\t" + q.getChoices().get(i);
-										}
-										String[] valuesfortable2 = {lastAssignmentId[0] + "", q.getQuestion(), q.getCorrectChoice(), choices, q.getPoints() + ""};
-										try
-										{
-											dfsqlQuestion.insert(table2, valuesfortable2, rowsfortable2);
-											DFDatabase.defaultDatabase.execute(dfsqlQuestion, (response2, error3) ->
-											{
-												if (error3 != null)
-												{
-													JSONQueryError error2;
-													if (error3.code == 2)
-													{
-														error2 = new JSONQueryError(1, "Duplicate ID", null);
-													}
-													else if (error3.code == 3)
-													{
-														error2 = new JSONQueryError(2, "Duplicate Unique Entry", null);
-													}
-													else
-													{
-														error2 = new JSONQueryError(0, "Internal Error", null);
-													}
-													runnable.run(null, error2);
-													return;
-												}
-												if (response2 instanceof DFDataUploaderReturnStatus)
-												{
-													DFDataUploaderReturnStatus returnStatus2 = (DFDataUploaderReturnStatus) response;
-													if (returnStatus2 == DFDataUploaderReturnStatus.success)
-													{
-														runnable.run(true, null);
-													}
-													else
-													{
-														runnable.run(false, null);
-													}
-												}
-												else
-												{
-													runnable.run(null, new JSONQueryError(0, "Internal Error", null));
-												}
-											});
-										}
-										catch (DFSQLError dfsqlError)
-										{
-											dfsqlError.printStackTrace();
-										}
+										runnable.run(true, null);
+									}
+									else
+									{
+										runnable.run(false, null);
 									}
 								}
 								else
 								{
-									runnable.run(null, error1);
-									return;
+									runnable.run(null, new JSONQueryError(0, "Internal Error", null));
 								}
-
 							});
 						}
-						catch (DFSQLError e1)
+						catch (DFSQLError dfsqlError)
 						{
-							e1.printStackTrace();
+							dfsqlError.printStackTrace();
 						}
-					}
-					else
-					{
-						runnable.run(false, null);
 					}
 				}
 				else
 				{
-					runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+					runnable.run(null, error1);
+					return;
 				}
+
 			});
+
 		}
 		catch (DFSQLError e1)
 		{
