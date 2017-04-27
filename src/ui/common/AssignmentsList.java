@@ -106,6 +106,7 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 			if (index.section == 0)
 			{
 				add();
+				return;
 			}
 		}
 		//TODO: Finish this once methods are available

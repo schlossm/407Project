@@ -2,16 +2,24 @@ package ui.student;
 
 import objects.QuizAssignment;
 import ui.util.ALJTable.*;
+import uikit.autolayout.LayoutConstraint;
 import uikit.autolayout.uiobjects.ALJPanel;
 
 public class TakeQuiz extends ALJPanel implements ALJTableDataSource, ALJTableDelegate
 {
-
+	QuizAssignment assignment;
+	ALJTable table;
 
 
 	public TakeQuiz(QuizAssignment assignment)
 	{
+		this.assignment = assignment;
 
+		table = new ALJTable();
+		table.dataSource = this;
+		table.delegate = this;
+		add(table);
+		addConstraint(new LayoutConstraint(table, ));
 	}
 
 	@Override
