@@ -123,7 +123,7 @@ public class AssignmentQuery
 	{
 		DFSQL dfsql = new DFSQL();
 		String[] selectRows = {"assignmentId", "point", "question", "choices", "correctAnswer"};
-		String table = "courses";
+		String table = "assignment";
 
 		try
 		{
