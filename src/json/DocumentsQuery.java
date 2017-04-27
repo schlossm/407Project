@@ -114,9 +114,13 @@ public class DocumentsQuery {
             MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("multipart/form-data");
             Request request = new Request.Builder()
                     .url("https://mascomputech.com/abc/uploadDocument.php")
+                    .addHeader("content-type", "multipart/form-data;")
                     .post(RequestBody.create(MEDIA_TYPE_MARKDOWN,
                             "Content-Disposition: form-data; name=\"userfile\"; filename=\"" + documentFile.getName()+"\"\r\nContent-Type:" + contentType + "\r\n\r\n\r\n"))
                     .build();
+            System.out.println("Content-Disposition: form-data; name=\"userfile\"; filename=\"" + documentFile.getName()+"\"\r\nContent-Type:" + contentType + "\n" +
+                            "\n" +
+                            "\n");
             Response response = client.newCall(request).execute();
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
             System.out.println(response.body().string());
