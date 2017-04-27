@@ -51,7 +51,7 @@ public class DocumentsQueryTest {
         DocumentsQuery documentsQuery = new DocumentsQuery();
         File file = new File("InstructorQuery.java");
         System.out.println(file.getPath());
-        documentsQuery.addDocument(file, "instructorquery", "query me this", "mschlos", "44", "0", true, ((returnedData, error) ->
+        documentsQuery.addDocument(file, "instructorquery", "query me this", "mschlos", "44", "0", 1, ((returnedData, error) ->
         {
             System.out.println(returnedData);
         }));
