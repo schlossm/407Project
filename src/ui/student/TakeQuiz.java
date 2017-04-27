@@ -2,8 +2,12 @@ package ui.student;
 
 import objects.QuizAssignment;
 import ui.util.ALJTable.*;
+import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
+import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJPanel;
+
+import javax.swing.*;
 
 public class TakeQuiz extends ALJPanel implements ALJTableDataSource, ALJTableDelegate
 {
@@ -15,11 +19,14 @@ public class TakeQuiz extends ALJPanel implements ALJTableDataSource, ALJTableDe
 	{
 		this.assignment = assignment;
 
+		JLabel title = new JLabel(assignment.getTitle());
+
 		table = new ALJTable();
 		table.dataSource = this;
 		table.delegate = this;
 		add(table);
-		addConstraint(new LayoutConstraint(table, ));
+		addConstraint(new LayoutConstraint(table, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
+		addConstraint(new LayoutConstraint(table, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
 	}
 
 	@Override
