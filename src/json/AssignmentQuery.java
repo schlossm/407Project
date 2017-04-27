@@ -122,7 +122,7 @@ public class AssignmentQuery
 	public void getQuiz(QuizAssignment quizAssignment, QueryCallbackRunnable runnable)
 	{
 		DFSQL dfsql = new DFSQL();
-		String[] selectRows = {"assignmentid", "points", "question", "choices", "correctAnswer"};
+		String[] selectRows = {"assignmentid", "points", "question", "choices", "correct"};
 		String table = "question";
 		int assignmentId = quizAssignment.getAssignmentId();
 		try
