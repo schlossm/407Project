@@ -57,7 +57,8 @@ public class DocumentsQuery {
     public void addDocument(File documentFile, String title, String description, String authoruserid, String assignmentid, String courseid, int isPrivate, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String table = "Documents";
-        String path = documentFile.getName() + "_" + authoruserid + "_" + assignmentid;
+        String[] file = documentFile.getName().split(".");
+        String path = file[0] + "_" + authoruserid + "_" + assignmentid + "." + file[1];
         String[] rows = {"title", "description", "authoruserid", "assignmentid", "courseid", "private", "path"};
         String[] values = {title, description, authoruserid, assignmentid, courseid, isPrivate + "", path};
         uploadDocument(documentFile, path);
@@ -108,9 +109,10 @@ public class DocumentsQuery {
 
 	private void uploadDocument(File documentFile, String path) {
 		OkHttpClient client = new OkHttpClient();
-        Path source = Paths.get(documentFile.getPath());
+        Path source = Paths.get(documentFile.getAbsolutePath());
         try {
             String contentType = Files.probeContentType(source);
+            System.out.println(contentType);
             MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("multipart/form-data");
             if(documentFile.isFile()) {
                 System.out.println("Have the file");
@@ -120,7 +122,7 @@ public class DocumentsQuery {
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("filename", documentFile.getName(),
                             RequestBody.create(MediaType.parse(contentType), documentFile))
-                    .build();;
+                    .build();
             Request request = new Request.Builder()
                     .url("https://mascomputech.com/abc/uploadDocument.php")
                     .post(requestBody)
