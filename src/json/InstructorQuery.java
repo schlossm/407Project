@@ -248,6 +248,7 @@ public class InstructorQuery
 				String userId = "";
 				Grade grade;
 				String name = "";
+				String maxScore = "";
 				for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i)
 				{
 					try
@@ -256,12 +257,13 @@ public class InstructorQuery
 						assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsInt();
 						userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
 						name = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+						maxScore = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("maxpoints").getAsString();
 					}
 					catch (NullPointerException e2)
 					{
 						runnable.run(null, error1);
 					}
-					grade = new Grade(userId, assignmentId, String.valueOf(points), name);
+					grade = new Grade(userId, assignmentId, String.valueOf(points), name, maxScore);
 					gradesReturned.add(grade);
 				}
 	        /* Wait for Alex to implement the rest of the fields */
