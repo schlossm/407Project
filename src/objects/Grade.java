@@ -11,14 +11,24 @@ public class Grade implements Serializable {
     private String userID;
     private int assignmentID;
     private String assignmentName;
+    private String maxScore;
 
 
 
-    public Grade(String userID, int assignmentID, String score, String assignmentName) {
+    public Grade(String userID, int assignmentID, String score, String assignmentName, String maxScore) {
         this.userID = userID;
         this.assignmentID = assignmentID;
         this.score = score;
         this.assignmentName = assignmentName;
+        this.maxScore = maxScore;
+    }
+
+    public String getMaxScore() {
+        return maxScore;
+    }
+
+    public void setMaxScore(String maxScore) {
+        this.maxScore = maxScore;
     }
 
     public String getAssignmentName() {

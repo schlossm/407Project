@@ -108,7 +108,7 @@ public class StudentQuery
 	public void getGrade(int assignmentid, String userid, QueryCallbackRunnable runnable)
 	{
 		DFSQL dfsql = new DFSQL();
-		String selectedRows[] = {"grade", "assignmentid", "userid"}; //username
+		String selectedRows[] = {"grade", "assignmentid", "userid", "assignment.name", "assignment.maxpoints"}; //username
 		String table1 = "grades";
 		String table2 = "assignment";
 		String[] attributes = {"userid", "assignmentid"};
@@ -146,18 +146,20 @@ public class StudentQuery
 				int assignmentId = 0;
 				String userId = "";
 				String name = "";
+				String maxScore = "";
 				try
 				{
 					points = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("grade").getAsInt();
 					assignmentId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("assignmentid").getAsInt();
 					userId = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("userid").getAsString();
 					name = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("name").getAsString();
+					maxScore = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("maxpoints").getAsString();
 				}
 				catch (NullPointerException e2)
 				{
 					runnable.run(null, error1);
 				}
-				Grade grade = new Grade(userId, assignmentId, String.valueOf(points), name);
+				Grade grade = new Grade(userId, assignmentId, String.valueOf(points), name, maxScore);
 	        /* Wait for Alex to implement the rest of the fields */
 				runnable.run(grade, null);
 				System.out.println("getUser posting user to returned");
@@ -221,7 +223,7 @@ public class StudentQuery
 				{
 					runnable.run(null, error1);
 				}
-				Grade grade = new Grade(userId, assignmentId, String.valueOf(points), "");
+				Grade grade = new Grade(userId, assignmentId, String.valueOf(points), "", "");
             /* Wait for Alex to implement the rest of the fields */
 				runnable.run(grade, null);
 			});
@@ -235,7 +237,7 @@ public class StudentQuery
 	public void getAllGradeInCourse(String userid, int courseid, QueryCallbackRunnable runnable)
 	{
 		DFSQL dfsql = new DFSQL();
-		String selectedRows[] = {"grade", "assignment.assignmentid", "userid", "assignment.name"}; //username
+		String selectedRows[] = {"grade", "assignment.assignmentid", "userid", "assignment.name", "assignment.maxpoints"}; //username
 		String table1 = "grades";
 		String table2 = "students";
 		String table3 = "assignment";
@@ -275,6 +277,7 @@ public class StudentQuery
 				int assignmentId = 0;
 				String userId = "";
 				String assignmentName = "";
+				String maxScore = "";
 				Grade grade;
 				for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i)
 				{
@@ -284,12 +287,13 @@ public class StudentQuery
 						assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsInt();
 						userId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("userid").getAsString();
 						assignmentName = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("name").getAsString();
+						maxScore = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("maxpoints").getAsString();
 					}
 					catch (NullPointerException e2)
 					{
 						runnable.run(null, error1);
 					}
-					grade = new Grade(userId, assignmentId, String.valueOf(points), assignmentName);
+					grade = new Grade(userId, assignmentId, String.valueOf(points), assignmentName, maxScore);
 
 					gradesReturned.add(grade);
 				}
