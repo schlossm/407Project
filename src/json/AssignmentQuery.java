@@ -119,12 +119,12 @@ public class AssignmentQuery
 
 	}
 
-	public void getQuiz(int assignmentId, QueryCallbackRunnable runnable)
+	public void getQuiz(QuizAssignment quizAssignment, QueryCallbackRunnable runnable)
 	{
 		DFSQL dfsql = new DFSQL();
 		String[] selectRows = {"assignmentid", "points", "question", "choices", "correctAnswer"};
 		String table = "question";
-
+		int assignmentId = quizAssignment.getAssignmentId();
 		try
 		{
 			dfsql.select(selectRows, false, null, null).from(table)
@@ -149,7 +149,6 @@ public class AssignmentQuery
 				}
 				ArrayList<Question> quizQuestions = new ArrayList<Question>();
 				int returnedAssignmentId;
-				QuizAssignment quizAssignment = null;
 				double points = 0.0;
 				String question, correctAnswer, choices;
 				ArrayList<String> choicesList;
@@ -169,7 +168,7 @@ public class AssignmentQuery
 
 						quizQuestions.add(questionObject);
 					}
-					quizAssignment = new QuizAssignment(assignmentId, quizQuestions);
+					quizAssignment.setQuestions(quizQuestions);
 				}
 				catch (NullPointerException e2)
 				{
