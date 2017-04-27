@@ -13,9 +13,9 @@ public class FileUpload implements Serializable {
     private String authoruserid;
     private int courseid;
     private int assignmentid;
-    private boolean isPrivate;
+    private int isPrivate;
 
-    public FileUpload(String title, String description, String path, String authoruserid, int courseid, int assignmentid, boolean isPrivate) {
+    public FileUpload(String title, String description, String path, String authoruserid, int courseid, int assignmentid, int isPrivate) {
         this.title = title;
         this.description = description;
         this.path = path;
@@ -77,11 +77,11 @@ public class FileUpload implements Serializable {
         this.assignmentid = assignmentid;
     }
 
-    public boolean isPrivate() {
+    public int isPrivate() {
         return isPrivate;
     }
 
-    public void setPrivate(boolean aPrivate) {
+    public void setPrivate(int aPrivate) {
         isPrivate = aPrivate;
     }
 

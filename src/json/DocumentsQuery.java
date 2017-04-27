@@ -54,7 +54,7 @@ public class DocumentsQuery {
     }
 
 
-    public void addDocument(File documentFile, String title, String description, String authoruserid, String assignmentid, String courseid, boolean isPrivate, QueryCallbackRunnable runnable) {
+    public void addDocument(File documentFile, String title, String description, String authoruserid, String assignmentid, String courseid, int isPrivate, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String table = "Documents";
         String path = documentFile.getName() + "_" + authoruserid + "_" + assignmentid;
@@ -179,7 +179,7 @@ public class DocumentsQuery {
         try {
             if(checkPrivate) {
                 String[] attrs = {"courseid", "private"};
-                String[] values = {courseid + "", "false"};
+                String[] values = {courseid + "", "0"};
                 dfsql.select(selectedRows, false, null, null)
                         .from(table)
                         .where(DFSQLConjunction.and, DFSQLEquivalence.equals, attrs, values);
@@ -203,7 +203,7 @@ public class DocumentsQuery {
                 }
                 String title = null, description = null, path = null, authoruserid = null;
                 int id = 0, courseId = 0, assignmentid = 0;
-                boolean isPrivate = false;
+                int isPrivate = 0;
                 ArrayList<FileUpload> fileUploads = new ArrayList<>();
                 JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
                 try
@@ -217,7 +217,7 @@ public class DocumentsQuery {
                         authoruserid = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("authoruserid").getAsString();
                         courseId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsInt();
                         assignmentid = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsInt();
-                        isPrivate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("private").getAsBoolean();
+                        isPrivate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("private").getAsInt();
 
                         FileUpload fileUpload = new FileUpload(title, description, path, authoruserid, courseId, assignmentid, isPrivate);
                         fileUploads.add(fileUpload);
