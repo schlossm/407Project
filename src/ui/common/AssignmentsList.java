@@ -28,7 +28,7 @@ import java.util.Objects;
 import static ui.common.AssignmentsList.isInstructor;
 
 @SuppressWarnings("unchecked")
-class AssignmentsList extends ALJTablePanel implements DFNotificationCenterDelegate
+public class AssignmentsList extends ALJTablePanel implements DFNotificationCenterDelegate
 {
 	private JLabel loadingLabel;
 	private ArrayList<Assignment> assignments = new ArrayList<>();
@@ -218,7 +218,7 @@ class AssignmentsList extends ALJTablePanel implements DFNotificationCenterDeleg
 		confirmDelete.addButton("Cancel", ButtonType.cancel, null);
 	}
 
-	static boolean isInstructor()
+	public static boolean isInstructor()
 	{
 		return EnumSet.of(userType.TA, userType.TEACHER).contains(UIVariables.current.currentUser.getUserType());
 	}
