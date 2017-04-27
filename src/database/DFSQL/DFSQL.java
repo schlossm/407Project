@@ -76,7 +76,7 @@ public class DFSQL
 				catch (Exception ignored) { }
 				if (right.contains(" ") || !isNum)
 				{
-					right = "'" + right + "'";
+					right = "'" + right.replace("'", "\\'") + "'";
 				}
 
 				returnStringBuilder.append(" ").append(left).append(whereStatement.equivalence).append(right).append(whereStatement.conjunction);
@@ -260,7 +260,7 @@ public class DFSQL
 				catch (Exception ignored) { }
 				if (value.contains(" ") || !isNum)
 				{
-					returnStringBuilder.append("'").append(value).append("',");
+					returnStringBuilder.append("'").append(value.replace("'", "\\'")).append("',");
 				}
 				else
 				{
@@ -397,25 +397,7 @@ public class DFSQL
 		}
 	}
 
-	private void check(String value, DFSQLEquivalence equivalence) throws DFSQLError
-	{
-		if (Objects.equals(value, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-		String[] specifiers;
-		if (equivalence != DFSQLEquivalence.between && equivalence != DFSQLEquivalence.notBetween)
-		{
-			specifiers = new String[]{"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " AND", " OR"};
-		}
-		else
-		{
-			specifiers = new String[]{"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " OR"};
-		}
-
-		for (String specifier : specifiers)
-		{
-			if (value.toUpperCase().contains(specifier)) { throw DFSQLError.unexpectedValueFound; }
-		}
-	}
+	private void check(String value, DFSQLEquivalence equivalence) throws DFSQLError { }
 
 	private boolean hasCharacter(String string)
 	{

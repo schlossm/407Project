@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Objects;
 
-import static ui.common.AssignmentsList.isInstructor;
-
 @SuppressWarnings("unchecked")
 public class AssignmentsList extends ALJTablePanel implements DFNotificationCenterDelegate
 {
@@ -100,54 +98,57 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-		if (isInstructor())
+		if (UIVariables.current.isInstructor())
 		{
 			if (index.section == 0)
 			{
 				add();
-				return;
 			}
 		}
-		//TODO: Finish this once methods are available
-
-		Assignment assignmentClicked = assignments.get(index.item);
-
-		if (Objects.equals(assignmentClicked.getType(), "quiz"))
+		else
 		{
-			new AssignmentQuery().getQuiz(new QuizAssignment(assignmentClicked), ((returnedData, error) -> {
-				if (error != null)
+
+			Assignment assignmentClicked = assignments.get(index.item);
+
+			if (Objects.equals(assignmentClicked.getType(), "quiz"))
+			{
+				new AssignmentQuery().getQuiz(new QuizAssignment(assignmentClicked), ((returnedData, error) ->
 				{
-					Alert errorAlert = new Alert("Error", "ABC could not load the quiz.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null);
-					errorAlert.show(Window.current.mainScreen);
-					return;
-				}
-				if (returnedData instanceof QuizAssignment)
-				{
-					QuizAssignment quizAssignment = (QuizAssignment)returnedData;
-					System.out.println(quizAssignment);
-				}
-				else
-				{
-					Alert errorAlert = new Alert("Error", "ABC could not load the quiz.  Please try again.");
-					errorAlert.addButton("OK", ButtonType.defaultType, null);
-					errorAlert.show(Window.current.mainScreen);
-				}
-			}));
+					if (error != null)
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not load the quiz.  Please try again.");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+						return;
+					}
+					if (returnedData instanceof QuizAssignment)
+					{
+						QuizAssignment quizAssignment = (QuizAssignment) returnedData;
+						Window.current.showQuiz(quizAssignment);
+					}
+					else
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not load the quiz.  Please try again.");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+					}
+				}));
+			}
+			//Check for if submission assignment
 		}
 	}
 
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
 	{
-		if (isInstructor()) { return 2; }
+		if (UIVariables.current.isInstructor()) { return 2; }
 		return 1;
 	}
 
 	@Override
 	public int numberOfRowsInSectionForTable(ALJTable table, int section)
 	{
-		if (isInstructor())
+		if (UIVariables.current.isInstructor())
 		{
 			if (section == 0)
 			{
@@ -166,7 +167,7 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 	@Override
 	public ALJTableCell cellForRowAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-		if (isInstructor())
+		if (UIVariables.current.isInstructor())
 		{
 			if (index.section == 0)
 			{
@@ -182,7 +183,7 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 	@Override
 	public String titleForHeaderInSectionInTable(ALJTable table, int section)
 	{
-		if (isInstructor())
+		if (UIVariables.current.isInstructor())
 		{
 			if (section == 0)
 			{
@@ -218,6 +219,12 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 		confirmDelete.addButton("Cancel", ButtonType.cancel, null);
 	}
 
+	/**
+	 * @deprecated This method is deprecated.  Use UIVariables().isInstructor() instead.
+	 * @return false if user is not instructor, true otherwise
+	 * @see UIVariables#isInstructor()
+	 */
+	@Deprecated(forRemoval = true)
 	public static boolean isInstructor()
 	{
 		return EnumSet.of(userType.TA, userType.TEACHER).contains(UIVariables.current.currentUser.getUserType());
@@ -266,7 +273,7 @@ class AssignmentCell extends ALJTableCell
 
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
-		if (isInstructor())
+		if (UIVariables.current.isInstructor())
 		{
 			addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
 		}
@@ -280,7 +287,7 @@ class AssignmentCell extends ALJTableCell
 		add(detailLabelOne);
 		addConstraint(new LayoutConstraint(detailLabelOne, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(detailLabelOne, LayoutAttribute.top, LayoutRelation.equal, titleLabel, LayoutAttribute.bottom, 1.0, 8));
-		if (isInstructor())
+		if (UIVariables.current.isInstructor())
 		{
 			addConstraint(new LayoutConstraint(detailLabelOne, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
 		}
@@ -295,7 +302,7 @@ class AssignmentCell extends ALJTableCell
 		add(detailLabelTwo);
 		addConstraint(new LayoutConstraint(detailLabelTwo, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(detailLabelTwo, LayoutAttribute.top, LayoutRelation.equal, detailLabelOne, LayoutAttribute.bottom, 1.0, 8));
-		if (isInstructor())
+		if (UIVariables.current.isInstructor())
 		{
 			addConstraint(new LayoutConstraint(detailLabelTwo, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
 		}

@@ -180,12 +180,6 @@ public class Alert implements KeyListener, MLMDelegate
 		dropDowns.put(identifier, dropDown);
 	}
 
-	@Deprecated
-	public void addButton(String text, ButtonType type, ActionListener handler, boolean e)
-	{
-		addButton(text, type, handler);
-	}
-
 	public void addButton(String text, ButtonType type, ActionListener handler)
 	{
 		//Make sure the button panel is done properly

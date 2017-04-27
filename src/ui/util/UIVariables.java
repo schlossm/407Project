@@ -6,12 +6,14 @@ import net.sf.plist.io.PropertyListException;
 import net.sf.plist.io.bin.BinaryParser;
 import net.sf.plist.io.domxml.DOMXMLWriter;
 import objects.User;
+import objects.userType;
 import uikit.DFNotificationCenter;
 import uikit.DFNotificationCenterDelegate;
 import uikit.LocalStorage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -164,6 +166,11 @@ public class UIVariables implements DFNotificationCenterDelegate
 		}
 	}
 
+	public boolean isInstructor()
+	{
+		return EnumSet.of(userType.TA, userType.TEACHER).contains(currentUser.getUserType());
+	}
+
 	@Override
 	public void performActionFor(String notificationName, Object userData)
 	{
@@ -208,5 +215,53 @@ public class UIVariables implements DFNotificationCenterDelegate
 			timestamp = date + " " + time;
 		}
 		return timestamp;
+	}
+
+	public static String dateToSQLDATETIME(String t)
+	{
+		String[] tComponents = t.split("\\s+");
+		if (tComponents.length > 1) //We have date AND time
+		{
+			String date = tComponents[0];
+			String time = tComponents[1];
+
+			//Process Date
+			String[] dateComponents = date.split("/");
+			if (dateComponents[2].length() == 2)    //Make it a 4 digit year for SQL
+			{
+				dateComponents[2] = "20" + dateComponents[2];
+			}
+
+			date = dateComponents[2] + "-" + dateComponents[0] + "-" + dateComponents[1];
+
+			//Process Time
+			String[] timeAMPM = time.split("\\s+");
+
+			String[] timeComponents = timeAMPM[0].split(":");
+
+			if (Objects.equals(timeAMPM[1], "PM"))
+			{
+				timeComponents[0] = "" + (Integer.valueOf(timeComponents[0]) + 12);
+			}
+
+			time = timeComponents[0] + ":" + timeComponents[1] + ":00";
+
+			return date + " " + time;
+		}
+		else    //Just Date
+		{
+			String date = tComponents[0];
+
+			//Process Date
+			String[] dateComponents = date.split("/");
+			if (dateComponents[2].length() == 2)    //Make it a 4 digit year for SQL
+			{
+				dateComponents[2] = "20" + dateComponents[2];
+			}
+
+			date = dateComponents[2] + "-" + dateComponents[0] + "-" + dateComponents[1];
+
+			return date + " 00:00:00";
+		}
 	}
 }

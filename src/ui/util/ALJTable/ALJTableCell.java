@@ -127,6 +127,11 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		}
 	}
 
+	protected void registerComponentForClicking(Component component)
+	{
+		component.addMouseListener(new MouseListenerManager(this));
+	}
+
 	@Override
 	public Dimension getPreferredSize()
 	{
@@ -138,14 +143,14 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 	{
 		if (eventType == MLMEventType.pressed)
 		{
-			if (action.getSource() != accessoryView) { return; }
 			isClicked = true;
+			if (action.getSource() != accessoryView) { return; }
 			accessoryView.setOpaque(true);
 			accessoryView.setBackground(Color.lightGray);
 		}
 		else if (eventType == MLMEventType.draggedIn)
 		{
-			if (!isClicked) { return; }
+			if (isClicked) { return; }
 			if (action.getSource() != accessoryView) { return; }
 			accessoryView.setOpaque(true);
 			accessoryView.setBackground(Color.lightGray);
@@ -154,7 +159,12 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		{
 			if (!isClicked) { return; }
 			isClicked = false;
-			if (action.getSource() != accessoryView && !accessoryView.isOpaque()) { return; }
+			if (accessoryView == null)
+			{
+				delegate.accessoryViewClicked(ALJTableCellAccessoryViewType.none, currentIndex);
+				return;
+			}
+			if (action.getSource() != accessoryView && !accessoryView.isOpaque()) { delegate.accessoryViewClicked(ALJTableCellAccessoryViewType.none, currentIndex); return; }
 			accessoryView.setOpaque(false);
 			accessoryView.setBackground(new Color(0, 0, 0, 0));
 			delegate.accessoryViewClicked(_accessoryViewType, currentIndex);
@@ -162,20 +172,12 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		else if (eventType == MLMEventType.draggedOut)
 		{
 			if (!isClicked) { return; }
+			isClicked = false;
 			if (action.getSource() != accessoryView) { return; }
 			accessoryView.setOpaque(false);
 			accessoryView.setBackground(new Color(0, 0, 0, 0));
 		}
 	}
-/*
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-
-		g.setColor(Color.lightGray);
-		g.drawRect(0, this.getHeight() - 1, this.getWidth(), 1);
-	}*/
 }
 
 class ALJTableCellAccessoryViewImage

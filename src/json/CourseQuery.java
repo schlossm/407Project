@@ -2,22 +2,19 @@ package json;
 
 import com.google.gson.JsonObject;
 import database.DFDatabase;
-import database.DFDatabaseCallbackRunnable;
-import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
-import objects.*;
+import objects.Course;
+import objects.Instructor;
+import objects.Student;
+import objects.userType;
 
 import java.util.ArrayList;
 
-/**
- * Created by Naveen Ganessin on 3/6/2017.
- */
+@SuppressWarnings({ "unused", "ConstantConditions" })
 public class CourseQuery
 {
-
-	private DFDataUploaderReturnStatus uploadSuccess;
 	private JsonObject jsonObject;
 
 	public void getAllGrades(QueryCallbackRunnable runnable)
@@ -51,7 +48,7 @@ public class CourseQuery
 					runnable.run(null, error1);
 					return;
 				}
-				ArrayList<Integer> allGrades = new ArrayList<Integer>();
+				ArrayList<Integer> allGrades = new ArrayList<>();
 				String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
 				int courseId = 0, capacity = 0;
 				Course course;
@@ -108,9 +105,9 @@ public class CourseQuery
 					runnable.run(null, error1);
 					return;
 				}
-				ArrayList<Course> allCourses = new ArrayList<Course>();
-				String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
-				int courseId = 0, capacity = 0, maxStorage = 0;
+				ArrayList<Course> allCourses = new ArrayList<>();
+				String courseTitle, courseName, description, roomNo, meetingTime, startDate, endDate;
+				int courseId, capacity, maxStorage;
 				Course course;
 				try
 				{
@@ -186,8 +183,8 @@ public class CourseQuery
 				{
 					return;
 				}
-				String courseTitle = null, courseName = null, description = null, roomNo = null, meetingTime = null, startDate = null, endDate = null;
-				int courseId = 0, capacity = 0, maxStorage = 0;
+				String courseTitle, courseName, description, roomNo, meetingTime, startDate, endDate;
+				int courseId, capacity, maxStorage;
 				Course course = null;
 				try
 				{
@@ -446,7 +443,7 @@ public class CourseQuery
 			{
 				if (error != null)
 				{
-					return;
+					runnable.run(null, new JSONQueryError(0, "Internal Error", null));
 				}
 				if (response instanceof JsonObject)
 				{
@@ -456,7 +453,7 @@ public class CourseQuery
 				}
 				else
 				{
-					return;
+					runnable.run(null, new JSONQueryError(0, "Internal Error", null));
 				}
 			});
 		}
@@ -541,6 +538,10 @@ public class CourseQuery
 				{
 					//Process the error and return appropriate new error to UI.
 					JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+					if (error.code == 1)
+					{
+						error1 = new JSONQueryError(3, "No Data", null);
+					}
 					runnable.run(null, error1);
 					return;
 				}
@@ -553,10 +554,10 @@ public class CourseQuery
 				{
 					return;
 				}
-				ArrayList<Instructor> allCoursesForInstructor = new ArrayList<Instructor>();
+				ArrayList<Instructor> allCoursesForInstructor = new ArrayList<>();
 				int instructorId;
 				String userId, officeHours, roomNo, email, firstName, lastName;
-				Instructor instructor = null;
+				Instructor instructor;
 				JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
 				try
 				{
@@ -625,7 +626,7 @@ public class CourseQuery
 				}
 				else
 				{
-					return;
+					runnable.run(null, new JSONQueryError(0, "Internal Error", null));
 				}
 			});
 		}
@@ -635,7 +636,7 @@ public class CourseQuery
 		}
 	}
 
-	private boolean addStudentToCourseGiven(int courseid, int studentid, QueryCallbackRunnable runnable)
+	private void addStudentToCourseGiven(int courseid, int studentid, QueryCallbackRunnable runnable)
 	{
 		DFSQL dfsql = new DFSQL();
 		String[] rows = {"courseid", "studentid"};
@@ -675,7 +676,6 @@ public class CourseQuery
 		{
 			dfsqlError.printStackTrace();
 		}
-		return uploadSuccess == DFDataUploaderReturnStatus.success;
 	}
 
 	/**
@@ -706,7 +706,7 @@ public class CourseQuery
 				}
 				else
 				{
-					return;
+					runnable.run(null, new JSONQueryError(0, "Internal Error", null));
 				}
 			});
 		}
@@ -787,8 +787,13 @@ public class CourseQuery
 			{
 				if (error != null)
 				{
+
 					//Process the error and return appropriate new error to UI.
 					JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+					if (error.code == 1)
+					{
+						error1 = new JSONQueryError(3, "No Data", null);
+					}
 					runnable.run(null, error1);
 					return;
 				}
@@ -801,10 +806,10 @@ public class CourseQuery
 				{
 					return;
 				}
-				ArrayList<Student> allStudentsForCourse = new ArrayList<Student>();
+				ArrayList<Student> allStudentsForCourse = new ArrayList<>();
 				int studentId;
-				String userId, officeHours, roomNo, email, firstName, lastName;
-				Student student = null;
+				String userId, email, firstName, lastName;
+				Student student;
 				JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
 				try
 				{

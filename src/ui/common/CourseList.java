@@ -40,6 +40,14 @@ public class CourseList extends ALJTablePanel
 					{
 						if (error1 != null)
 						{
+							if (error1.code == 3)
+							{
+								course.setTeachers(new ArrayList<>());
+								table.reloadData();
+								return;
+							}
+							course.setStudents(new ArrayList<>());
+							table.reloadData();
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
 							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
@@ -61,13 +69,20 @@ public class CourseList extends ALJTablePanel
 			}
 			else
 			{
-				for (Course course: courses)
+				for (Course course : courses)
 				{
 					new CourseQuery().getAllStudentsInCourse(course.getCourseID(), (returnedData1, error1) ->
 					{
-						System.out.println(returnedData1);
 						if (error1 != null)
 						{
+							if (error1.code == 3)
+							{
+								course.setStudents(new ArrayList<>());
+								table.reloadData();
+								return;
+							}
+							course.setStudents(new ArrayList<>());
+							table.reloadData();
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
 							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
@@ -96,6 +111,10 @@ public class CourseList extends ALJTablePanel
 				{
 					if (error != null)
 					{
+						if (error.code == 3)
+						{
+							return;
+						}
 						Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
 						errorAlert.addButton("OK", ButtonType.defaultType, null);
 						errorAlert.show(Window.current.mainScreen);
@@ -105,12 +124,21 @@ public class CourseList extends ALJTablePanel
 					{
 						courses = (ArrayList<Course>) returnedData;
 						UIVariables.current.globalUserData.put("allCourses", courses);
-						for (Course course: courses)
+						for (Course course : courses)
 						{
 							new CourseQuery().getAllStudentsInCourse(course.getCourseID(), (returnedData1, error1) ->
 							{
+								System.out.println(error1);
 								if (error1 != null)
 								{
+									if (error1.code == 3)
+									{
+										course.setStudents(new ArrayList<>());
+										table.reloadData();
+										return;
+									}
+									course.setStudents(new ArrayList<>());
+									table.reloadData();
 									Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
 									errorAlert.addButton("OK", ButtonType.defaultType, null);
 									errorAlert.show(Window.current.mainScreen);
@@ -145,7 +173,7 @@ public class CourseList extends ALJTablePanel
 				{
 					if (error != null)
 					{
-						if (error.code == 1)
+						if (error.code == 3)
 						{
 							return;
 						}
@@ -156,13 +184,21 @@ public class CourseList extends ALJTablePanel
 					}
 					if (returnedData instanceof ArrayList)
 					{
-						courses = (ArrayList<Course>)returnedData;
+						courses = (ArrayList<Course>) returnedData;
 						for (Course course : courses)
 						{
 							new CourseQuery().getAllInstructorsInCourse(course.getCourseID(), (returnedData1, error1) ->
 							{
 								if (error1 != null)
 								{
+									if (error1.code == 3)
+									{
+										course.setTeachers(new ArrayList<>());
+										table.reloadData();
+										return;
+									}
+									course.setStudents(new ArrayList<>());
+									table.reloadData();
 									Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
 									errorAlert.addButton("OK", ButtonType.defaultType, null);
 									errorAlert.show(Window.current.mainScreen);

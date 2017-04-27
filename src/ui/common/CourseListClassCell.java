@@ -80,7 +80,6 @@ public class CourseListClassCell extends ALJTableCell
 		}
 		else if (course.getStudents() != null)
 		{
-
 			detailLabelFour.setText(course.getStudents().size() + (course.getStudents().size() == 1 ?  " student" : " students") + " in this course");
 		}
 		else

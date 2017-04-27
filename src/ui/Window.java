@@ -3,6 +3,7 @@ package ui;
 import net.sf.plist.NSBoolean;
 import net.sf.plist.NSString;
 import objects.Course;
+import objects.QuizAssignment;
 import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
@@ -10,6 +11,7 @@ import ui.admin.ManageGroup;
 import ui.common.CourseList;
 import ui.common.CourseView;
 import ui.instructor.QuizCreation;
+import ui.student.TakeQuiz;
 import ui.util.ABCTabBar;
 import ui.util.Bounds;
 import ui.util.UIStrings;
@@ -41,7 +43,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	private ALJPanel container;
 	private ABCTabBar tabBar;
 	private Login loginPanel;
-	private ALJFrame quizFrame;
+	public ALJFrame quizFrame;
 
 	Window()
 	{
@@ -466,6 +468,88 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	}
 
 	public void closeQuizCreation()
+	{
+		quizFrame.setVisible(false);
+		quizFrame.dispose();
+	}
+
+	public void showQuiz(QuizAssignment quizAssignment)
+	{
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Bounds bounds = new Bounds();
+		bounds.x = 0;
+		bounds.y = 0;
+		bounds.width = screenSize.width;
+		bounds.height = screenSize.height;
+
+
+		quizFrame = new ALJFrame("ABC - Quiz");
+		quizFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+		quizFrame.setBackground(Color.WHITE);
+		quizFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+		quizFrame.getContentPane().setLayout(null);
+
+		try
+		{
+			quizFrame.setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
+		}
+		catch (Exception ignored) { }
+
+		container = new ALJPanel();
+		container.setLayout(null);
+		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
+		container.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+		activePanel = new TakeQuiz(quizAssignment);
+
+		container.add(activePanel);
+
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, container, LayoutAttribute.top, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
+
+		quizFrame.getContentPane().add(container);
+
+		quizFrame.setFocusTraversalPolicy(new FocusTraversalPolicy()
+		{
+			@Override
+			public Component getComponentAfter(Container aContainer, Component aComponent)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getComponentBefore(Container aContainer, Component aComponent)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getFirstComponent(Container aContainer)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getLastComponent(Container aContainer)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getDefaultComponent(Container aContainer)
+			{
+				return null;
+			}
+		});
+
+		quizFrame.setVisible(true);
+		quizFrame.setMinimumSize(new Dimension(800, 600));
+	}
+
+	public void destroyQuiz()
 	{
 		quizFrame.setVisible(false);
 		quizFrame.dispose();

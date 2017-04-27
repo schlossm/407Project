@@ -205,18 +205,23 @@ public class InstructorQuery
 	public void getGradeOfAllStudentsInCourse(int courseid, QueryCallbackRunnable runnable)
 	{
 		DFSQL dfsql = new DFSQL();
-		String selectedRows[] = {"grade", "assignmentid", "userid"}; //username
+		String selectedRows[] = {"grade", "assignment.assignmentid", "userid"}; //username
 		String table1 = "grades";
 		String table2 = "assignment";
 		String attributes = "assignment.courseid";
 		String values = "" + courseid;
 
+		Join[] joins = new Join[] {new Join(table2, "grades.assignmentid", "assignment.assignmentid"),
+			new Join("courses", "assignment.courseid", "courses.id"),
+			new Join("coursestudentmembership", "coursestudentmembership.courseid", "courses.id"),
+			new Join("students", "coursestudentmembership.studentID", "students.id"),
+		};
 
 		try
 		{
 			dfsql.select(selectedRows, false, null, null)
 			     .from(table1)
-			     .join(DFSQLJoin.left, table2, "grade.assignmentid", "assignment.assignmentid")
+			     .join(DFSQLJoin.left, joins)
 			     .where(DFSQLEquivalence.equals, attributes, values);
 			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
 			{

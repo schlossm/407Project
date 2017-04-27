@@ -161,7 +161,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 			{
 				case teachers:  //Upload new Instructor
 				{
-					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), alert.textFieldForIdentifier(groupToManage + ".birthday").getText(), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.TEACHER, (returnedData, error) ->
+					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), UIVariables.dateToSQLDATETIME(alert.textFieldForIdentifier(groupToManage + ".birthday").getText()), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.TEACHER, (returnedData, error) ->
 					{
 						boolean shouldReturn = checkIfNeedToShowErrorOnUserName(error, alert);
 						if (shouldReturn) { return; }
@@ -229,8 +229,8 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 					String meetingTimes = alert.textFieldForIdentifier(groupToManage + ".meetingTimes").getText();
 					String description = alert.textFieldForIdentifier(groupToManage + ".description").getText();
 					String capacity = alert.textFieldForIdentifier(groupToManage + ".capacity").getText();
-					String startDate = alert.textFieldForIdentifier(groupToManage + ".startDate").getText();
-					String endDate = alert.textFieldForIdentifier(groupToManage + ".endDate").getText();
+					String startDate = UIVariables.dateToSQLDATETIME(alert.textFieldForIdentifier(groupToManage + ".startDate").getText());
+					String endDate = UIVariables.dateToSQLDATETIME(alert.textFieldForIdentifier(groupToManage + ".endDate").getText());
 					String roomNum = alert.textFieldForIdentifier(groupToManage + ".roomNumber").getText();
 
 					currentProcess = Process.addCourse;
@@ -284,7 +284,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 
 				case students:  //Upload a new student
 				{
-					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), alert.textFieldForIdentifier(groupToManage + ".birthday").getText(), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.STUDENT, (returnedData, error) ->
+					userQuery.addNewUser(alert.textFieldForIdentifier(groupToManage + ".username").getText(), alert.textFieldForIdentifier(groupToManage + ".password").getText(), alert.textFieldForIdentifier(groupToManage + ".email").getText(), UIVariables.dateToSQLDATETIME(alert.textFieldForIdentifier(groupToManage + ".birthday").getText()), alert.textFieldForIdentifier(groupToManage + ".firstName").getText(), alert.textFieldForIdentifier(groupToManage + ".lastName").getText(), userType.STUDENT, (returnedData, error) ->
 					{
 						if (error != null)
 						{
@@ -370,7 +370,6 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				alert.addTextField("Birthday (MM/DD/YYYY)", "teacher.birthday", false);
 				alert.addTextField("Office Hours", "teacher.officeHours", false);
 				alert.addTextField("Room Number", "teacher.roomNumber", false);
-				alert.addTextField("Courses (comma separated CRN)", "teacher.courses", false);
 				break;
 			}
 
@@ -384,7 +383,7 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				alert.addTextField("Capacity", "course.capacity", false);
 				alert.addTextField("Room Number", "course.roomNumber", false);
 				alert.addTextField("Start Date (MM/DD/YYYY)", "course.startDate", false);
-				alert.addTextField("End Date (mm/DD/YYYY)", "course.endDate", false);
+				alert.addTextField("End Date (MM/DD/YYYY)", "course.endDate", false);
 				break;
 			}
 
@@ -403,7 +402,6 @@ public class ManageGroup extends ALJTablePanel implements DFNotificationCenterDe
 				alert.addTextField("Last Name", "student.lastName", false);
 				alert.addTextField("Email", "student.email", false);
 				alert.addTextField("Birthday (MM/DD/YYYY)", "student.birthday", false);
-				alert.addTextField("Courses (comma separated CRN)", "teacher.courses", false);
 				break;
 			}
 		}

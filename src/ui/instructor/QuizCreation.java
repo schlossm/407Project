@@ -170,9 +170,7 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
-	{
-
-	}
+	{ }
 
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
