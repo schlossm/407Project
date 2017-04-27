@@ -9,10 +9,9 @@ import java.util.ArrayList;
  */
 public class QuizAssignment extends Assignment implements Serializable {
     protected ArrayList<Question> questions;
-    protected int assignmentId;
 
     public QuizAssignment(int assignmentId, ArrayList<Question> questions) {
-        this.assignmentId = assignmentId;
+        this.assignmentID = assignmentId;
         this.questions = questions;
     }
 
@@ -36,11 +35,11 @@ public class QuizAssignment extends Assignment implements Serializable {
     }
 
     public int getAssignmentId() {
-        return assignmentId;
+        return assignmentID;
     }
 
     public void setAssignmentId(int assignmentId) {
-        this.assignmentId = assignmentId;
+        this.assignmentID = assignmentId;
     }
 
     public void setQuestions(ArrayList<Question> newQs) {
