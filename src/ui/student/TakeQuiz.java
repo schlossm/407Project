@@ -2,6 +2,7 @@ package ui.student;
 
 import objects.QuizAssignment;
 import ui.util.ALJTable.*;
+import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
 import uikit.autolayout.LayoutRelation;
@@ -20,6 +21,9 @@ public class TakeQuiz extends ALJPanel implements ALJTableDataSource, ALJTableDe
 		this.assignment = assignment;
 
 		JLabel title = new JLabel(assignment.getTitle());
+		title.setFont(UIFont.textSemibold.deriveFont(14f));
+		add(title);
+		addConstraint(new LayoutConstraint(title, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 20));
 
 		table = new ALJTable();
 		table.dataSource = this;

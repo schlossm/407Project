@@ -1,7 +1,6 @@
 package ui.common;
 
 import json.AssignmentQuery;
-import json.DocumentsQuery;
 import objects.Assignment;
 import objects.Course;
 import objects.QuizAssignment;
@@ -92,7 +91,7 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 			alert.show(Window.current.mainScreen);
 
 			//TODO: Do something
-			new DocumentsQuery().getAllDocumentsIdsInCourse(course.getCourseID());
+			//new DocumentsQuery().getAllDocumentsIdsInCourse(course.getCourseID());
 		});
 		assignmentType.addButton("Cancel", ButtonType.cancel, null);
 		assignmentType.show(Window.current.mainScreen);
