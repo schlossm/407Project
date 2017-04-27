@@ -19,6 +19,7 @@ public class DocumentsQueryTest {
     {
         DFDatabase.defaultDatabase.enableDebug();
         DocumentsQueryTest test = new DocumentsQueryTest();
+        test.testAddDocument();
     }
 
     /*
