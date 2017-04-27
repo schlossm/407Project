@@ -31,7 +31,9 @@ public class TakeQuiz extends ALJPanel implements ALJTableDataSource, ALJTableDe
 		table.delegate = this;
 		add(table);
 		addConstraint(new LayoutConstraint(table, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
+		addConstraint(new LayoutConstraint(table, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
 		addConstraint(new LayoutConstraint(table, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1.0, 0));
+		addConstraint(new LayoutConstraint(table, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 	}
 
 	@Override
