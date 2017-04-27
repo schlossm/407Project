@@ -117,7 +117,7 @@ public class GradesView extends ALJTablePanel
 						boolean contains = false;
 						for (GradeData data : gradeData)
 						{
-							if (Objects.equals(data.title, UIVariables.current.currentUser.getFirstName() + " " + UIVariables.current.currentUser.getLastName()))
+							if (Objects.equals(data.title, grade.getAssignmentName()))
 							{
 								contains = true;
 								data.grade += Double.valueOf(grade.getScore());
@@ -127,7 +127,7 @@ public class GradesView extends ALJTablePanel
 						if (!contains)
 						{
 							GradeData data = new GradeData();
-							data.title = UIVariables.current.currentUser.getFirstName() + " " + UIVariables.current.currentUser.getLastName();
+							data.title = grade.getAssignmentName();
 							data.grade = Double.valueOf(grade.getScore());
 							gradeData.add(data);
 
