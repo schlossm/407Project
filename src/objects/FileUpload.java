@@ -7,58 +7,91 @@ import java.io.Serializable;
  * Alex Rosenberg
  */
 public class FileUpload implements Serializable {
-    private String name;
-    private String location;
-    private int courseID;
+    private String title;
+    private String description;
+    private String path;
+    private String authoruserid;
+    private int courseid;
+    private int assignmentid;
     private boolean isPrivate;
+
+    public FileUpload(String title, String description, String path, String authoruserid, int courseid, int assignmentid, boolean isPrivate) {
+        this.title = title;
+        this.description = description;
+        this.path = path;
+        this.authoruserid = authoruserid;
+        this.courseid = courseid;
+        this.assignmentid = assignmentid;
+        this.isPrivate = isPrivate;
+    }
 
     public FileUpload() {
         // empty constructor
     }
 
-    public FileUpload(String name, String location, int courseID, boolean isPrivate) {
-        this.name = name;
-        this.location = location;
-        this.courseID = courseID;
-        this.isPrivate = isPrivate;
+    public String getTitle() {
+        return title;
     }
 
-    public String getName() {
-        return this.name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void setName(String newName) {
-        this.name = newName;
+    public String getDescription() {
+        return description;
     }
 
-    public String getLocation() {
-        return this.location;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setLocation(String newLoc) {
-        this.location = newLoc;
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getAuthoruserid() {
+        return authoruserid;
+    }
+
+    public void setAuthoruserid(String authoruserid) {
+        this.authoruserid = authoruserid;
     }
 
     public int getCourseID() {
-        return this.courseID;
+        return courseid;
     }
 
-    public void setCourseID(int newID) {
-        this.courseID = newID;
+    public void setCourseID(int courseID) {
+        this.courseid = courseid;
     }
 
-    public boolean getIsPrivate() {
-        return this.isPrivate;
+    public int getAssignmentid() {
+        return assignmentid;
     }
 
-    public void setIsPrivate(boolean newPrivacy) {
-        this.isPrivate = newPrivacy;
+    public void setAssignmentid(int assignmentid) {
+        this.assignmentid = assignmentid;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
     }
 
     public String toString() {
-        return "name: " + this.name
-                + "\nlocation: " + this.location
-                + "\ncourseID: " + this.courseID
-                + "\nisPrivate: " + this.isPrivate;
+        return "title: " + this.title
+                + "\ndescription: " + this.description
+                + "\npath: " + this.path
+                + "\nauthoruserid: " + this.authoruserid
+                + "\ncourseid: " + this.courseid
+                + "\nassignmentid" + this.assignmentid
+                + "\nisPrivate" + this.isPrivate;
     }
 }
