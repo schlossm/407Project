@@ -4,6 +4,7 @@ import json.AssignmentQuery;
 import json.DocumentsQuery;
 import objects.Assignment;
 import objects.Course;
+import objects.QuizAssignment;
 import objects.userType;
 import ui.Window;
 import ui.util.ALJTable.*;
@@ -22,6 +23,7 @@ import uikit.autolayout.uiobjects.ALJTablePanel;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Objects;
 
 import static ui.common.AssignmentsList.isInstructor;
 
@@ -107,6 +109,32 @@ class AssignmentsList extends ALJTablePanel implements DFNotificationCenterDeleg
 			}
 		}
 		//TODO: Finish this once methods are available
+
+		Assignment assignmentClicked = assignments.get(index.item);
+
+		if (Objects.equals(assignmentClicked.getType(), "quiz"))
+		{
+			new AssignmentQuery().getQuiz(new QuizAssignment(assignmentClicked), ((returnedData, error) -> {
+				if (error != null)
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load the quiz.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null);
+					errorAlert.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData instanceof QuizAssignment)
+				{
+					QuizAssignment quizAssignment = (QuizAssignment)returnedData;
+					System.out.println(quizAssignment);
+				}
+				else
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load the quiz.  Please try again.");
+					errorAlert.addButton("OK", ButtonType.defaultType, null);
+					errorAlert.show(Window.current.mainScreen);
+				}
+			}));
+		}
 	}
 
 	@Override
@@ -176,7 +204,19 @@ class AssignmentsList extends ALJTablePanel implements DFNotificationCenterDeleg
 	}
 
 	@Override
-	public void tableView(ALJTable table, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt) { }
+	public void tableView(ALJTable table, ALJTableCellEditingStyle commit, ALJTableIndex forRowAt)
+	{
+		Alert confirmDelete = new Alert("Confirm Delete", null);
+		confirmDelete.addButton("Delete", ButtonType.destructive, e ->
+		{
+			Assignment assignmentToRemove = assignments.get(forRowAt.item);
+			new AssignmentQuery().removeAssignment(assignmentToRemove.getAssignmentID(), ((returnedData, error) -> {
+				assignments.remove(assignmentToRemove);
+				table.reloadData();
+			}));
+		});
+		confirmDelete.addButton("Cancel", ButtonType.cancel, null);
+	}
 
 	static boolean isInstructor()
 	{

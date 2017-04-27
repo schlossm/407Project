@@ -303,7 +303,7 @@ class QuestionTitleCell extends ALJTableCell
 			@Override
 			public void keyTyped(KeyEvent e)
 			{
-				question.setQuestion(textField.getText());
+
 			}
 
 			@Override
@@ -315,7 +315,7 @@ class QuestionTitleCell extends ALJTableCell
 			@Override
 			public void keyReleased(KeyEvent e)
 			{
-
+				question.setQuestion(textField.getText() + e.getKeyChar());
 			}
 		});
 		add(textField);
@@ -353,7 +353,7 @@ class QuestionChoiceCell extends ALJTableCell
 			public void keyReleased(KeyEvent e)
 			{
 				ArrayList<String> choices = question.getChoices();
-				choices.set(position, textField.getText());
+				choices.set(position, textField.getText() + e.getKeyChar());
 				question.setChoices(choices);
 			}
 		});

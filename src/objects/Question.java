@@ -8,10 +8,10 @@ import java.util.ArrayList;
  * Alex Rosenberg
  */
 public class Question implements Serializable {
-    private String question = "";
-    private ArrayList<String> choices = new ArrayList<>();
-    private String correctChoice = "";
-    private double points = -1;
+    protected String question;
+    protected ArrayList<String> choices;
+    protected String correctChoice;
+    protected double points;
 
     public Question(String question, ArrayList<String> choices, String correctChoice, double points) {
         this.question = question;
