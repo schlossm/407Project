@@ -8,14 +8,14 @@ import java.io.Serializable;
  */
 public class Assignment implements Serializable {
 
-    private String title;
-    private int assignmentID;
-    private int courseID;
-    private String openDate;
-    private String dueDate;
-    private String instructions;
-    private String type;
-    private double maxPoints;
+    protected String title;
+    protected int assignmentID;
+    protected int courseID;
+    protected String openDate;
+    protected String dueDate;
+    protected String instructions;
+    protected String type;
+    protected double maxPoints;
 
     public Assignment(int assignmentID) {
         this.assignmentID = assignmentID;
