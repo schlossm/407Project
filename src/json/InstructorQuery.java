@@ -205,7 +205,7 @@ public class InstructorQuery
 	public void getGradeOfAllStudentsInCourse(int courseid, QueryCallbackRunnable runnable)
 	{
 		DFSQL dfsql = new DFSQL();
-		String selectedRows[] = {"grade", "assignment.assignmentid", "userid", "assignment.name"}; //username
+		String selectedRows[] = {"grade", "assignment.assignmentid", "userid", "assignment.name", "assignment.maxpoints"}; //username
 		String table1 = "grades";
 		String table2 = "assignment";
 		String attributes = "assignment.courseid";
