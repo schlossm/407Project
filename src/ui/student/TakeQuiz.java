@@ -24,13 +24,14 @@ public class TakeQuiz extends ALJPanel implements ALJTableDataSource, ALJTableDe
 		title.setFont(UIFont.textSemibold.deriveFont(14f));
 		add(title);
 		addConstraint(new LayoutConstraint(title, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 20));
+		addConstraint(new LayoutConstraint(title, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 20));
 
 		table = new ALJTable();
 		table.dataSource = this;
 		table.delegate = this;
 		add(table);
 		addConstraint(new LayoutConstraint(table, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
-		addConstraint(new LayoutConstraint(table, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
+		addConstraint(new LayoutConstraint(table, LayoutAttribute.top, LayoutRelation.equal, title, LayoutAttribute.bottom, 1.0, 0));
 	}
 
 	@Override

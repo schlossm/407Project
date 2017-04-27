@@ -46,7 +46,7 @@ class FileList extends ALJTablePanel
 			fileListData.put("Files", (ArrayList<Object>) UIVariables.current.globalUserData.get("files"));
 		}
 
-		query.getAllDocumentsIdsInCourse(course.getCourseID());
+		//query.getAllDocumentsIdsInCourse(course.getCourseID());
 	}
 
 	private void updateSavedInfo()
