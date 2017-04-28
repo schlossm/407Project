@@ -150,7 +150,7 @@ public class AnnouncementQuery
 			dfsql.select(selectedRows, false, null, null)
 			     .from(table1)
 			     .join(DFSQLJoin.left, joins)
-			     .where(DFSQLEquivalence.equals, "userid", "" + userid);
+			     .where(DFSQLEquivalence.equals, "courseid", "" + "coursestudentmembership.courseid");
 			dfsql1.select(selectedRows, false, null, null)
 			      .from(table1)
 			      .where(DFSQLEquivalence.equals, "courseid", "-1");
