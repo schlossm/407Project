@@ -46,6 +46,11 @@ class FileList extends ALJTablePanel
 			fileListData.put("Files", (ArrayList<Object>) UIVariables.current.globalUserData.get("files"));
 		}
 
+		reloadDocs();
+	}
+
+	public void reloadDocs()
+	{
 		query.getAllDocumentsIdsInCourse(course.getCourseID(), ((returnedData, error) -> {
 			if (error != null)
 			{
@@ -109,7 +114,32 @@ class FileList extends ALJTablePanel
 			//FIXME: implement method after it's updated
 			new DocumentsQuery().addDocument(tempFile, alert.textFieldForIdentifier("fileName").getText(), "A File", UIVariables.current.currentUser.getUserID(), "-1", String.valueOf(course.getCourseID()), alert.checkBoxForIdentifier("private").isSelected() ? 1 : 0, ((returnedData, error) ->
 			{
-				System.out.println(returnedData);
+				if (error != null)
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not upload the file.  Please try again");
+					errorAlert.addButton("OK", ButtonType.defaultType, null);
+					errorAlert.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData instanceof Boolean)
+				{
+					if ((Boolean) returnedData)
+					{
+						reloadDocs();
+					}
+					else
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not upload the file.  Please try again");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+					}
+				}
+				else
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not upload the file.  Please try again");
+					errorAlert.addButton("OK", ButtonType.defaultType, null);
+					errorAlert.show(Window.current.mainScreen);
+				}
 			}));
 			/*
 			workToDoOnSuccess = () ->
@@ -153,7 +183,7 @@ class FileList extends ALJTablePanel
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-		if (index.section == 0 && index.item == 0)
+		if (index.section == 0 && index.item == 0 && isInstructor())
 		{
 			addNewFile(null);
 		}

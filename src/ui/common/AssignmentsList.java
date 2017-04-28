@@ -163,7 +163,9 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 							{
 								fileChoices.addButton(upload.getAuthoruserid(), ButtonType.plain, e ->
 								{
-									new DocumentsQuery().getDocument(upload.getDocumentid(), ((returnedData1, error1) -> {
+									Alert userOptions = new Alert("Choose Action", null);
+									userOptions.addButton("Download Submission", ButtonType.plain, e1 -> new DocumentsQuery().getDocument(upload.getDocumentid(), ((returnedData1, error1) ->
+									{
 										if (error1 != null)
 										{
 											Alert errorAlert = new Alert("Error", "ABC could not download the file.  Please try again");
@@ -175,9 +177,9 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 										{
 											try
 											{
-												Desktop.getDesktop().open((File)returnedData1);
+												Desktop.getDesktop().open((File) returnedData1);
 											}
-											catch (IOException e1)
+											catch (IOException e2)
 											{
 												Alert errorAlert = new Alert("Error", "ABC could not download the file.  Please try again");
 												errorAlert.addButton("OK", ButtonType.defaultType, null);
@@ -190,7 +192,18 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 											errorAlert.addButton("OK", ButtonType.defaultType, null);
 											errorAlert.show(Window.current.mainScreen);
 										}
-									}));
+									})));
+									userOptions.addButton("Enter Grade", ButtonType.plain, e1 ->
+									{
+										Alert enterGrade = new Alert("Enter Grade", "Enter " + upload.getAuthoruserid() + "'s grade");
+										enterGrade.addTextField("Grade", "grade", false);
+										enterGrade.addButton("Cancel", ButtonType.cancel, null);
+										enterGrade.addButton("Submit Grade", ButtonType.plain, null);
+										enterGrade.show(Window.current.mainScreen);
+
+									});
+									userOptions.addButton("Cancel", ButtonType.cancel, null);
+									userOptions.show(Window.current.mainScreen);
 								});
 							}
 							fileChoices.addButton("Cancel", ButtonType.cancel, null);
@@ -208,7 +221,6 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 		}
 		else
 		{
-
 			Assignment assignmentClicked = assignments.get(index.item);
 
 			if (Objects.equals(assignmentClicked.getType(), "quiz"))
