@@ -77,12 +77,12 @@ public class FileUpload implements Serializable {
         this.assignmentid = assignmentid;
     }
 
-    public int isPrivate() {
+    public int getIsPrivate() {
         return isPrivate;
     }
 
-    public void setPrivate(int aPrivate) {
-        isPrivate = aPrivate;
+    public void setIsPrivate(int isPrivate) {
+        this.isPrivate = isPrivate;
     }
 
     public String toString() {
