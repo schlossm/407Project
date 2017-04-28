@@ -522,7 +522,7 @@ public class Alert implements KeyListener, MLMDelegate
 		}
 		else
 		{
-			dialog.setBounds(screenSize.width / 2 - 200, screenSize.height / 2 - dialog.getPreferredSize().height / 2, 400, dialog.getPreferredSize().height);
+			dialog.setBounds(aboveFrame.getBounds().x + aboveFrame.getBounds().width / 2 - 200, aboveFrame.getBounds().y + aboveFrame.getBounds().height / 2 - dialog.getPreferredSize().height / 2, 400, dialog.getPreferredSize().height);
 		}
 		alertsThatArePresentOnScreenShowingToTheUserSoTheUserCanInteractWithThemAndMakeABCDoSomething.add(dialog);
 		dialog.setVisible(true);

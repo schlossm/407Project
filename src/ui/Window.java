@@ -63,16 +63,24 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		loginFrame = new JFrame("ABC");
 		loginFrame.addWindowFocusListener(this);
 
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = Integer.min(screenSize.width / 5 * 4, 1344);
-		int height = Integer.min(screenSize.height / 5 * 4, 840);
-		loginFrame.setBounds(width != 1344 ? screenSize.width / 10 : screenSize.width / 2 - 1344 / 2, height != 840 ? screenSize.height / 10 : screenSize.height / 2 - 420, width, height);
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+
+		int width = 1344;
+		int height = 840;
+
+		int x = gd[0].getDefaultConfiguration().getBounds().x + gd[0].getDefaultConfiguration().getBounds().width / 2 - 1344 / 2;
+		int y = gd[0].getDefaultConfiguration().getBounds().y + gd[0].getDefaultConfiguration().getBounds().height / 2 - 420;
+
+		loginFrame.setBounds(x, y, width, height);
 		loginFrame.setBackground(Color.WHITE);
 		loginFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		loginFrame.setUndecorated(true);
 
 		loginPanel = new Login(loginFrame);
 		loginFrame.add(loginPanel);
+		loginFrame.revalidate();
+		loginPanel.revalidate();
 
 		try
 		{
@@ -85,12 +93,14 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 	void postLogin()
 	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+
 		Bounds bounds = new Bounds();
-		bounds.x = 0;
-		bounds.y = 0;
-		bounds.width = screenSize.width;
-		bounds.height = screenSize.height;
+		bounds.x = gd[0].getDefaultConfiguration().getBounds().x;
+		bounds.y = gd[0].getDefaultConfiguration().getBounds().y;
+		bounds.width = gd[0].getDefaultConfiguration().getBounds().width;
+		bounds.height = gd[0].getDefaultConfiguration().getBounds().height;
 		try
 		{
 			if (UIVariables.current.valueFor("savesState").toBoolean())
@@ -204,7 +214,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 		container = new ALJPanel();
 		container.setLayout(null);
-		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
+		container.setPreferredSize(new Dimension(gd[0].getDefaultConfiguration().getBounds().width, gd[0].getDefaultConfiguration().getBounds().height));
 		container.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		tabBar = new ABCTabBar();
@@ -393,12 +403,14 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 	public void openQuizCreationFor(Course course)
 	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+
 		Bounds bounds = new Bounds();
-		bounds.x = 0;
-		bounds.y = 0;
-		bounds.width = screenSize.width;
-		bounds.height = screenSize.height;
+		bounds.x = gd[0].getDefaultConfiguration().getBounds().x;
+		bounds.y = gd[0].getDefaultConfiguration().getBounds().y;
+		bounds.width = gd[0].getDefaultConfiguration().getBounds().width;
+		bounds.height = gd[0].getDefaultConfiguration().getBounds().height;
 
 
 		quizFrame = new ALJFrame("ABC - Quiz / Test Creation");
@@ -416,7 +428,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 		container = new ALJPanel();
 		container.setLayout(null);
-		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
+		container.setPreferredSize(new Dimension(gd[0].getDefaultConfiguration().getBounds().width, gd[0].getDefaultConfiguration().getBounds().height));
 		container.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		activePanel = new QuizCreation(course);
@@ -475,12 +487,14 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 	public void showQuiz(QuizAssignment quizAssignment)
 	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+
 		Bounds bounds = new Bounds();
-		bounds.x = 0;
-		bounds.y = 0;
-		bounds.width = screenSize.width;
-		bounds.height = screenSize.height;
+		bounds.x = gd[0].getDefaultConfiguration().getBounds().x;
+		bounds.y = gd[0].getDefaultConfiguration().getBounds().y;
+		bounds.width = gd[0].getDefaultConfiguration().getBounds().width;
+		bounds.height = gd[0].getDefaultConfiguration().getBounds().height;
 
 
 		quizFrame = new ALJFrame("ABC - Quiz");
@@ -498,7 +512,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 		container = new ALJPanel();
 		container.setLayout(null);
-		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
+		container.setPreferredSize(new Dimension(gd[0].getDefaultConfiguration().getBounds().width, gd[0].getDefaultConfiguration().getBounds().height));
 		container.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		activePanel = new TakeQuiz(quizAssignment);
