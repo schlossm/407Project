@@ -183,15 +183,17 @@ public class DocumentsQuery {
         boolean checkPrivate = !AssignmentsList.isInstructor();
         try {
             if(checkPrivate) {
-                String[] attrs = {"courseid", "private"};
-                String[] values = {courseid + "", "0"};
+                String[] attrs = {"courseid", "private", "assignmentid"};
+                String[] values = {courseid + "", "0", "-1"};
                 dfsql.select(selectedRows, false, null, null)
                         .from(table)
                         .where(DFSQLConjunction.and, DFSQLEquivalence.equals, attrs, values);
             } else {
+                String[] attrs = {"courseid", "assignmentid"};
+                String[] values = {courseid + "", "-1"};
                 dfsql.select(selectedRows, false, null, null)
                         .from(table)
-                        .where(DFSQLEquivalence.equals, "courseid", courseid + "");
+                        .where(DFSQLConjunction.and, DFSQLEquivalence.equals, attrs, values);
             }
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
             {
