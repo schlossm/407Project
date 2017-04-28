@@ -198,7 +198,7 @@ public class DocumentsQuery {
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
             {
                 if(error != null) {
-                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    JSONQueryError error1 = new JSONQueryError(3, "Some Error", null/*User info if needed*/);
                     runnable.run(null, error1);
                     return;
                 }
@@ -212,7 +212,7 @@ public class DocumentsQuery {
                 int id = 0, courseId = 0, assignmentid = 0;
                 int isPrivate = 0;
                 ArrayList<FileUpload> fileUploads = new ArrayList<>();
-                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                JSONQueryError error1 = new JSONQueryError(3, "Some Error", null/*User info if needed*/);
                 try
                 {
                     for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i)
