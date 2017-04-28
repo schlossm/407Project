@@ -85,7 +85,7 @@ public class DFSQL
 					isNum = true;
 				}
 				catch (Exception ignored) { }
-				if (right.contains(" ") && !right.contains(".") || !isNum)
+				if (!right.contains(".") && !isNum)
 				{
 					right = "'" + right.replace("'", "\\'") + "'";
 				}

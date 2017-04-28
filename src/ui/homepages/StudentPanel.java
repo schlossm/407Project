@@ -171,6 +171,10 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 	@Override
 	public int numberOfSectionsIn(ALJTable table)
 	{
+		if (table == announcementsTable)
+		{
+			return announcements.keySet().size();
+		}
 		return 1;
 	}
 
@@ -183,7 +187,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 		}
 		else if (table == announcementsTable)
 		{
-			return announcements.keySet().size();
+			return announcements.get(titleForHeaderInSectionInTable(table, section)).size();
 		}
 		else
 		{
@@ -221,7 +225,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 	{
 		if (table == announcementsTable)
 		{
-			return section == 0 ? "School" : "Class";
+			return section == 0 ? "School" : "Course";
 		}
 		return null;
 	}

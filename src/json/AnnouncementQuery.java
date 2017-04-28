@@ -144,7 +144,7 @@ public class AnnouncementQuery
 		String table3 = "users";
 		Join[] joins = new Join[]{
 			new Join(table2, table1 + ".courseid", table2 + ".courseid"),
-			new Join(table3, table3 + ".userid", table2 + ".userid")};
+			new Join(table3, table3 + ".userid", table2 + ".studentid")};
 		try
 		{
 			dfsql.select(selectedRows, false, null, null)

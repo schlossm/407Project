@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Class-Path: include/bcprov-ext-jdk15on-155.jar include/commons-crypto-
+ 1.0.0.jar include/commons-crypto-1.0.0-sources.jar include/gson-2.2.3
+ .jar include/property-list-2.0.0.jar include/jfreechart-1.0.19.jar in
+ clude/jcommon-1.0.23.jar include/hamcrest-core-1.3.jar include/jfreec
+ hart-1.0.19-experimental.jar include/jfreechart-1.0.19-swt.jar includ
+ e/jfreesvg-2.0.jar include/okhttp-3.7.0.jar include/okio-1.12.0.jar i
+ nclude/orsoncharts-1.4-eval-nofx.jar include/orsonpdf-1.6-eval.jar in
+ clude/servlet.jar include/swtgraphics2d.jar
+Main-Class: ui.Main
+
