@@ -263,11 +263,40 @@ class FileListCell extends ALJTableCell
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 
-		JCheckBox checkBox = new JCheckBox("Private", info.getIsPrivate() == 1);
-		checkBox.addActionListener(e -> info.setIsPrivate(checkBox.isSelected() ? 1 : 0));
-		add(checkBox);
-		addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
-		addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.top, LayoutRelation.equal, titleLabel, LayoutAttribute.bottom, 1.0, 8));
+		if (UIVariables.current.isInstructor())
+		{
+			JCheckBox checkBox = new JCheckBox("Private", info.getIsPrivate() == 1);
+			checkBox.addActionListener(e -> {
+
+				new DocumentsQuery().setDocumentPrivateField(checkBox.isSelected() ? 1 : 0, info.getDocumentid(), ((returnedData, error) -> {
+					if (error != null)
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not change the privacy status of this file.  Please try again");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+						return;
+					}
+					if (returnedData instanceof Boolean)
+					{
+						if (!(Boolean) returnedData)
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not change the privacy status of this file.  Please try again");
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
+							errorAlert.show(Window.current.mainScreen);
+						}
+					}
+					else
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not change the privacy status of this file.  Please try again");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+					}
+				}));
+			});
+			add(checkBox);
+			addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
+			addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.top, LayoutRelation.equal, titleLabel, LayoutAttribute.bottom, 1.0, 8));
+		}
 
 		if (accessoryViewType != ALJTableCellAccessoryViewType.none)
 		{

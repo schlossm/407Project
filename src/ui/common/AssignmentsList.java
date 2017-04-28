@@ -2,10 +2,7 @@ package ui.common;
 
 import json.AssignmentQuery;
 import json.DocumentsQuery;
-import objects.Assignment;
-import objects.Course;
-import objects.QuizAssignment;
-import objects.userType;
+import objects.*;
 import ui.Window;
 import ui.util.ALJTable.*;
 import ui.util.Alert;
@@ -21,7 +18,9 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -88,8 +87,10 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 			alert.addTextField("Title", "assignment.title", false);
 			alert.addTextField("Due Date (MM/DD/YYYY HH:MM A/P)", "assignment.dueDate", false);
 			alert.addTextField("Number of points", "assignment.points", false);
-			alert.addButton("Submit", ButtonType.plain, e2 -> {
-				new AssignmentQuery().addAssignment(course.getCourseID(), alert.textFieldForIdentifier("assignment.title").getText(), UIVariables.dateToSQLDATETIME(alert.textFieldForIdentifier("assignment.dueDate").getText()), Integer.valueOf(alert.textFieldForIdentifier("assignment.points").getText()), "file", ((returnedData, error) -> {
+			alert.addButton("Submit", ButtonType.plain, e2 ->
+			{
+				new AssignmentQuery().addAssignment(course.getCourseID(), alert.textFieldForIdentifier("assignment.title").getText(), UIVariables.dateToSQLDATETIME(alert.textFieldForIdentifier("assignment.dueDate").getText()), Integer.valueOf(alert.textFieldForIdentifier("assignment.points").getText()), "file", ((returnedData, error) ->
+				{
 					if (error != null)
 					{
 						Alert errorAlert = new Alert("Error", "ABC could not submit the assignment.  Please try again.");
@@ -100,7 +101,7 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 
 					if (returnedData instanceof Boolean)
 					{
-						if ((Boolean)returnedData)
+						if ((Boolean) returnedData)
 						{
 							DFNotificationCenter.defaultCenter.post(UIStrings.reloadDataNotification, null);
 						}
@@ -135,6 +136,74 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 			if (index.section == 0)
 			{
 				add();
+			}
+			else
+			{
+				Assignment assignmentClicked = assignments.get(index.item);
+				if (!Objects.equals(assignmentClicked.getType(), "quiz"))
+				{
+					new DocumentsQuery().getAllDocumentsIdsGivenAssignment(assignmentClicked.getAssignmentID(), ((returnedData, error) ->
+					{
+						if (error != null)
+						{
+							if (error.code == 3)
+							{
+								return;
+							}
+							Alert errorAlert = new Alert("Error", "ABC could not download the files for this assignment.  Please try again");
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
+							errorAlert.show(Window.current.mainScreen);
+							return;
+						}
+						if (returnedData instanceof ArrayList)
+						{
+							ArrayList<FileUpload> uploads = (ArrayList<FileUpload>) returnedData;
+							Alert fileChoices = new Alert("Choose student to view", null);
+							for (FileUpload upload : uploads)
+							{
+								fileChoices.addButton(upload.getAuthoruserid(), ButtonType.plain, e ->
+								{
+									new DocumentsQuery().getDocument(upload.getDocumentid(), ((returnedData1, error1) -> {
+										if (error1 != null)
+										{
+											Alert errorAlert = new Alert("Error", "ABC could not download the file.  Please try again");
+											errorAlert.addButton("OK", ButtonType.defaultType, null);
+											errorAlert.show(Window.current.mainScreen);
+											return;
+										}
+										if (returnedData1 instanceof File)
+										{
+											try
+											{
+												Desktop.getDesktop().open((File)returnedData1);
+											}
+											catch (IOException e1)
+											{
+												Alert errorAlert = new Alert("Error", "ABC could not download the file.  Please try again");
+												errorAlert.addButton("OK", ButtonType.defaultType, null);
+												errorAlert.show(Window.current.mainScreen);
+											}
+										}
+										else
+										{
+											Alert errorAlert = new Alert("Error", "ABC could not download the file.  Please try again");
+											errorAlert.addButton("OK", ButtonType.defaultType, null);
+											errorAlert.show(Window.current.mainScreen);
+										}
+									}));
+								});
+							}
+							fileChoices.addButton("Cancel", ButtonType.cancel, null);
+							fileChoices.show(Window.current.mainScreen);
+						}
+						else
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not download the files for this assignment.  Please try again");
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
+							errorAlert.show(Window.current.mainScreen);
+						}
+					}));
+				}
 			}
 		}
 		else
@@ -194,7 +263,6 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 				{
 					new DocumentsQuery().addDocument(tempFile, alert.textFieldForIdentifier("fileName").getText(), "A File", UIVariables.current.currentUser.getUserID(), String.valueOf(assignmentClicked.getAssignmentID()), String.valueOf(course.getCourseID()), 0, ((returnedData, error) ->
 					{
-						System.out.println(returnedData);
 						if (error != null)
 						{
 							Alert errorAlert = new Alert("Error", "ABC could not submit the file.  Please try again.");
@@ -291,7 +359,8 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 		confirmDelete.addButton("Delete", ButtonType.destructive, e ->
 		{
 			Assignment assignmentToRemove = assignments.get(forRowAt.item);
-			new AssignmentQuery().removeAssignment(assignmentToRemove.getAssignmentID(), ((returnedData, error) -> {
+			new AssignmentQuery().removeAssignment(assignmentToRemove.getAssignmentID(), ((returnedData, error) ->
+			{
 				assignments.remove(assignmentToRemove);
 				table.reloadData();
 			}));
@@ -300,9 +369,10 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 	}
 
 	/**
-	 * @deprecated This method is deprecated.  Use UIVariables().isInstructor() instead.
 	 * @return false if user is not instructor, true otherwise
+	 *
 	 * @see UIVariables#isInstructor()
+	 * @deprecated This method is deprecated.  Use UIVariables().isInstructor() instead.
 	 */
 	@Deprecated(forRemoval = true)
 	public static boolean isInstructor()
