@@ -379,7 +379,7 @@ public class DocumentsQuery {
         DFSQL dfsql = new DFSQL();
         String table = "Documents";
         try {
-            dfsql.update(table, "private", isPrivate + "").where(DFSQLEquivalence.equals, "documentid", documentid + "");
+            dfsql.update(table, "private", isPrivate + "").where(DFSQLEquivalence.equals, "id", documentid + "");
             DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
             {
                 if (error != null)
