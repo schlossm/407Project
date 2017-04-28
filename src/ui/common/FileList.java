@@ -2,6 +2,7 @@ package ui.common;
 
 import json.DocumentsQuery;
 import objects.Course;
+import objects.FileUpload;
 import objects.userType;
 import ui.Window;
 import ui.util.ALJTable.*;
@@ -14,12 +15,7 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -48,7 +44,32 @@ class FileList extends ALJTablePanel
 			fileListData.put("Files", (ArrayList<Object>) UIVariables.current.globalUserData.get("files"));
 		}
 
-		//query.getAllDocumentsIdsInCourse(course.getCourseID());
+		query.getAllDocumentsIdsInCourse(course.getCourseID(), ((returnedData, error) -> {
+			if (error != null)
+			{
+				if (error.code == 3)
+				{
+					return;
+				}
+				Alert errorAlert = new Alert("Error", "ABC could not load the files for this course.  Please try again");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+				return;
+			}
+
+			if (returnedData instanceof ArrayList)
+			{
+				ArrayList<Object> files = (ArrayList<Object>) returnedData;
+				fileListData.put("Files", files);
+				table.reloadData();
+			}
+			else
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not load the files for this course.  Please try again");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+			}
+		}));
 	}
 
 	private void updateSavedInfo()
@@ -136,6 +157,9 @@ class FileList extends ALJTablePanel
 		}
 		else
 		{
+			FileUpload upload = (FileUpload) fileListData.get("Files").get(index.item);
+			
+			/*
 			//TODO: Fix this.  Will need to download the file instead of just copying.
 			Path file = ((FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).file;
 
@@ -149,7 +173,7 @@ class FileList extends ALJTablePanel
 			catch (IOException e)
 			{
 				e.printStackTrace();
-			}
+			}*/
 		}
 	}
 
@@ -189,11 +213,11 @@ class FileList extends ALJTablePanel
 		}
 		else if (isInstructor())
 		{
-			return new FileListCell(ALJTableCellAccessoryViewType.delete, (FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+			return new FileListCell(ALJTableCellAccessoryViewType.delete, (FileUpload) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
 		}
 		else
 		{
-			return new FileListCell(ALJTableCellAccessoryViewType.none, (FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+			return new FileListCell(ALJTableCellAccessoryViewType.none, (FileUpload) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
 		}
 	}
 
@@ -220,18 +244,18 @@ class FileList extends ALJTablePanel
 
 class FileListCell extends ALJTableCell
 {
-	FileListCell(ALJTableCellAccessoryViewType accessoryViewType, FileListFileInfo info)
+	FileListCell(ALJTableCellAccessoryViewType accessoryViewType, FileUpload info)
 	{
 		super(accessoryViewType);
 
 		removeConstraintsFor(titleLabel);
-		titleLabel.setText(info.name);
+		titleLabel.setText(info.getTitle());
 
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 
-		JCheckBox checkBox = new JCheckBox("Private", info.isPrivate);
-		checkBox.addActionListener(e -> info.isPrivate = checkBox.isSelected());
+		JCheckBox checkBox = new JCheckBox("Private", info.isPrivate() == 1);
+		//checkBox.addActionListener(e -> info.isPrivate() = checkBox.isSelected());
 		add(checkBox);
 		addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.top, LayoutRelation.equal, titleLabel, LayoutAttribute.bottom, 1.0, 8));

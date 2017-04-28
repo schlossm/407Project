@@ -116,7 +116,7 @@ public class DocumentsQuery {
 
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("userfile", documentFile.getName(),
+                    .addFormDataPart("userfile", path,
                             RequestBody.create(MediaType.parse(contentType), documentFile))
                     .build();
             Request request = new Request.Builder()
