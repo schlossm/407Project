@@ -241,6 +241,71 @@ public class DocumentsQuery {
         }
     }
 
+    public void getAllDocumentsIdsGivenAssignment(int assignmentid, QueryCallbackRunnable runnable) {
+        DFSQL dfsql = new DFSQL();
+        String[] selectedRows = {"id", "title", "description", "path", "authoruserid", "courseid", "private", "assignmentid"};
+        String table = "Documents";
+        boolean checkPrivate = !AssignmentsList.isInstructor();
+        try {
+            if(checkPrivate) {
+                String[] attrs = {"assignmentid", "private"};
+                String[] values = {assignmentid + "", "0"};
+                dfsql.select(selectedRows, false, null, null)
+                        .from(table)
+                        .where(DFSQLConjunction.and, DFSQLEquivalence.equals, attrs, values);
+            } else {
+                dfsql.select(selectedRows, false, null, null)
+                        .from(table)
+                        .where(DFSQLEquivalence.equals, "assignmentid", assignmentid + "");
+            }
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+                if(error != null) {
+                    JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                    runnable.run(null, error1);
+                    return;
+                }
+                if(response instanceof JsonObject) {
+                    jsonObject = (JsonObject) response;
+                }
+                else {
+                    return;
+                }
+                String title = null, description = null, path = null, authoruserid = null;
+                int id = 0, courseId = 0, assignmentId = 0;
+                int isPrivate = 0;
+                ArrayList<FileUpload> fileUploads = new ArrayList<>();
+                JSONQueryError error1 = new JSONQueryError(0, "Some Error", null/*User info if needed*/);
+                try
+                {
+                    for (int i = 0; i < jsonObject.get("Data").getAsJsonArray().size(); ++i)
+                    {
+                        id = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("id").getAsInt();
+                        title = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("title").getAsString();
+                        description = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("description").getAsString();
+                        path = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("path").getAsString();
+                        authoruserid = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("authoruserid").getAsString();
+                        courseId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("courseid").getAsInt();
+                        assignmentId = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsInt();
+                        isPrivate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("private").getAsInt();
+
+                        FileUpload fileUpload = new FileUpload(title, description, path, authoruserid, courseId, assignmentid, isPrivate, id);
+                        fileUploads.add(fileUpload);
+                    }
+                    runnable.run(fileUploads, null);
+                }
+                catch (NullPointerException e2)
+                {
+                    e2.printStackTrace();
+                    runnable.run(null, error1);
+                }
+
+            });
+        } catch (DFSQLError e1) {
+            e1.printStackTrace();
+        }
+    }
+
     public void setDocumentPrivateField(int isPrivate, int documentid, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String table = "Documents";
