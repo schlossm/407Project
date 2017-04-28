@@ -31,9 +31,11 @@ class FileList extends ALJTablePanel
 	private final Map<String, ArrayList<Object>> fileListData = new HashMap<>();
 	private final DocumentsQuery query = new DocumentsQuery();
 	private File tempFile = null;
+	private Course course;
 
 	FileList(Course course)
 	{
+		this.course = course;
 		if (isInstructor())
 		{
 			ArrayList<Object> beginner = new ArrayList<>();
@@ -54,10 +56,16 @@ class FileList extends ALJTablePanel
 		UIVariables.current.globalUserData.put("files", fileListData.get("Files"));
 	}
 
-	private void add()
+	private void addNewFile(File fileToShow)
 	{
 		Alert alert = new Alert("New File", "Choose file to upload");
 		alert.addTextField("File Name", "fileName", false);
+
+		if (fileToShow != null)
+		{
+			alert.textFieldForIdentifier("fileName").setText(fileToShow.getName());
+		}
+
 		alert.addCheckBox("Private", "private");
 		alert.addButton("Choose File", ButtonType.plain, e ->
 		{
@@ -69,13 +77,17 @@ class FileList extends ALJTablePanel
 				File file = fc.getSelectedFile();
 				alert.textFieldForIdentifier("fileName").setText(file.getName());
 				tempFile = file;
+				addNewFile(tempFile);
 			}
 		});
 		alert.addButton("Cancel", ButtonType.cancel, null);
 		alert.addButton("Upload", ButtonType.defaultType, e ->
 		{
 			//FIXME: implement method after it's updated
-			//query.addDocument(tempFile);
+			new DocumentsQuery().addDocument(tempFile, alert.textFieldForIdentifier("fileName").getText(), "A File", UIVariables.current.currentUser.getUserID(), "-1", String.valueOf(course.getCourseID()), alert.checkBoxForIdentifier("private").isSelected() ? 1 : 0, ((returnedData, error) ->
+			{
+				System.out.println(returnedData);
+			}));
 			/*
 			workToDoOnSuccess = () ->
 			{
@@ -120,7 +132,7 @@ class FileList extends ALJTablePanel
 	{
 		if (index.section == 0 && index.item == 0)
 		{
-			add();
+			addNewFile(null);
 		}
 		else
 		{

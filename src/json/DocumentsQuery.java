@@ -2,18 +2,14 @@ package json;
 
 import com.google.gson.JsonObject;
 import database.DFDatabase;
-import database.DFError;
 import database.DFSQL.*;
 import database.WebServer.DFDataUploaderReturnStatus;
 import json.util.JSONQueryError;
-import objects.Assignment;
 import objects.FileUpload;
 import okhttp3.*;
 import ui.common.AssignmentsList;
 import ui.util.UIVariables;
 
-
-import javax.print.attribute.standard.Media;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,7 +53,7 @@ public class DocumentsQuery {
     public void addDocument(File documentFile, String title, String description, String authoruserid, String assignmentid, String courseid, int isPrivate, QueryCallbackRunnable runnable) {
         DFSQL dfsql = new DFSQL();
         String table = "Documents";
-        String[] file = documentFile.getName().split(".");
+        String[] file = documentFile.getName().split("\\.");
         String path = file[0] + "_" + authoruserid + "_" + assignmentid + "." + file[1];
         String[] rows = {"title", "description", "authoruserid", "assignmentid", "courseid", "private", "path"};
         String[] values = {title, description, authoruserid, assignmentid, courseid, isPrivate + "", path};
@@ -120,7 +116,7 @@ public class DocumentsQuery {
 
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("filename", documentFile.getName(),
+                    .addFormDataPart("userfile", documentFile.getName(),
                             RequestBody.create(MediaType.parse(contentType), documentFile))
                     .build();
             Request request = new Request.Builder()

@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 @SuppressWarnings("unchecked")
-public class GradesView extends ALJTablePanel
+class GradesView extends ALJTablePanel
 {
 	private ArrayList<GradeData> gradeData = new ArrayList<>();
 
-	public GradesView(Course course)
+	GradesView(Course course)
 	{
 		//A Teacher is looking
 		if (UIVariables.current.isInstructor())
@@ -75,6 +75,7 @@ public class GradesView extends ALJTablePanel
 									GradeData data = new GradeData();
 									data.title = user.getFirstName() + " " + user.getLastName();
 									data.grade = Double.valueOf(grade.getScore());
+									data.maxPoints = Double.valueOf(grade.getMaxScore());
 									gradeData.add(data);
 
 									if (grades.indexOf(grade) == grades.size() - 1) //We are at the last one
@@ -129,6 +130,7 @@ public class GradesView extends ALJTablePanel
 							GradeData data = new GradeData();
 							data.title = grade.getAssignmentName();
 							data.grade = Double.valueOf(grade.getScore());
+							data.maxPoints = Double.valueOf(grade.getMaxScore());
 							gradeData.add(data);
 
 							if (grades.indexOf(grade) == grades.size() - 1) //We are at the last one
@@ -175,7 +177,7 @@ public class GradesView extends ALJTablePanel
 	@Override
 	public ALJTableCell cellForRowAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-		return new GradeCell(gradeData.get(index.item).title, gradeData.get(index.item).grade);
+		return new GradeCell(gradeData.get(index.item).title, gradeData.get(index.item).grade, gradeData.get(index.item).maxPoints);
 	}
 
 	@Override
@@ -199,7 +201,7 @@ public class GradesView extends ALJTablePanel
 
 class GradeCell extends ALJTableCell
 {
-	GradeCell(String text, double points)
+	GradeCell(String text, double points, double maxPoints)
 	{
 		super(ALJTableCellAccessoryViewType.none);
 
@@ -209,14 +211,14 @@ class GradeCell extends ALJTableCell
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, -8));
 
-		JLabel pointsLabel = new JLabel(String.valueOf(points));
+		JLabel pointsLabel = new JLabel(String.valueOf(points) + " out of " + String.valueOf(maxPoints));
 		pointsLabel.setFont(UIFont.textLight.deriveFont(14f));
 		pointsLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
 		add(pointsLabel);
 		addConstraint(new LayoutConstraint(pointsLabel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, -8));
 		addConstraint(new LayoutConstraint(pointsLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 		addConstraint(new LayoutConstraint(pointsLabel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, -8));
-		addConstraint(new LayoutConstraint(pointsLabel, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1.0, 100));
+		addConstraint(new LayoutConstraint(pointsLabel, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1.0, 260));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, pointsLabel, LayoutAttribute.leading, 1.0, -8));
 	}
 }
@@ -225,4 +227,5 @@ class GradeData
 {
 	public String title;
 	public double grade;
+	public double maxPoints;
 }
