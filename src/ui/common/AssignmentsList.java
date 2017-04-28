@@ -1,6 +1,7 @@
 package ui.common;
 
 import json.AssignmentQuery;
+import json.DocumentsQuery;
 import objects.Assignment;
 import objects.Course;
 import objects.QuizAssignment;
@@ -20,6 +21,7 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -84,16 +86,46 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 			Alert alert = new Alert("Add New Assignment", null);
 			alert.addButton("Cancel", ButtonType.defaultType, null);
 			alert.addTextField("Title", "assignment.title", false);
-			alert.addTextField("Due Date (MM/DD/YYYY HH:MMA/P)", "assignment.dueDate", false);
-			alert.addDropDown(new String[]{"Loading Files"}, 0, "assignments.fileChooser");
-			alert.show(Window.current.mainScreen);
+			alert.addTextField("Due Date (MM/DD/YYYY HH:MM A/P)", "assignment.dueDate", false);
+			alert.addTextField("Number of points", "assignment.points", false);
+			alert.addButton("Submit", ButtonType.plain, e2 -> {
+				new AssignmentQuery().addAssignment(course.getCourseID(), alert.textFieldForIdentifier("assignment.title").getText(), UIVariables.dateToSQLDATETIME(alert.textFieldForIdentifier("assignment.dueDate").getText()), Integer.valueOf(alert.textFieldForIdentifier("assignment.points").getText()), "file", ((returnedData, error) -> {
+					if (error != null)
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not submit the assignment.  Please try again.");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+						return;
+					}
 
-			//TODO: Do something
-			//new DocumentsQuery().getAllDocumentsIdsInCourse(course.getCourseID());
+					if (returnedData instanceof Boolean)
+					{
+						if ((Boolean)returnedData)
+						{
+							DFNotificationCenter.defaultCenter.post(UIStrings.reloadDataNotification, null);
+						}
+						else
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not submit the assignment.  Please try again.");
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
+							errorAlert.show(Window.current.mainScreen);
+						}
+					}
+					else
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not submit the assignment.  Please try again.");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+					}
+				}));
+			});
+			alert.show(Window.current.mainScreen);
 		});
 		assignmentType.addButton("Cancel", ButtonType.cancel, null);
 		assignmentType.show(Window.current.mainScreen);
 	}
+
+	private File tempFile = null;
 
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
@@ -134,7 +166,55 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 					}
 				}));
 			}
-			//Check for if submission assignment
+			else
+			{
+				Alert alert = new Alert("New File", "Choose file to upload for " + assignmentClicked.getTitle());
+				alert.addTextField("File Name", "fileName", false);
+
+				if (tempFile != null)
+				{
+					alert.textFieldForIdentifier("fileName").setText(tempFile.getName());
+				}
+
+				alert.addButton("Choose File", ButtonType.plain, e ->
+				{
+					final JFileChooser fc = new JFileChooser();
+					int returnVal = fc.showOpenDialog(Window.current.mainScreen);
+
+					if (returnVal == JFileChooser.APPROVE_OPTION)
+					{
+						File file = fc.getSelectedFile();
+						alert.textFieldForIdentifier("fileName").setText(file.getName());
+						tempFile = file;
+						didSelectItemAtIndexInTable(table, index);
+					}
+				});
+				alert.addButton("Cancel", ButtonType.cancel, null);
+				alert.addButton("Upload", ButtonType.defaultType, e ->
+				{
+					new DocumentsQuery().addDocument(tempFile, alert.textFieldForIdentifier("fileName").getText(), "A File", UIVariables.current.currentUser.getUserID(), String.valueOf(assignmentClicked.getAssignmentID()), String.valueOf(course.getCourseID()), 0, ((returnedData, error) ->
+					{
+						System.out.println(returnedData);
+						if (error != null)
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not submit the file.  Please try again.");
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
+							errorAlert.show(Window.current.mainScreen);
+							return;
+						}
+						if (returnedData instanceof Boolean)
+						{
+							if ((Boolean) returnedData)
+							{
+								Alert success = new Alert("Success", "Your file has been successfully submitted!");
+								success.addButton("OK", ButtonType.defaultType, null);
+								success.show(Window.current.mainScreen);
+							}
+						}
+					}));
+				});
+				alert.show(Window.current.mainScreen);
+			}
 		}
 	}
 

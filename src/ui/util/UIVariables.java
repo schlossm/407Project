@@ -239,7 +239,7 @@ public class UIVariables implements DFNotificationCenterDelegate
 
 			String[] timeComponents = timeAMPM[0].split(":");
 
-			if (Objects.equals(timeAMPM[1], "PM"))
+			if (Objects.equals(tComponents[2], "PM"))
 			{
 				timeComponents[0] = "" + (Integer.valueOf(timeComponents[0]) + 12);
 			}
