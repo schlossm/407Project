@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class DocumentsQuery {
     private JsonObject jsonObject;
 
-    private void getDocumentOfPath(String path) {
+    private void getDocumentOfPath(String path, QueryCallbackRunnable runnable) {
         MediaType mediaType = MediaType.parse("multipart/form-data;");
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -33,16 +33,16 @@ public class DocumentsQuery {
             InputStream is = response.body().byteStream();
             BufferedInputStream input = new BufferedInputStream(is);
             OutputStream output = new FileOutputStream(UIVariables.current.applicationDirectories.temp + path);
+            File returnFile = new File(UIVariables.current.applicationDirectories.temp + path);
             byte[] data = new byte[1024];
             int count = 0;
             while ((count = input.read(data)) != -1) {
                 output.write(data, 0, count);
             }
-
             output.flush();
             output.close();
             input.close();
-
+            runnable.run(returnFile, null);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -169,8 +169,7 @@ public class DocumentsQuery {
                     return;
                 }
                 String path = jsonObject.get("Data").getAsJsonArray().get(0).getAsJsonObject().get("path").getAsString();
-                getDocumentOfPath(path);
-                runnable.run(null, null);
+                getDocumentOfPath(path, runnable);
             });
         } catch (DFSQLError e1) {
             e1.printStackTrace();
