@@ -17,6 +17,8 @@ import uikit.autolayout.uiobjects.ALJPanel;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTableDelegate
@@ -25,7 +27,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 	private final ALJTable thingsDueTable;
 	private final ALJTable coursesTable;
 
-	private ArrayList<Message> announcements = new ArrayList<>();
+	private Map<String, ArrayList<Message>> announcements = new LinkedHashMap<>();
 	private ArrayList<Course> courses = new ArrayList<>();
 	private final ArrayList<Assignment> thingsDue = new ArrayList<>();
 
@@ -48,7 +50,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 		addConstraint(new LayoutConstraint(announcementsTable, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0/3.0, -4));
 
 		//Things Due
-		JLabel thingsDueTitle = new JLabel("Things Due");
+		JLabel thingsDueTitle = new JLabel("");
 		thingsDueTitle.setFont(UIFont.displayHeavy.deriveFont(18f));
 		add(thingsDueTitle);
 		addConstraint(new LayoutConstraint(thingsDueTitle, LayoutAttribute.leading, LayoutRelation.equal, announcementsTable, LayoutAttribute.trailing, 1.0, 24));
@@ -121,7 +123,25 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 			}
 			if (returnedData instanceof ArrayList)
 			{
-				announcements = (ArrayList<Message>)returnedData;
+				ArrayList<Message> messages = (ArrayList<Message>)returnedData;
+
+				ArrayList<Message> school = new ArrayList<>();
+				ArrayList<Message> course = new ArrayList<>();
+				for (Message message : messages)
+				{
+					if (message.getCourseId() == -1)
+					{
+						school.add(message);
+					}
+					else
+					{
+						course.add(message);
+					}
+				}
+				announcements.put("School", school);
+				announcements.put("Course", course);
+				announcementsTable.reloadData();
+
 				UIVariables.current.globalUserData.put("allAnnouncements", returnedData);
 				announcementsTable.reloadData();
 			}
@@ -163,7 +183,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 		}
 		else if (table == announcementsTable)
 		{
-			return announcements.size();
+			return announcements.keySet().size();
 		}
 		else
 		{
@@ -187,7 +207,7 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 		}
 		else if (table == announcementsTable)
 		{
-			cell.titleLabel.setText(announcements.get(index.item).getTitle());
+			cell.titleLabel.setText(announcements.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item).getTitle());
 		}
 		else if (table == thingsDueTable)
 		{
@@ -203,7 +223,6 @@ public class StudentPanel extends ALJPanel implements ALJTableDataSource, ALJTab
 		{
 			return section == 0 ? "School" : "Class";
 		}
-		//TODO: Fill in things due table when method is available
 		return null;
 	}
 

@@ -154,7 +154,7 @@ public class AnnouncementQuery
 			dfsql1.select(selectedRows, false, null, null)
 			      .from(table1)
 			      .where(DFSQLEquivalence.equals, "courseid", "-1");
-			dfsql.append(dfsql1);
+			dfsql.union(dfsql1);
 			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
 			{
 				if (error != null)
