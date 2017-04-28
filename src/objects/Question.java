@@ -7,59 +7,83 @@ import java.util.ArrayList;
  * Question.java
  * Alex Rosenberg
  */
-public class Question implements Serializable {
-    protected String question;
-    protected ArrayList<String> choices;
-    protected String correctChoice;
-    protected double points;
+public class Question implements Serializable
+{
+	protected String question;
+	protected ArrayList<String> choices = new ArrayList<>();
+	protected String correctChoice = "";
+	protected double points;
 
-    public Question(String question, ArrayList<String> choices, String correctChoice, double points) {
-        this.question = question;
-        this.choices = choices;
-        this.correctChoice = correctChoice;
-        this.points = points;
-    }
+	protected String selectedChoice = "";
 
-    public Question() {
-        // empty
-    }
+	public Question(String question, ArrayList<String> choices, String correctChoice, double points)
+	{
+		this.question = question;
+		this.choices = choices;
+		this.correctChoice = correctChoice;
+		this.points = points;
+	}
 
-    public String getQuestion() {
-        return this.question;
-    }
+	public Question()
+	{
+		// empty
+	}
 
-    public void setQuestion(String newQ) {
-        this.question = newQ;
-    }
+	public String getQuestion()
+	{
+		return this.question;
+	}
 
-    public ArrayList<String> getChoices() {
-        return this.choices;
-    }
+	public void setQuestion(String newQ)
+	{
+		this.question = newQ;
+	}
 
-    public void setChoices(ArrayList<String> newChoices) {
-        this.choices = newChoices;
-    }
+	public ArrayList<String> getChoices()
+	{
+		return this.choices;
+	}
 
-    public String getCorrectChoice() {
-        return this.correctChoice;
-    }
+	public void setChoices(ArrayList<String> newChoices)
+	{
+		this.choices = newChoices;
+	}
 
-    public void setCorrectChoice(String newCorrect) {
-        this.correctChoice = newCorrect;
-    }
+	public String getCorrectChoice()
+	{
+		return this.correctChoice;
+	}
 
-    public double getPoints() {
-        return points;
-    }
+	public void setCorrectChoice(String newCorrect)
+	{
+		this.correctChoice = newCorrect;
+	}
 
-    public void setPoints(double points) {
-        this.points = points;
-    }
+	public double getPoints()
+	{
+		return points;
+	}
 
-    public String toString() {
-        return "question: " + this.question
-                + "\nchoices: " + this.choices
-                + "\ncorrectChoice: " + this.correctChoice
-                + "\npoints: " + this.points;
-    }
+	public void setPoints(double points)
+	{
+		this.points = points;
+	}
+
+	public String getSelectedChoice()
+	{
+		return this.selectedChoice;
+	}
+
+	public void setSelectedChoice(String newQ)
+	{
+		this.selectedChoice = newQ;
+	}
+
+	public String toString()
+	{
+		return "question: " + this.question
+			       + "\nchoices: " + this.choices
+			       + "\ncorrectChoice: " + this.correctChoice
+			       + "\npoints: " + this.points;
+	}
 }

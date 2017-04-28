@@ -2,6 +2,7 @@ package ui.common;
 
 import json.DocumentsQuery;
 import objects.Course;
+import objects.FileUpload;
 import objects.userType;
 import ui.Window;
 import ui.util.ALJTable.*;
@@ -17,9 +18,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -31,9 +29,11 @@ class FileList extends ALJTablePanel
 	private final Map<String, ArrayList<Object>> fileListData = new HashMap<>();
 	private final DocumentsQuery query = new DocumentsQuery();
 	private File tempFile = null;
+	private Course course;
 
 	FileList(Course course)
 	{
+		this.course = course;
 		if (isInstructor())
 		{
 			ArrayList<Object> beginner = new ArrayList<>();
@@ -46,7 +46,37 @@ class FileList extends ALJTablePanel
 			fileListData.put("Files", (ArrayList<Object>) UIVariables.current.globalUserData.get("files"));
 		}
 
-		query.getAllDocumentsIdsInCourse(course.getCourseID());
+		reloadDocs();
+	}
+
+	public void reloadDocs()
+	{
+		query.getAllDocumentsIdsInCourse(course.getCourseID(), ((returnedData, error) -> {
+			if (error != null)
+			{
+				if (error.code == 3)
+				{
+					return;
+				}
+				Alert errorAlert = new Alert("Error", "ABC could not load the files for this course.  Please try again");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+				return;
+			}
+
+			if (returnedData instanceof ArrayList)
+			{
+				ArrayList<Object> files = (ArrayList<Object>) returnedData;
+				fileListData.put("Files", files);
+				table.reloadData();
+			}
+			else
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not load the files for this course.  Please try again");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+			}
+		}));
 	}
 
 	private void updateSavedInfo()
@@ -54,10 +84,16 @@ class FileList extends ALJTablePanel
 		UIVariables.current.globalUserData.put("files", fileListData.get("Files"));
 	}
 
-	private void add()
+	private void addNewFile(File fileToShow)
 	{
 		Alert alert = new Alert("New File", "Choose file to upload");
 		alert.addTextField("File Name", "fileName", false);
+
+		if (fileToShow != null)
+		{
+			alert.textFieldForIdentifier("fileName").setText(fileToShow.getName());
+		}
+
 		alert.addCheckBox("Private", "private");
 		alert.addButton("Choose File", ButtonType.plain, e ->
 		{
@@ -69,13 +105,42 @@ class FileList extends ALJTablePanel
 				File file = fc.getSelectedFile();
 				alert.textFieldForIdentifier("fileName").setText(file.getName());
 				tempFile = file;
+				addNewFile(tempFile);
 			}
 		});
 		alert.addButton("Cancel", ButtonType.cancel, null);
 		alert.addButton("Upload", ButtonType.defaultType, e ->
 		{
 			//FIXME: implement method after it's updated
-			query.addDocument(tempFile);
+			new DocumentsQuery().addDocument(tempFile, alert.textFieldForIdentifier("fileName").getText(), "A File", UIVariables.current.currentUser.getUserID(), "-1", String.valueOf(course.getCourseID()), alert.checkBoxForIdentifier("private").isSelected() ? 1 : 0, ((returnedData, error) ->
+			{
+				if (error != null)
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not upload the file.  Please try again");
+					errorAlert.addButton("OK", ButtonType.defaultType, null);
+					errorAlert.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData instanceof Boolean)
+				{
+					if ((Boolean) returnedData)
+					{
+						reloadDocs();
+					}
+					else
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not upload the file.  Please try again");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+					}
+				}
+				else
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not upload the file.  Please try again");
+					errorAlert.addButton("OK", ButtonType.defaultType, null);
+					errorAlert.show(Window.current.mainScreen);
+				}
+			}));
 			/*
 			workToDoOnSuccess = () ->
 			{
@@ -118,26 +183,36 @@ class FileList extends ALJTablePanel
 	@Override
 	public void didSelectItemAtIndexInTable(ALJTable table, ALJTableIndex index)
 	{
-		if (index.section == 0 && index.item == 0)
+		if (index.section == 0 && index.item == 0 && isInstructor())
 		{
-			add();
+			addNewFile(null);
 		}
 		else
 		{
-			//TODO: Fix this.  Will need to download the file instead of just copying.
-			Path file = ((FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item)).file;
-
-			File destinationCopy = new File(UIVariables.current.applicationDirectories.library + file.toFile().getName());
-
-			try
-			{
-				Files.copy(file, destinationCopy.toPath(), StandardCopyOption.REPLACE_EXISTING);
-				Desktop.getDesktop().open(destinationCopy);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			FileUpload upload = (FileUpload) fileListData.get("Files").get(index.item);
+			query.getDocument(upload.getDocumentid(), ((returnedData, error) -> {
+				if (error != null)
+				{
+					Alert errorAlert = new Alert("Error", "ABC could not load the files for this course.  Please try again");
+					errorAlert.addButton("OK", ButtonType.defaultType, null);
+					errorAlert.show(Window.current.mainScreen);
+					return;
+				}
+				if (returnedData instanceof File)
+				{
+					try
+					{
+						Desktop.getDesktop().open((File)returnedData);
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+						Alert errorAlert = new Alert("Error", "ABC could not load the files for this course.  Please try again");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+					}
+				}
+			}));
 		}
 	}
 
@@ -177,11 +252,11 @@ class FileList extends ALJTablePanel
 		}
 		else if (isInstructor())
 		{
-			return new FileListCell(ALJTableCellAccessoryViewType.delete, (FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+			return new FileListCell(ALJTableCellAccessoryViewType.delete, (FileUpload) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
 		}
 		else
 		{
-			return new FileListCell(ALJTableCellAccessoryViewType.none, (FileListFileInfo) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
+			return new FileListCell(ALJTableCellAccessoryViewType.none, (FileUpload) fileListData.get(titleForHeaderInSectionInTable(table, index.section)).get(index.item));
 		}
 	}
 
@@ -208,21 +283,50 @@ class FileList extends ALJTablePanel
 
 class FileListCell extends ALJTableCell
 {
-	FileListCell(ALJTableCellAccessoryViewType accessoryViewType, FileListFileInfo info)
+	FileListCell(ALJTableCellAccessoryViewType accessoryViewType, FileUpload info)
 	{
 		super(accessoryViewType);
 
 		removeConstraintsFor(titleLabel);
-		titleLabel.setText(info.name);
+		titleLabel.setText(info.getTitle());
 
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 
-		JCheckBox checkBox = new JCheckBox("Private", info.isPrivate);
-		checkBox.addActionListener(e -> info.isPrivate = checkBox.isSelected());
-		add(checkBox);
-		addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
-		addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.top, LayoutRelation.equal, titleLabel, LayoutAttribute.bottom, 1.0, 8));
+		if (UIVariables.current.isInstructor())
+		{
+			JCheckBox checkBox = new JCheckBox("Private", info.getIsPrivate() == 1);
+			checkBox.addActionListener(e -> {
+
+				new DocumentsQuery().setDocumentPrivateField(checkBox.isSelected() ? 1 : 0, info.getDocumentid(), ((returnedData, error) -> {
+					if (error != null)
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not change the privacy status of this file.  Please try again");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+						return;
+					}
+					if (returnedData instanceof Boolean)
+					{
+						if (!(Boolean) returnedData)
+						{
+							Alert errorAlert = new Alert("Error", "ABC could not change the privacy status of this file.  Please try again");
+							errorAlert.addButton("OK", ButtonType.defaultType, null);
+							errorAlert.show(Window.current.mainScreen);
+						}
+					}
+					else
+					{
+						Alert errorAlert = new Alert("Error", "ABC could not change the privacy status of this file.  Please try again");
+						errorAlert.addButton("OK", ButtonType.defaultType, null);
+						errorAlert.show(Window.current.mainScreen);
+					}
+				}));
+			});
+			add(checkBox);
+			addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
+			addConstraint(new LayoutConstraint(checkBox, LayoutAttribute.top, LayoutRelation.equal, titleLabel, LayoutAttribute.bottom, 1.0, 8));
+		}
 
 		if (accessoryViewType != ALJTableCellAccessoryViewType.none)
 		{

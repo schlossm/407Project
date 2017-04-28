@@ -65,7 +65,7 @@ public class StudentAnnouncements extends ALJTablePanel
 				announcementData.put("", messages);
 				UIVariables.current.globalUserData.put("announcements" + course.getCourseID(), messages);
 				remove(loadingLabel);
-				table.clearAndReload();
+				table.reloadData();
 			}
 		});
 	}

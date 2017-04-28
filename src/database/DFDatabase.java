@@ -18,8 +18,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import static database.DFError.kExpandedDescription;
 import static database.DFError.kMethodName;
@@ -30,10 +28,6 @@ import static database.DFError.kMethodName;
 @SuppressWarnings("unused")
 public class DFDatabase
 {
-	/**
-	 * A queue for running blocks on the main thread.
-	 */
-	public static final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
 	/**
 	 * The singleton instance of DFDatabase
@@ -145,10 +139,11 @@ public class DFDatabase
 
 		int indexOfUpdate = SQLStatement.formattedStatement().indexOf("UPDATE");
 		int indexOfInsert = SQLStatement.formattedStatement().indexOf("INSERT");
+		int indexOfFunctionInsert = SQLStatement.formattedStatement().indexOf("_INSERT");
 		int indexOfDelete = SQLStatement.formattedStatement().indexOf("DELETE");
 		int indexOfSelect = SQLStatement.formattedStatement().indexOf("SELECT");
 
-		DFWebServerDispatch.current.add(indexOfUpdate > indexOfSelect || indexOfInsert > indexOfSelect || indexOfDelete > indexOfSelect ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
+		DFWebServerDispatch.current.add(indexOfFunctionInsert == -1 && (indexOfUpdate > indexOfSelect || indexOfInsert > indexOfSelect || indexOfDelete > indexOfSelect) ? DispatchDirection.upload : DispatchDirection.download, SQLStatement, runnable);
 	}
 
 	public String hashString(String decryptedString)

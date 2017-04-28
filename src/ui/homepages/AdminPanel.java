@@ -1,11 +1,16 @@
 package ui.homepages;
 
+import json.AdminQuery;
+import ui.Window;
+import ui.util.Alert;
+import ui.util.ButtonType;
 import uikit.UIFont;
 import uikit.autolayout.LayoutAttribute;
 import uikit.autolayout.LayoutConstraint;
 import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJPanel;
 
+import javax.print.attribute.standard.NumberOfInterveningJobs;
 import javax.swing.*;
 import java.awt.*;
 
@@ -54,9 +59,81 @@ public class AdminPanel extends ALJPanel
 
 	private void loadNumbers()
 	{
-		//FIXME: Actually load the number of students, teachers, and classes
-		numStudentsLabel.setText("0 Students");
-		numTeachersLabel.setText("0 Teachers");
-		numClassesLabel.setText("0 Classes");
+		AdminQuery adminQuery = new AdminQuery();
+		adminQuery.getAllCoursesCount((returnedData, error) -> {
+			if (error != null)
+			{
+				if (error.code == 3)
+				{
+					numClassesLabel.setText("0 Classes");
+					return;
+				}
+				Alert errorAlert = new Alert("Error", "ABC could not load number of courses.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+				return;
+			}
+			if (returnedData instanceof Integer)
+			{
+				int count = (Integer) returnedData;
+				numClassesLabel.setText(count + (count == 1 ? " Class" : " Classes"));
+			}
+			else
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not load number of courses.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+			}
+		});
+		adminQuery.getAllInstructorsCount((returnedData, error) -> {
+			if (error != null)
+			{
+				if (error.code == 3)
+				{
+					numTeachersLabel.setText("0 Instructors");
+					return;
+				}
+				Alert errorAlert = new Alert("Error", "ABC could not load number of instructors.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+				return;
+			}
+			if (returnedData instanceof Integer)
+			{
+				int count = (Integer) returnedData;
+				numTeachersLabel.setText(count + (count == 1 ? " Instructor" : " Instructors"));
+			}
+			else
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not load number of instructors.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+			}
+		});
+		adminQuery.getAllStudentsCount((returnedData, error) -> {
+			if (error != null)
+			{
+				if (error.code == 3)
+				{
+					numStudentsLabel.setText("0 Students");
+					return;
+				}
+				Alert errorAlert = new Alert("Error", "ABC could not load number of students.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+				return;
+			}
+			if (returnedData instanceof Integer)
+			{
+				int count = (Integer) returnedData;
+				numStudentsLabel.setText(count + (count == 1 ? " Student" : " Students"));
+			}
+			else
+			{
+				Alert errorAlert = new Alert("Error", "ABC could not load number of students.  Please try again.");
+				errorAlert.addButton("OK", ButtonType.defaultType, null);
+				errorAlert.show(Window.current.mainScreen);
+			}
+		});
 	}
 }

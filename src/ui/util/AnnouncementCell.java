@@ -18,7 +18,7 @@ public class AnnouncementCell extends ALJTableCell
 {
 	public AnnouncementCell(Message assignment)
 	{
-		super(isInstructor() ? ALJTableCellAccessoryViewType.delete : ALJTableCellAccessoryViewType.none);
+		super(ALJTableCellAccessoryViewType.none);
 
 		removeConstraintsFor(titleLabel);
 

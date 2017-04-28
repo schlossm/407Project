@@ -15,6 +15,8 @@ public class UIStrings
 
 	public static final String aLJTablePaneNearEndNotification = "ALJTable has almost reached end of scrolling";
 
+	public static final String reloadDataNotification = "Reload Data";
+
 	//TIME MANAGER CONSTANTS
 	public static final String fiveMinutesHavePassedNotification = "Five Minutes Have Passed";
 	public static final String tenMinutesHavePassedNotification = "Ten Minutes Have Passed";

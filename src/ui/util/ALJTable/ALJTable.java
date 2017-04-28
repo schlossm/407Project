@@ -53,7 +53,7 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 			                                                        }
 		                                                        });
 
-		scrollPane.getViewport().add(tableView);
+		scrollPane.getViewport().setView(tableView);
 
 		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 0));
 		addConstraint(new LayoutConstraint(scrollPane, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
@@ -71,23 +71,19 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 		super.layoutSubviews();
 
 		tableView.setPreferredSize(new Dimension(scrollPane.getBounds().width, tableView.calculatedHeight()));
+		scrollPane.setPreferredSize(new Dimension(scrollPane.getBounds().width, tableView.calculatedHeight()));
 		tableView.layoutSubviews();
 		tableView.setBounds(0, 0, getBounds().width, 1000000);
+		repaint();
 		tableView.layoutSubviews();
 		tableView.setBounds(0, 0, getBounds().width, tableView.calculatedHeight());
+		repaint();
 		tableView.layoutSubviews();
 		tableView.setBounds(0, 0, getBounds().width, tableView.calculatedHeight());
-	}
-
-	public void clearAndReload()
-	{
-		for (Component component : tableView.getComponents())
-		{
-			tableView.remove(component);
-		}
-
-		reloadData();
-		layoutSubviews();
+		repaint();
+		tableView.repaint();
+		scrollPane.repaint();
+		scrollPane.revalidate();
 	}
 
 	public void reloadData()
@@ -97,6 +93,8 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 			System.out.println(getClassAndHashCode(this) + " does not have a dataSource set yet.");
 			return;
 		}
+
+		tableView.removeAll();
 
 		int totalNumSections = dataSource.numberOfSectionsIn(this);
 
@@ -172,7 +170,7 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.leading, LayoutRelation.equal, tableView, LayoutAttribute.leading, 1.0, 0));
 				tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.trailing, LayoutRelation.equal, tableView, LayoutAttribute.trailing, 1.0, 0));
 
-				if (dataSource.heightForRow(this, section) != -1)
+				if (dataSource.heightForRow(this, section) > 0)
 				{
 					tableView.addConstraint(new LayoutConstraint(cell, LayoutAttribute.height, LayoutRelation.equal, null, LayoutAttribute.height, 1.0, dataSource.heightForRow(this, section)));
 				}
@@ -238,7 +236,7 @@ public class ALJTable extends ALJPanel implements ComponentListener, ALJTableCel
 			case delete:
 			{
 				dataSource.tableView(this, ALJTableCellEditingStyle.delete, atIndex);
-				clearAndReload();
+				reloadData();
 				break;
 			}
 

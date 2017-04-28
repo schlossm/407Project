@@ -13,6 +13,7 @@ import java.util.Map;
  * 4 : Table doesn't exist
  * 5 : Malformed SQL Statement
  * 6 : Unknown column
+ * 7 : Ambiguous column
  * */
 
 /**
