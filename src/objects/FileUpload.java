@@ -32,6 +32,7 @@ public class FileUpload implements Serializable {
         this.courseid = courseid;
         this.assignmentid = assignmentid;
         this.isPrivate = isPrivate;
+        this.documentid = documentid;
     }
 
     public FileUpload() {
