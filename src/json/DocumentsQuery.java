@@ -225,7 +225,7 @@ public class DocumentsQuery {
                         assignmentid = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("assignmentid").getAsInt();
                         isPrivate = jsonObject.get("Data").getAsJsonArray().get(i).getAsJsonObject().get("private").getAsInt();
 
-                        FileUpload fileUpload = new FileUpload(title, description, path, authoruserid, courseId, assignmentid, isPrivate);
+                        FileUpload fileUpload = new FileUpload(title, description, path, authoruserid, courseId, assignmentid, isPrivate, id);
                         fileUploads.add(fileUpload);
                     }
                     runnable.run(fileUploads, null);

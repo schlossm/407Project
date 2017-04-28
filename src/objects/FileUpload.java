@@ -7,6 +7,7 @@ import java.io.Serializable;
  * Alex Rosenberg
  */
 public class FileUpload implements Serializable {
+    private int documentid;
     private String title;
     private String description;
     private String path;
@@ -15,7 +16,15 @@ public class FileUpload implements Serializable {
     private int assignmentid;
     private int isPrivate;
 
-    public FileUpload(String title, String description, String path, String authoruserid, int courseid, int assignmentid, int isPrivate) {
+    public int getDocumentid() {
+        return documentid;
+    }
+
+    public void setDocumentid(int documentid) {
+        this.documentid = documentid;
+    }
+
+    public FileUpload(String title, String description, String path, String authoruserid, int courseid, int assignmentid, int isPrivate, int documentid) {
         this.title = title;
         this.description = description;
         this.path = path;
