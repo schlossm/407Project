@@ -2,6 +2,7 @@ package ui.common;
 
 import json.AssignmentQuery;
 import json.DocumentsQuery;
+import json.InstructorQuery;
 import objects.*;
 import ui.Window;
 import ui.util.ALJTable.*;
@@ -198,7 +199,32 @@ public class AssignmentsList extends ALJTablePanel implements DFNotificationCent
 										Alert enterGrade = new Alert("Enter Grade", "Enter " + upload.getAuthoruserid() + "'s grade");
 										enterGrade.addTextField("Grade", "grade", false);
 										enterGrade.addButton("Cancel", ButtonType.cancel, null);
-										enterGrade.addButton("Submit Grade", ButtonType.plain, null);
+										enterGrade.addButton("Submit Grade", ButtonType.plain,  e2 -> {
+											new InstructorQuery().enterGrade(assignmentClicked.getAssignmentID(), upload.getAuthoruserid(), Double.valueOf(enterGrade.textFieldForIdentifier("grade").getText()), ((returnedData1, error1) -> {
+												if (error1 != null)
+												{
+													Alert errorAlert = new Alert("Error", "ABC could not submit the grade.  Please try again");
+													errorAlert.addButton("OK", ButtonType.defaultType, null);
+													errorAlert.show(Window.current.mainScreen);
+													return;
+												}
+												if (returnedData1 instanceof Boolean)
+												{
+													if (!(Boolean) returnedData1)
+													{
+														Alert errorAlert = new Alert("Error", "ABC could not submit the grade.  Please try again");
+														errorAlert.addButton("OK", ButtonType.defaultType, null);
+														errorAlert.show(Window.current.mainScreen);
+													}
+												}
+												else
+												{
+													Alert errorAlert = new Alert("Error", "ABC could not submit the grade.  Please try again");
+													errorAlert.addButton("OK", ButtonType.defaultType, null);
+													errorAlert.show(Window.current.mainScreen);
+												}
+											}));
+										});
 										enterGrade.show(Window.current.mainScreen);
 
 									});
