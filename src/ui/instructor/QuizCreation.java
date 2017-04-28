@@ -230,7 +230,7 @@ public class QuizCreation extends ALJPanel implements MLMDelegate, ALJTableDataS
 		{
 			if (!Objects.equals(quizAssignment.getQuestions().get(index.section).getChoices().get(index.item - 1), ""))
 			{
-				return new QuestionChoiceCell(quizAssignment.getQuestions().get(index.section).getChoices().get(index.item), quizAssignment.getQuestions().get(index.section), index.item - 1);
+				return new QuestionChoiceCell(quizAssignment.getQuestions().get(index.section).getChoices().get(index.item - 1), quizAssignment.getQuestions().get(index.section), index.item - 1);
 			}
 			return new QuestionChoiceCell(null, quizAssignment.getQuestions().get(index.section), index.item - 1);
 		}
