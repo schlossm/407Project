@@ -241,4 +241,52 @@ public class DocumentsQuery {
         }
     }
 
+    public void setDocumentPrivateField(int isPrivate, int documentid, QueryCallbackRunnable runnable) {
+        DFSQL dfsql = new DFSQL();
+        String table = "Documents";
+        try {
+            dfsql.update(table, "private", isPrivate + "").where(DFSQLEquivalence.equals, "documentid", documentid + "");
+            DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
+            {
+                if (error != null)
+                {
+                    JSONQueryError error1;
+                    if (error.code == 2)
+                    {
+                        error1 = new JSONQueryError(1, "Duplicate ID", null);
+                    }
+                    else if (error.code == 3)
+                    {
+                        error1 = new JSONQueryError(2, "Duplicate Unique Entry", null);
+                    }
+                    else
+                    {
+                        error1 = new JSONQueryError(0, "Internal Error", null);
+                    }
+                    runnable.run(null, error1);
+                    return;
+                }
+
+                if (response instanceof DFDataUploaderReturnStatus)
+                {
+                    DFDataUploaderReturnStatus returnStatus = (DFDataUploaderReturnStatus) response;
+                    if (returnStatus == DFDataUploaderReturnStatus.success)
+                    {
+                        runnable.run(true, null);
+                    }
+                    else
+                    {
+                        runnable.run(false, null);
+                    }
+                }
+                else
+                {
+                    runnable.run(null, new JSONQueryError(0, "Internal Error", null));
+                }
+            });
+        } catch (DFSQLError error) {
+            error.printStackTrace();
+        }
+    }
+
 }
