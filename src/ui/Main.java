@@ -1,9 +1,5 @@
 package ui;
 
-import database.DFDatabase;
-import objects.Course;
-import objects.Grade;
-import objects.Message;
 import ui.util.Alert;
 import ui.util.ButtonType;
 import ui.util.CurrentOS;
@@ -13,20 +9,12 @@ import uikit.UIFont;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-
-import static database.DFDatabase.queue;
 
 //Loader
 class Main
 {
 	public static void main(String[] args)
 	{
-		DFDatabase.defaultDatabase.enableDebug();
 		//Initialize various platform specific items
 		try
 		{
@@ -87,71 +75,5 @@ class Main
 
 		//Start the background Time Manager
 		new Thread(new TimeManager()).start();
-
-		// Set up (and print) test static Course object
-		ArrayList<objects.User> students = new ArrayList<>();
-		ArrayList<objects.Instructor> teachers = new ArrayList<>();
-
-		Course.testCourse = new Course();
-		Course.testCourse.setCourseID(384053);
-		Course.testCourse.setTitle("Software Engineering Project");
-		Course.testCourse.setCourseName("CS 407");
-		Course.testCourse.setDescription("The course we are writing this code for. How meta of me.");
-		Course.testCourse.setMeetingTime("[Time format TBD]");
-		Course.testCourse.setAttendanceString("I_AM_HERE!");
-		Course.testCourse.setStartDate("[Start Date in TBD format]");
-		Course.testCourse.setEndDate("[End Date in TBD format]");
-		Course.testCourse.setMeetingTime("[Meeting Time in TBD format]");
-		Message message = new Message("Hello", "Test Message", new Date().toString(), "-1", -1);
-		ArrayList<Message> messages = new ArrayList<>();
-		messages.add(message);
-		Course.testCourse.setMessages(messages);
-		Course.testCourse.setRoomNo("LWSN 1168");
-		Course.testCourse.setMaxStorage(1000000);
-		Course.testCourse.setStudents(students);
-		Course.testCourse.setTeachers(teachers);
-
-		//MARK: - Test Data
-
-		String filename = UIVariables.current.applicationDirectories.temp + File.separator + "test_grades.abc";
-
-		try
-		{
-			FileOutputStream fileOut = new FileOutputStream(filename);
-			ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
-
-			for (int i = 0; i < 10; ++i)
-			{
-				Grade g = new Grade("0", 0, Integer.toString((i + 1) * 10));
-
-				objOut.writeObject(g);
-			}
-
-			objOut.close();
-			fileOut.close();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-
-		/*
-		 * End test code
-		 */
-
-		//Will run, on the main thread, any object put into the queue stack.
-		while (true)
-		{
-			try
-			{
-				if (queue.size() != 0) { queue.take().run(); }
-			}
-			catch (InterruptedException e)
-			{
-				System.err.print("The application queue has encountered an error");
-				e.printStackTrace();
-				System.exit(-1);
-			}
-		}
 	}
 }

@@ -41,6 +41,11 @@ public class DFSQLError extends Exception
 	 */
 	static final DFSQLError unexpectedValueFound = new DFSQLError("Unexpected Value Found");
 
+	/**
+	 * Specifies that the table exceeded 64 characters length
+	 */
+	static final DFSQLError malformedColumnNameWithPeriod = new DFSQLError("You have a period with only one side somewhere in your DFSQL statement");
+
 	private DFSQLError(String message)
 	{
 		super(message);

@@ -3,7 +3,7 @@ package uikit.autolayout;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -19,7 +19,12 @@ public class LayoutEngine
 	public static String getClassAndHashCode(Object object)
 	{
 		String[] classes = object.getClass().toString().substring(6).split(Pattern.quote("."));
-		return classes[max(0, classes.length - 1)] + ":" + System.identityHashCode(object);
+		String returnString = classes[max(0, classes.length - 1)] + ":" + System.identityHashCode(object);
+		if (object instanceof JLabel)
+		{
+			returnString += ":" + ((JLabel) object).getText();
+		}
+		return returnString;
 	}
 
 	public void processConstraintsIn(Constrainable view)
@@ -38,7 +43,7 @@ public class LayoutEngine
 		}
 
 		final LayoutConstraint[] allConstraints = view.allConstraints().clone();
-		Map<Component, ArrayList<LayoutConstraint>> map = new HashMap<>();
+		Map<Component, ArrayList<LayoutConstraint>> map = new LinkedHashMap<>();
 
 		//Build Map
 		for (LayoutConstraint constraint : allConstraints)

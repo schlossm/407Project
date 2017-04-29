@@ -29,7 +29,7 @@ public class DFWebServerDispatch
 	public void add(DispatchDirection direction, DFSQL statement, DFDatabaseCallbackRunnable runnable)
 	{
 		queue.add(new PrivateDFDispatchObject(direction, statement, runnable));
-		debugLog("Added new entry!");
+		debugLog("\nAdded new entry!");
 		debugLog("Queue size: " + queue.size());
 		debugLog("Is already processing: " + isProcessing);
 		if (!isProcessing)

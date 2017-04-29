@@ -197,6 +197,9 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 
 		JLabel usernameLabel = new JLabel("Username", JLabel.LEFT);
 		usernameLabel.setFont(UIFont.textRegular.deriveFont(10.0f));
+		usernameLabel.setMinimumSize(new Dimension(600, usernameLabel.getPreferredSize().height));
+		usernameLabel.setPreferredSize(new Dimension(600, usernameLabel.getPreferredSize().height));
+		usernameLabel.setMaximumSize(new Dimension(600, usernameLabel.getPreferredSize().height));
 		usernameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		this.add(usernameLabel);
 
@@ -221,6 +224,9 @@ class Login extends JPanel implements ActionListener, DocumentListener, MLMDeleg
 
 		JLabel passwordLabel = new JLabel("Password", JLabel.LEFT);
 		passwordLabel.setFont(UIFont.textRegular.deriveFont(10.0f));
+		passwordLabel.setMinimumSize(new Dimension(1000, passwordLabel.getPreferredSize().height));
+		passwordLabel.setPreferredSize(new Dimension(1000, passwordLabel.getPreferredSize().height));
+		passwordLabel.setMaximumSize(new Dimension(1000, passwordLabel.getPreferredSize().height));
 		passwordLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		this.add(passwordLabel);
 

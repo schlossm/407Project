@@ -3,8 +3,6 @@ package json;
 import database.DFDatabase;
 import org.junit.*;
 
-import static database.DFDatabase.queue;
-
 public class UserQueryTest
 {
 	/*
@@ -18,20 +16,6 @@ public class UserQueryTest
 		DFDatabase.defaultDatabase.enableDebug();
 		UserQueryTest test = new UserQueryTest();
 		test.testGetUser();
-
-		while (true)
-		{
-			try
-			{
-				if (queue.size() != 0) { queue.take().run(); }
-			}
-			catch (InterruptedException e)
-			{
-				System.err.print("The application queue has encountered an error");
-				e.printStackTrace();
-				System.exit(-1);
-			}
-		}
 	}
 
 	/*

@@ -17,6 +17,8 @@ import uikit.autolayout.LayoutRelation;
 import uikit.autolayout.uiobjects.ALJTablePanel;
 
 import javax.swing.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,7 +60,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 		{
 			if (error != null)
 			{
-				if (error.code == 3) return;
+				if (error.code == 3) { return; }
 				Alert errorAlert = new Alert("Error", "ABC could not load the announcements.  Please try again.");
 				errorAlert.addButton("OK", ButtonType.defaultType, null);
 				errorAlert.show(Window.current.mainScreen);
@@ -70,7 +72,7 @@ public class InstructorAnnouncements extends ALJTablePanel
 				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
 				announcementData.put("Announcements", messages);
 				UIVariables.current.globalUserData.put("announcements" + course.getCourseID(), messages);
-				table.clearAndReload();
+				table.reloadData();
 			}
 		});
 	}
@@ -94,14 +96,16 @@ public class InstructorAnnouncements extends ALJTablePanel
 					                                                  boolean bool = (Boolean) returnedData;
 					                                                  if (bool)
 					                                                  {
-						                                                  Message announcement = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), new Date().toString(), UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());
+
+						                                                  DateFormat format = new SimpleDateFormat("MM/dd/yy hh:mm a");
+						                                                  Message announcement = new Message(alert.textFieldForIdentifier("title").getText(), alert.textFieldForIdentifier("body").getText(), format.format(new Date()), UIVariables.current.currentUser.getUserID(), courseForAnnouncements.getCourseID());
 
 						                                                  if (announcementData.get("Announcements") == null)
 						                                                  {
 							                                                  ArrayList<Object> announcements = new ArrayList<>();
 							                                                  announcements.add(announcement);
 							                                                  announcementData.put("Announcements", announcements);
-						                                                  }
+							                                              }
 						                                                  else
 						                                                  {
 							                                                  ArrayList<Object> announcements = announcementData.get("Announcements");

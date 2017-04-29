@@ -64,7 +64,7 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 		sixtyToSeventyLabel.setFocusable(false);
 		add(sixtyToSeventyLabel);
 
-		belowSixtyLabel = new JLabel("Loading grades 0-60", JLabel.LEFT);
+		belowSixtyLabel = new JLabel("Loading grades <60", JLabel.LEFT);
 		belowSixtyLabel.setFont(UIFont.textLight.deriveFont(18f));
 		belowSixtyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		belowSixtyLabel.setFocusable(false);
@@ -122,10 +122,10 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 				                               num60To70[0] = groups.get(3);
 				                               below60[0] = groups.get(4);
 
-				                               ninetyPlusLabel.setText(num90Plus[0] + " grades 90+");
-				                               eightyToNinetyLabel.setText(num80To90[0] + " grades 80-89");
-				                               seventyToEightyLabel.setText(num70To80[0] + " grades 70-79");
-				                               sixtyToSeventyLabel.setText(num60To70[0] + " grades 60-69");
+				                               ninetyPlusLabel.setText(num90Plus[0] + (num90Plus[0] == 1 ? " grade" : " grades") + " 90+");
+				                               eightyToNinetyLabel.setText(num80To90[0] + (num80To90[0] == 1 ? " grade" : " grades") + " 80-89");
+				                               seventyToEightyLabel.setText(num70To80[0] + (num70To80[0] == 1 ? " grade" : " grades") + " 70-79");
+				                               sixtyToSeventyLabel.setText(num60To70[0] + (num60To70[0] == 1 ? " grade" : " grades") + " 60-69");
 				                               belowSixtyLabel.setText(below60[0] + " grades <60");
 
 				                               DefaultPieDataset dataset = new DefaultPieDataset();
@@ -160,6 +160,7 @@ public class AdminGrades extends ALJPanel implements DFNotificationCenterDelegat
 		addConstraint(new LayoutConstraint(panel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 		addConstraint(new LayoutConstraint(panel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, -8));
 		addConstraint(new LayoutConstraint(panel, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, -8));
+		layoutSubviews();
 	}
 
 	@Override

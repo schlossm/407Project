@@ -3,12 +3,15 @@ package ui;
 import net.sf.plist.NSBoolean;
 import net.sf.plist.NSString;
 import objects.Course;
+import objects.QuizAssignment;
 import ui.admin.AdminAnnouncements;
 import ui.admin.AdminGrades;
 import ui.admin.Group;
 import ui.admin.ManageGroup;
 import ui.common.CourseList;
 import ui.common.CourseView;
+import ui.instructor.QuizCreation;
+import ui.student.TakeQuiz;
 import ui.util.ABCTabBar;
 import ui.util.Bounds;
 import ui.util.UIStrings;
@@ -40,6 +43,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	private ALJPanel container;
 	private ABCTabBar tabBar;
 	private Login loginPanel;
+	public ALJFrame quizFrame;
 
 	Window()
 	{
@@ -59,16 +63,24 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		loginFrame = new JFrame("ABC");
 		loginFrame.addWindowFocusListener(this);
 
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int width = Integer.min(screenSize.width / 5 * 4, 1344);
-		int height = Integer.min(screenSize.height / 5 * 4, 840);
-		loginFrame.setBounds(width != 1344 ? screenSize.width / 10 : screenSize.width / 2 - 1344 / 2, height != 840 ? screenSize.height / 10 : screenSize.height / 2 - 420, width, height);
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+
+		int width = 1344;
+		int height = 840;
+
+		int x = gd[0].getDefaultConfiguration().getBounds().x + gd[0].getDefaultConfiguration().getBounds().width / 2 - 1344 / 2;
+		int y = gd[0].getDefaultConfiguration().getBounds().y + gd[0].getDefaultConfiguration().getBounds().height / 2 - 420;
+
+		loginFrame.setBounds(x, y, width, height);
 		loginFrame.setBackground(Color.WHITE);
 		loginFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		loginFrame.setUndecorated(true);
 
 		loginPanel = new Login(loginFrame);
 		loginFrame.add(loginPanel);
+		loginFrame.revalidate();
+		loginPanel.revalidate();
 
 		try
 		{
@@ -81,12 +93,14 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 	void postLogin()
 	{
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+
 		Bounds bounds = new Bounds();
-		bounds.x = 0;
-		bounds.y = 0;
-		bounds.width = screenSize.width;
-		bounds.height = screenSize.height;
+		bounds.x = gd[0].getDefaultConfiguration().getBounds().x;
+		bounds.y = gd[0].getDefaultConfiguration().getBounds().y;
+		bounds.width = gd[0].getDefaultConfiguration().getBounds().width;
+		bounds.height = gd[0].getDefaultConfiguration().getBounds().height;
 		try
 		{
 			if (UIVariables.current.valueFor("savesState").toBoolean())
@@ -200,7 +214,7 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 
 		container = new ALJPanel();
 		container.setLayout(null);
-		container.setPreferredSize(new Dimension(screenSize.width, screenSize.height));
+		container.setPreferredSize(new Dimension(gd[0].getDefaultConfiguration().getBounds().width, gd[0].getDefaultConfiguration().getBounds().height));
 		container.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		tabBar = new ABCTabBar();
@@ -236,13 +250,13 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 	{
 		if (!(userData instanceof String))
 		{
-			ArrayList<Object>data = (ArrayList<Object>)userData;
+			ArrayList<Object> data = (ArrayList<Object>) userData;
 
 			if (Objects.equals(data.get(0), "CourseView"))
 			{
 				if (activePanel instanceof CourseView) { return; }
 				container.remove(activePanel);
-				activePanel = new CourseView((Course)data.get(1));
+				activePanel = new CourseView((Course) data.get(1));
 			}
 
 			container.add(activePanel);
@@ -385,6 +399,174 @@ public class Window implements DFNotificationCenterDelegate, WindowFocusListener
 		activePanel.layoutSubviews();
 		activePanel.repaint();
 		activePanel.layoutSubviews();
+	}
+
+	public void openQuizCreationFor(Course course)
+	{
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+
+		Bounds bounds = new Bounds();
+		bounds.x = gd[0].getDefaultConfiguration().getBounds().x;
+		bounds.y = gd[0].getDefaultConfiguration().getBounds().y;
+		bounds.width = gd[0].getDefaultConfiguration().getBounds().width;
+		bounds.height = gd[0].getDefaultConfiguration().getBounds().height;
+
+
+		quizFrame = new ALJFrame("ABC - Quiz / Test Creation");
+		quizFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+		quizFrame.setBackground(Color.WHITE);
+		quizFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+		quizFrame.getContentPane().setLayout(null);
+
+		try
+		{
+			quizFrame.setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
+		}
+		catch (Exception ignored) { }
+
+		container = new ALJPanel();
+		container.setLayout(null);
+		container.setPreferredSize(new Dimension(gd[0].getDefaultConfiguration().getBounds().width, gd[0].getDefaultConfiguration().getBounds().height));
+		container.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+		activePanel = new QuizCreation(course);
+
+		container.add(activePanel);
+
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, container, LayoutAttribute.top, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
+
+		quizFrame.getContentPane().add(container);
+
+		quizFrame.setFocusTraversalPolicy(new FocusTraversalPolicy()
+		{
+			@Override
+			public Component getComponentAfter(Container aContainer, Component aComponent)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getComponentBefore(Container aContainer, Component aComponent)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getFirstComponent(Container aContainer)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getLastComponent(Container aContainer)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getDefaultComponent(Container aContainer)
+			{
+				return null;
+			}
+		});
+
+		quizFrame.setVisible(true);
+		quizFrame.setMinimumSize(new Dimension(800, 600));
+	}
+
+	public void closeQuizCreation()
+	{
+		quizFrame.setVisible(false);
+		quizFrame.dispose();
+	}
+
+	public void showQuiz(QuizAssignment quizAssignment)
+	{
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gd = ge.getScreenDevices();
+
+		Bounds bounds = new Bounds();
+		bounds.x = gd[0].getDefaultConfiguration().getBounds().x;
+		bounds.y = gd[0].getDefaultConfiguration().getBounds().y;
+		bounds.width = gd[0].getDefaultConfiguration().getBounds().width;
+		bounds.height = gd[0].getDefaultConfiguration().getBounds().height;
+
+
+		quizFrame = new ALJFrame("ABC - Quiz");
+		quizFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+		quizFrame.setBackground(Color.WHITE);
+		quizFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+		quizFrame.getContentPane().setLayout(null);
+
+		try
+		{
+			quizFrame.setIconImage(ImageIO.read(Main.class.getResourceAsStream("/uikit/images/abcicon.png")));
+		}
+		catch (Exception ignored) { }
+
+		container = new ALJPanel();
+		container.setLayout(null);
+		container.setPreferredSize(new Dimension(gd[0].getDefaultConfiguration().getBounds().width, gd[0].getDefaultConfiguration().getBounds().height));
+		container.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+		activePanel = new TakeQuiz(quizAssignment);
+
+		container.add(activePanel);
+
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.top, LayoutRelation.equal, container, LayoutAttribute.top, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.trailing, LayoutRelation.equal, container, LayoutAttribute.trailing, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.leading, LayoutRelation.equal, container, LayoutAttribute.leading, 1.0, 0));
+		container.addConstraint(new LayoutConstraint(activePanel, LayoutAttribute.bottom, LayoutRelation.equal, container, LayoutAttribute.bottom, 1.0, 0));
+
+		quizFrame.getContentPane().add(container);
+
+		quizFrame.setFocusTraversalPolicy(new FocusTraversalPolicy()
+		{
+			@Override
+			public Component getComponentAfter(Container aContainer, Component aComponent)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getComponentBefore(Container aContainer, Component aComponent)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getFirstComponent(Container aContainer)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getLastComponent(Container aContainer)
+			{
+				return null;
+			}
+
+			@Override
+			public Component getDefaultComponent(Container aContainer)
+			{
+				return null;
+			}
+		});
+
+		quizFrame.setVisible(true);
+		quizFrame.setMinimumSize(new Dimension(800, 600));
+	}
+
+	public void destroyQuiz()
+	{
+		quizFrame.setVisible(false);
+		quizFrame.dispose();
 	}
 
 	private void loadMenuForLoggedInUser()

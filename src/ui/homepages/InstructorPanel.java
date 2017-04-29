@@ -93,6 +93,12 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 						System.out.println(returnedData1);
 						if (error1 != null)
 						{
+							if (error1.code == 3)
+							{
+								course.setStudents(new ArrayList<>());
+								courseList.reloadData();
+								return;
+							}
 							Alert errorAlert = new Alert("Error", "ABC could not load your courses.  Please try again.");
 							errorAlert.addButton("OK", ButtonType.defaultType, null);
 							errorAlert.show(Window.current.mainScreen);
@@ -101,7 +107,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 						if (returnedData1 instanceof ArrayList)
 						{
 							course.setStudents((ArrayList<User>) returnedData1);
-							courseList.clearAndReload();
+							courseList.reloadData();
 						}
 						else
 						{
@@ -111,7 +117,7 @@ public class InstructorPanel extends ALJPanel implements ALJTableDataSource, MLM
 						}
 					});
 				}
-				courseList.clearAndReload();
+				courseList.reloadData();
 			}
 			else
 			{

@@ -48,6 +48,7 @@ public class AdminAnnouncements extends ALJTablePanel
 			{
 				ArrayList<Object> messages = (ArrayList<Object>) returnedData;
 				announcementData.put("Announcements", messages);
+				table.reloadData();
 			}
 		});
 	}

@@ -31,6 +31,7 @@ public class DFSQL
 	private String[] duplicateKeys = new String[]{};
 	private String[] duplicateValues = new String[]{};
 	private DFSQLClause[] updateStatements = new DFSQLClause[]{};
+	private ArrayList<DFSQL> unions = new ArrayList<DFSQL>();
 
 	public DFSQL() { }
 
@@ -50,6 +51,16 @@ public class DFSQL
 	{
 		if (!appendedSQL.contains(object))
 		{ appendedSQL.add(object); }
+
+		return this;
+	}
+
+	public DFSQL union(DFSQL object)
+	{
+		if (!unions.contains(object))
+		{
+			unions.add(object);
+		}
 
 		return this;
 	}
@@ -74,12 +85,12 @@ public class DFSQL
 					isNum = true;
 				}
 				catch (Exception ignored) { }
-				if (right.contains(" ") || !isNum)
+				if (!right.contains(".") && !isNum)
 				{
-					right = "'" + right + "'";
+					right = "'" + right.replace("'", "\\'") + "'";
 				}
 
-				returnStringBuilder.append(" ").append(left).append(whereStatement.equivalence).append(right);
+				returnStringBuilder.append(" ").append(left).append(whereStatement.equivalence).append(right).append(whereStatement.conjunction);
 			}
 			else
 			{
@@ -179,6 +190,23 @@ public class DFSQL
 		return returnString;
 	}
 
+	private String insertUnion(String returnString)
+	{
+		if (unions.size() == 0)
+		{
+			return returnString;
+		}
+
+		StringBuilder returnStringBuilder = new StringBuilder(returnString);
+		for (DFSQL statement : unions)
+		{
+			returnStringBuilder.append(" UNION ").append(statement.formatted());
+		}
+		returnString = returnStringBuilder.toString();
+
+		return returnString;
+	}
+
 	/**
 	 * @return A human readable formatted SQL statement
 	 */
@@ -193,6 +221,7 @@ public class DFSQL
 
 			returnString += "DELETE FROM " + deleteFromTable;
 			returnString = insertWhereAndOrderByStatements(returnString);
+			returnString = insertUnion(returnString);
 			returnString += ";";
 			returnString = insertAppendedStatements(returnString);
 			return returnString;
@@ -230,6 +259,7 @@ public class DFSQL
 			returnString = returnString.substring(0, returnString.length() - 2);
 
 			returnString = insertWhereAndOrderByStatements(returnString);
+			returnString = insertUnion(returnString);
 			returnString += ";";
 			returnString = insertAppendedStatements(returnString);
 
@@ -260,7 +290,7 @@ public class DFSQL
 				catch (Exception ignored) { }
 				if (value.contains(" ") || !isNum)
 				{
-					returnStringBuilder.append("'").append(value).append("',");
+					returnStringBuilder.append("'").append(value.replace("'", "\\'")).append("',");
 				}
 				else
 				{
@@ -286,6 +316,7 @@ public class DFSQL
 				returnString = returnString.substring(0, returnString.length() - 1);
 			}
 
+			returnString = insertUnion(returnString);
 			returnString += ";";
 
 			returnString = insertAppendedStatements(returnString);
@@ -316,14 +347,21 @@ public class DFSQL
 		}
 		returnString = returnStringBuilder.toString();
 
-		returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + " FROM ");
-		for (String table : fromTables)
-		{
-			returnStringBuilder.append("`").append(table).append("`,");
-		}
-		returnString = returnStringBuilder.toString();
 
-		returnString = returnString.substring(0, returnString.length() - 1);
+		if (fromTables.length != 0)
+		{
+			returnStringBuilder = new StringBuilder(returnString.substring(0, returnString.length() - 1) + " FROM ");
+			for (String table : fromTables)
+			{
+				returnStringBuilder.append("`").append(table).append("`,");
+			}
+			returnString = returnStringBuilder.toString();
+			returnString = returnString.substring(0, returnString.length() - 1);
+		}
+		else
+		{
+			returnString = returnString.substring(0, returnString.length() - 1);
+		}
 
 		if (joinStatements.length != 0)
 		{
@@ -340,6 +378,7 @@ public class DFSQL
 
 		returnString = insertWhereAndOrderByStatements(returnString);
 		returnString = insertLimit(returnString);
+		returnString = insertUnion(returnString);
 		returnString += ";";
 		returnString = insertAppendedStatements(returnString);
 
@@ -369,6 +408,7 @@ public class DFSQL
 		else
 		{
 			String[] components = attribute.split(Pattern.quote("."));
+			if (components.length != 2) { throw DFSQLError.malformedColumnNameWithPeriod; }
 			String table = components[0];
 			String row = components[1];
 
@@ -389,25 +429,7 @@ public class DFSQL
 		}
 	}
 
-	private void check(String value, DFSQLEquivalence equivalence) throws DFSQLError
-	{
-		if (Objects.equals(value, "")) { throw DFSQLError.cannotUseEmptyValue; }
-
-		String[] specifiers;
-		if (equivalence != DFSQLEquivalence.between && equivalence != DFSQLEquivalence.notBetween)
-		{
-			specifiers = new String[]{"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " AND", " OR"};
-		}
-		else
-		{
-			specifiers = new String[]{"=", "!=", "<", ">", " NATURAL", " OUTER", " CROSS", " INNER", ",", "\"", "'", " LIKE", " NOT", " ASC", " DESC", "SELECT ", "FROM ", "JOIN ", "WHERE ", "ORDER BY", "IN ", "BETWEEN ", " OR"};
-		}
-
-		for (String specifier : specifiers)
-		{
-			if (value.toUpperCase().contains(specifier)) { throw DFSQLError.unexpectedValueFound; }
-		}
-	}
+	private void check(String value, DFSQLEquivalence equivalence) throws DFSQLError { }
 
 	private boolean hasCharacter(String string)
 	{
@@ -841,7 +863,7 @@ public class DFSQL
 
 		wheres.add(new Where(DFSQLConjunction.none, equivalence, new DFSQLClause(attributes[attributes.length - 1], values[attributes.length - 1])));
 
-		whereStatements = (Where[]) wheres.toArray();
+		whereStatements = wheres.toArray(new Where[] { });
 
 		return this;
 	}

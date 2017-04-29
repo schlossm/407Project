@@ -39,14 +39,14 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		titleLabel.setFont(UIFont.textSemibold.deriveFont(14f));
 		titleLabel.setFocusable(false);
 		titleLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+		setAccessoryType(accessoryViewType);
+		_accessoryViewType = accessoryViewType;
 		add(titleLabel);
 
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.leading, LayoutRelation.equal, this, LayoutAttribute.leading, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 8));
 		addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, -8));
-
-		setAccessoryType(accessoryViewType);
-		_accessoryViewType = accessoryViewType;
 	}
 
 	public void setAccessoryType(ALJTableCellAccessoryViewType accessoryViewType)
@@ -119,12 +119,17 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 
 		if (accessoryView != null)
 		{
-			addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
 			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.trailing, LayoutRelation.equal, this, LayoutAttribute.trailing, 1.0, 0));
 			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.top, LayoutRelation.equal, this, LayoutAttribute.top, 1.0, 0));
 			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.bottom, LayoutRelation.equal, this, LayoutAttribute.bottom, 1.0, 0));
 			addConstraint(new LayoutConstraint(accessoryView, LayoutAttribute.width, LayoutRelation.equal, null, LayoutAttribute.width, 1.0, 44));
+			addConstraint(new LayoutConstraint(titleLabel, LayoutAttribute.trailing, LayoutRelation.equal, accessoryView, LayoutAttribute.leading, 1.0, -8));
 		}
+	}
+
+	protected void registerComponentForClicking(Component component)
+	{
+		component.addMouseListener(new MouseListenerManager(this));
 	}
 
 	@Override
@@ -138,14 +143,14 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 	{
 		if (eventType == MLMEventType.pressed)
 		{
-			if (action.getSource() != accessoryView) { return; }
 			isClicked = true;
+			if (action.getSource() != accessoryView) { return; }
 			accessoryView.setOpaque(true);
 			accessoryView.setBackground(Color.lightGray);
 		}
 		else if (eventType == MLMEventType.draggedIn)
 		{
-			if (!isClicked) { return; }
+			if (isClicked) { return; }
 			if (action.getSource() != accessoryView) { return; }
 			accessoryView.setOpaque(true);
 			accessoryView.setBackground(Color.lightGray);
@@ -154,7 +159,12 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		{
 			if (!isClicked) { return; }
 			isClicked = false;
-			if (action.getSource() != accessoryView && !accessoryView.isOpaque()) { return; }
+			if (accessoryView == null)
+			{
+				delegate.accessoryViewClicked(ALJTableCellAccessoryViewType.none, currentIndex);
+				return;
+			}
+			if (action.getSource() != accessoryView && !accessoryView.isOpaque()) { delegate.accessoryViewClicked(ALJTableCellAccessoryViewType.none, currentIndex); return; }
 			accessoryView.setOpaque(false);
 			accessoryView.setBackground(new Color(0, 0, 0, 0));
 			delegate.accessoryViewClicked(_accessoryViewType, currentIndex);
@@ -162,20 +172,12 @@ public class ALJTableCell extends ALJPanel implements MLMDelegate
 		else if (eventType == MLMEventType.draggedOut)
 		{
 			if (!isClicked) { return; }
+			isClicked = false;
 			if (action.getSource() != accessoryView) { return; }
 			accessoryView.setOpaque(false);
 			accessoryView.setBackground(new Color(0, 0, 0, 0));
 		}
 	}
-/*
-	@Override
-	protected void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-
-		g.setColor(Color.lightGray);
-		g.drawRect(0, this.getHeight() - 1, this.getWidth(), 1);
-	}*/
 }
 
 class ALJTableCellAccessoryViewImage
