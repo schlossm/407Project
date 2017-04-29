@@ -1,6 +1,5 @@
 package ui;
 
-import database.DFDatabase;
 import ui.util.Alert;
 import ui.util.ButtonType;
 import ui.util.CurrentOS;
@@ -16,7 +15,6 @@ class Main
 {
 	public static void main(String[] args)
 	{
-		DFDatabase.defaultDatabase.enableDebug();
 		//Initialize various platform specific items
 		try
 		{

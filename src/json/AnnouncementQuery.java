@@ -144,17 +144,17 @@ public class AnnouncementQuery
 		String table3 = "users";
 		Join[] joins = new Join[]{
 			new Join(table2, table1 + ".courseid", table2 + ".courseid"),
-			new Join(table3, table3 + ".userid", table2 + ".userid")};
+			new Join(table3, table3 + ".userid", table2 + ".studentid")};
 		try
 		{
 			dfsql.select(selectedRows, false, null, null)
 			     .from(table1)
 			     .join(DFSQLJoin.left, joins)
-			     .where(DFSQLEquivalence.equals, "userid", "" + userid);
+			     .where(DFSQLEquivalence.equals, "Announcement.courseid", "" + "coursestudentmembership.courseid");
 			dfsql1.select(selectedRows, false, null, null)
 			      .from(table1)
 			      .where(DFSQLEquivalence.equals, "courseid", "-1");
-			dfsql.append(dfsql1);
+			dfsql.union(dfsql1);
 			DFDatabase.defaultDatabase.execute(dfsql, (response, error) ->
 			{
 				if (error != null)

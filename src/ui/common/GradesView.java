@@ -67,6 +67,7 @@ class GradesView extends ALJTablePanel
 									{
 										contains = true;
 										data.grade += Double.valueOf(grade.getScore());
+										data.maxPoints += Double.valueOf(grade.getMaxScore());
 									}
 								}
 
@@ -77,12 +78,8 @@ class GradesView extends ALJTablePanel
 									data.grade = Double.valueOf(grade.getScore());
 									data.maxPoints = Double.valueOf(grade.getMaxScore());
 									gradeData.add(data);
-
-									if (grades.indexOf(grade) == grades.size() - 1) //We are at the last one
-									{
-										table.reloadData();
-									}
 								}
+								table.reloadData();
 							}
 						}));
 					}
@@ -132,12 +129,8 @@ class GradesView extends ALJTablePanel
 							data.grade = Double.valueOf(grade.getScore());
 							data.maxPoints = Double.valueOf(grade.getMaxScore());
 							gradeData.add(data);
-
-							if (grades.indexOf(grade) == grades.size() - 1) //We are at the last one
-							{
-								table.reloadData();
-							}
 						}
+						table.reloadData();
 					}
 				}
 				else

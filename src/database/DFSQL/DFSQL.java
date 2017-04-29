@@ -31,6 +31,7 @@ public class DFSQL
 	private String[] duplicateKeys = new String[]{};
 	private String[] duplicateValues = new String[]{};
 	private DFSQLClause[] updateStatements = new DFSQLClause[]{};
+	private ArrayList<DFSQL> unions = new ArrayList<DFSQL>();
 
 	public DFSQL() { }
 
@@ -50,6 +51,16 @@ public class DFSQL
 	{
 		if (!appendedSQL.contains(object))
 		{ appendedSQL.add(object); }
+
+		return this;
+	}
+
+	public DFSQL union(DFSQL object)
+	{
+		if (!unions.contains(object))
+		{
+			unions.add(object);
+		}
 
 		return this;
 	}
@@ -74,7 +85,7 @@ public class DFSQL
 					isNum = true;
 				}
 				catch (Exception ignored) { }
-				if (right.contains(" ") || !isNum)
+				if (!right.contains(".") && !isNum)
 				{
 					right = "'" + right.replace("'", "\\'") + "'";
 				}
@@ -179,6 +190,23 @@ public class DFSQL
 		return returnString;
 	}
 
+	private String insertUnion(String returnString)
+	{
+		if (unions.size() == 0)
+		{
+			return returnString;
+		}
+
+		StringBuilder returnStringBuilder = new StringBuilder(returnString);
+		for (DFSQL statement : unions)
+		{
+			returnStringBuilder.append(" UNION ").append(statement.formatted());
+		}
+		returnString = returnStringBuilder.toString();
+
+		return returnString;
+	}
+
 	/**
 	 * @return A human readable formatted SQL statement
 	 */
@@ -193,6 +221,7 @@ public class DFSQL
 
 			returnString += "DELETE FROM " + deleteFromTable;
 			returnString = insertWhereAndOrderByStatements(returnString);
+			returnString = insertUnion(returnString);
 			returnString += ";";
 			returnString = insertAppendedStatements(returnString);
 			return returnString;
@@ -230,6 +259,7 @@ public class DFSQL
 			returnString = returnString.substring(0, returnString.length() - 2);
 
 			returnString = insertWhereAndOrderByStatements(returnString);
+			returnString = insertUnion(returnString);
 			returnString += ";";
 			returnString = insertAppendedStatements(returnString);
 
@@ -286,6 +316,7 @@ public class DFSQL
 				returnString = returnString.substring(0, returnString.length() - 1);
 			}
 
+			returnString = insertUnion(returnString);
 			returnString += ";";
 
 			returnString = insertAppendedStatements(returnString);
@@ -347,6 +378,7 @@ public class DFSQL
 
 		returnString = insertWhereAndOrderByStatements(returnString);
 		returnString = insertLimit(returnString);
+		returnString = insertUnion(returnString);
 		returnString += ";";
 		returnString = insertAppendedStatements(returnString);
 
